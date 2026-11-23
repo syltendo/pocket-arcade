@@ -27,4 +27,4 @@ python3 tools/collect.py   # Library API + release zips -> data/games-v0.json
 python3 tools/join.py      # + MAME xml & catver.ini   -> site/games.json
 ```
 
-Prototype built 2026-11-23: 237 arcade cores, 1,864 game entries.
+Prototype built 2026-11-23: 240 arcade cores, 804 games (2,021 versions grouped under their parent game).

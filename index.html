@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pocket Arcade Database — every arcade game playable on the Analogue Pocket</title>
-<meta name="description" content="Searchable database of arcade games playable on the Analogue Pocket via openFPGA cores. Filter by genre, players, publisher, year, core, platform and screen orientation.">
+<meta name="description" content="Searchable database of arcade games playable on the Analogue Pocket via openFPGA cores. One entry per game, with all its versions and every platform/core that runs it. Filter by genre, players, publisher, year, core and screen orientation.">
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3242;
@@ -43,6 +43,8 @@
   .b-alt{background:var(--alt);color:#fff}
   .b-pat{background:var(--badge);color:#fff}
   .b-tate{background:var(--accent2);color:#06251a}
+  .ver{font-size:13px;margin:1px 0}
+  .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
   footer{max-width:1280px;margin:0 auto;padding:0 20px 36px;color:var(--muted);font-size:13px}
   a{color:var(--accent)}
@@ -51,7 +53,7 @@
 <body>
 <header>
   <h1>Pocket Arcade <span class="db">Database</span></h1>
-  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — and the core &amp; platform that run it.</p>
+  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
   <p class="stats" id="stats">Loading…</p>
 </header>
 <main>
@@ -81,7 +83,7 @@
     </select>
     <label for="f-sets">Sets</label>
     <select id="f-sets">
-      <option value="all">All sets (incl. alternatives)</option><option value="main">Main sets only</option>
+      <option value="all">All games</option><option value="main">Games with a main set only</option>
     </select>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon / beta cores only</label>
     <label for="f-sort">Sort by</label>
@@ -95,8 +97,8 @@
     <p class="count" id="count"></p>
     <table>
       <thead><tr>
-        <th>Game</th><th>Set</th><th>Year</th><th>Publisher</th><th>Genre</th>
-        <th>Pl.</th><th>Screen</th><th>Core</th><th>Also on (ports)</th>
+        <th>Game</th><th>Year</th><th>Publisher</th><th>Genre</th>
+        <th>Pl.</th><th>Screen</th><th>Versions</th><th>Platforms (ports)</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -104,9 +106,9 @@
 </main>
 <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
-  MAME 0.264 metadata (year, publisher, players, orientation), genres from
+  MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
   <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>. Beta / Patreon cores are included and badged.
-  “Also on” lists every other Pocket platform · core combination that runs the same MAME set.
+  All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
 <script>
@@ -128,48 +130,49 @@ function apply(){
         board = $("f-board").value, screen = $("f-screen").value, sets = $("f-sets").value,
         pat = $("f-pat").checked, sort = $("f-sort").value;
   let out = DATA.filter(r => {
-    if (q && !(r.title.toLowerCase().includes(q) || (r.set||"").includes(q))) return false;
+    if (q && !(r.title.toLowerCase().includes(q) || (r.set||"").includes(q) ||
+               r.versions.some(v => (v.set||"").includes(q) || v.title.toLowerCase().includes(q)))) return false;
     if (genre && r.genre_top !== genre) return false;
     if (pub && r.manufacturer !== pub) return false;
-    if (core && r.core !== core) return false;
-    if (author && r.author !== author) return false;
-    if (board && r.board !== board) return false;
+    if (core && !r.cores.includes(core)) return false;
+    if (author && !r.authors.includes(author)) return false;
+    if (board && !r.boards.includes(board)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
     if (screen === "v" && r.vertical !== true) return false;
     if (screen === "h" && r.vertical !== false) return false;
-    if (sets === "main" && r.alt) return false;
+    if (sets === "main" && !r.has_main) return false;
     if (pat && !r.patreon) return false;
     return true;
   });
   out.sort((a,b) => sort === "title" ? a.title.localeCompare(b.title)
                   : sort === "year-asc" ? (a.year||9999)-(b.year||9999) || a.title.localeCompare(b.title)
                   : (b.year||0)-(a.year||0) || a.title.localeCompare(b.title));
-  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found`;
+  const nv = out.reduce((n,r) => n + r.versions.length, 0);
+  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions`;
   $("rows").innerHTML = out.map(r => `<tr>
-    <td class="title">${esc(r.title)}${r.alt?'<span class="badge b-alt">ALT</span>':""}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}</td>
-    <td class="set">${esc(r.set||"—")}</td>
+    <td class="title">${esc(r.title)}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc(r.genre||"—")}</td>
     <td>${r.players||"—"}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
-    <td>${esc(r.board)}<br><span class="ports">${esc(r.core)} by ${esc(r.author)}</span></td>
-    <td class="ports">${esc(r.ports.filter(p => p !== r.board + " · " + r.core).join(", ") || "—")}</td>
+    <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
+    <td class="ports">${esc(r.platforms.join(", "))}</td>
   </tr>`).join("");
 }
 
 fetch("games.json").then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null}));
-  const cores = new Set(DATA.map(r => r.core_id)).size;
-  const sets = new Set(DATA.map(r => r.set).filter(Boolean)).size;
-  $("stats").innerHTML = `<b>${DATA.length}</b> game entries · <b>${sets}</b> MAME sets · <b>${cores}</b> arcade cores`;
+  const cores = new Set(DATA.flatMap(r => r.cores)).size;
+  const nv = DATA.reduce((n,r) => n + r.versions.length, 0);
+  $("stats").innerHTML = `<b>${DATA.length}</b> games · <b>${nv}</b> versions · <b>${cores}</b> arcade cores`;
   $("gen").textContent = new Date().toISOString().slice(0,10);
   fillSelect("f-genre", DATA.map(r => r.genre_top));
   fillSelect("f-pub", DATA.map(r => r.manufacturer));
-  fillSelect("f-core", DATA.map(r => r.core));
-  fillSelect("f-author", DATA.map(r => r.author));
-  fillSelect("f-board", DATA.map(r => r.board));
+  fillSelect("f-core", DATA.flatMap(r => r.cores));
+  fillSelect("f-author", DATA.flatMap(r => r.authors));
+  fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
   ["q","f-genre","f-players","f-pub","f-year","f-core","f-author","f-board","f-screen","f-sets","f-pat","f-sort"]
     .forEach(id => $(id).addEventListener("input", apply));

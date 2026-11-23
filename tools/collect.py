@@ -8,7 +8,7 @@ Sources:
 
 Output: data/games-v0.json + printed stats. No ROMs, metadata only.
 """
-import io, json, re, sys, zipfile
+import io, json, re, sys, zipfile  # re also used for the data_path setname test
 from concurrent.futures import ThreadPoolExecutor
 from urllib.request import Request, urlopen
 
@@ -24,6 +24,13 @@ def fetch(url, timeout=60):
 platforms = {p["id"]: p for p in json.load(open(f"{ROOT}/raw/platforms.json"))["data"]}
 cores = json.load(open(f"{ROOT}/raw/cores.json"))["data"]
 
+# The Library files Neo Geo under "Console", but the MVS is arcade hardware.
+ARCADE_OVERRIDE = {"ng"}
+BOARD_FIX = {  # Library names these platforms by their raw id; use the real board names
+    "jtcps1": "Capcom CPS-1", "jtcps15": "Capcom CPS-1.5", "jtcps2": "Capcom CPS-2",
+    "jts16": "Sega System 16A", "jts16b": "Sega System 16B", "jts18": "Sega System 18",
+}
+
 arcade = []
 for c in cores:
     if not c["releases"]:
@@ -31,15 +38,18 @@ for c in cores:
     rel = c["releases"][0]
     pids = rel["core"]["metadata"].get("platform_ids", [])
     plats = [platforms[p] for p in pids if p in platforms]
-    if any(p["category"] == "Arcade" for p in plats):
+    if any(p["category"] == "Arcade" or p["id"] in ARCADE_OVERRIDE for p in plats):
         arcade.append((c, rel, plats))
 print(f"arcade cores: {len(arcade)}", flush=True)
 
 def games_from_zip(c, rel, plats):
     url = rel["download_url"]
+    board = next((BOARD_FIX.get(p["id"], p["name"]) for p in plats
+                  if p["category"] == "Arcade" or p["id"] in ARCADE_OVERRIDE), None)
     out = {"core_id": c["id"], "repo": f"{c['repository']['owner']}/{c['repository']['name']}",
            "version": rel["core"]["metadata"].get("version"),
            "requires_license": rel.get("requires_license", False),
+           "board": board,
            "platforms": [p["name"] for p in plats], "games": [], "error": None}
     try:
         blob = fetch(url)
@@ -65,11 +75,17 @@ def games_from_zip(c, rel, plats):
         setname = None
         try:
             doc = json.loads(z.read(name))
-            for slot in doc.get("instance", {}).get("data_slots", []):
-                fn = slot.get("filename", "")
-                if "." in fn:
-                    setname = fn.rsplit(".", 1)[0]
-                    break
+            inst = doc.get("instance", {})
+            # some cores (Neo Geo) put the MAME set name in data_path; slots hold chip names
+            dp = (inst.get("data_path") or "").strip("/").split("/")[0]
+            if re.fullmatch(r"[a-z0-9_]{2,}", dp):
+                setname = dp
+            else:
+                for slot in inst.get("data_slots", []):
+                    fn = slot.get("filename", "")
+                    if "." in fn:
+                        setname = fn.rsplit(".", 1)[0]
+                        break
         except Exception:
             pass
         out["games"].append({"title": fname, "set_type": set_type, "setname_hint": setname})
@@ -84,7 +100,7 @@ with ThreadPoolExecutor(max_workers=8) as ex:
 # cores with no instance JSONs: single-game / direct-load cores -> one entry
 for r in results:
     if not r["games"] and not r["error"]:
-        title = r["platforms"][0] if r["platforms"] else r["core_id"]
+        title = r["board"] or (r["platforms"][0] if r["platforms"] else r["core_id"])
         r["games"] = [{"title": title, "set_type": "main", "setname_hint": None, "core_only": True}]
 
 # Jotego set names from game_list.md
