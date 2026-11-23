@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pocket Arcade Database — every arcade game playable on the Analogue Pocket</title>
+<meta name="description" content="Searchable database of arcade games playable on the Analogue Pocket via openFPGA cores. Filter by genre, players, publisher, year, core, platform and screen orientation.">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3242;
+    --text:#e6edf3; --muted:#9aa7b8; --accent:#f0a832; --accent2:#3fb68b;
+    --badge:#8957e5; --alt:#57606a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{padding:28px 20px 8px;max-width:1280px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:28px;letter-spacing:.2px}
+  h1 .db{color:var(--accent)}
+  .sub{color:var(--muted);margin:0 0 6px}
+  .stats{color:var(--muted);font-size:13px}
+  .stats b{color:var(--text)}
+  main{max-width:1280px;margin:0 auto;padding:12px 20px 40px;display:grid;grid-template-columns:250px 1fr;gap:18px}
+  @media (max-width:860px){main{grid-template-columns:1fr}}
+  .filters{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;position:sticky;top:12px}
+  @media (max-width:860px){.filters{position:static}}
+  .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
+  .filters label:first-child{margin-top:0}
+  select,input[type=search]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
+  .check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--text);text-transform:none;letter-spacing:0}
+  .check input{accent-color:var(--accent)}
+  #reset{margin-top:16px;width:100%;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+  #reset:hover{color:var(--text);border-color:var(--muted)}
+  .count{color:var(--muted);margin:2px 0 10px}
+  .count b{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--panel2);white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#1a212e}
+  .title{font-weight:600}
+  .set{color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:nowrap}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:20px;margin-left:6px;vertical-align:2px}
+  .b-alt{background:var(--alt);color:#fff}
+  .b-pat{background:var(--badge);color:#fff}
+  .b-tate{background:var(--accent2);color:#06251a}
+  .ports{color:var(--muted);font-size:13px}
+  footer{max-width:1280px;margin:0 auto;padding:0 20px 36px;color:var(--muted);font-size:13px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pocket Arcade <span class="db">Database</span></h1>
+  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — and the core &amp; platform that run it.</p>
+  <p class="stats" id="stats">Loading…</p>
+</header>
+<main>
+  <aside class="filters">
+    <label for="q">Search</label>
+    <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
+    <label for="f-genre">Genre</label>
+    <select id="f-genre"><option value="">All genres</option></select>
+    <label for="f-players">Players</label>
+    <select id="f-players">
+      <option value="">Any</option><option value="1">1 player</option><option value="2">2 players</option>
+      <option value="3">3 players</option><option value="4">4+ players</option>
+    </select>
+    <label for="f-pub">Publisher / Developer</label>
+    <select id="f-pub"><option value="">All publishers</option></select>
+    <label for="f-year">Year</label>
+    <select id="f-year"><option value="">All years</option></select>
+    <label for="f-core">Core</label>
+    <select id="f-core"><option value="">All cores</option></select>
+    <label for="f-author">Core author</label>
+    <select id="f-author"><option value="">All authors</option></select>
+    <label for="f-board">Platform / Board</label>
+    <select id="f-board"><option value="">All platforms</option></select>
+    <label for="f-screen">Screen</label>
+    <select id="f-screen">
+      <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
+    </select>
+    <label for="f-sets">Sets</label>
+    <select id="f-sets">
+      <option value="all">All sets (incl. alternatives)</option><option value="main">Main sets only</option>
+    </select>
+    <label class="check"><input type="checkbox" id="f-pat"> Patreon / beta cores only</label>
+    <label for="f-sort">Sort by</label>
+    <select id="f-sort">
+      <option value="title">Title (A–Z)</option><option value="year-asc">Year (oldest first)</option>
+      <option value="year-desc">Year (newest first)</option>
+    </select>
+    <button id="reset">Reset all filters</button>
+  </aside>
+  <section>
+    <p class="count" id="count"></p>
+    <table>
+      <thead><tr>
+        <th>Game</th><th>Set</th><th>Year</th><th>Publisher</th><th>Genre</th>
+        <th>Pl.</th><th>Screen</th><th>Core</th><th>Also on (ports)</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</main>
+<footer>
+  <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
+  MAME 0.264 metadata (year, publisher, players, orientation), genres from
+  <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>. Beta / Patreon cores are included and badged.
+  “Also on” lists every other Pocket platform · core combination that runs the same MAME set.
+  This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
+</footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let DATA = [];
+
+function fillSelect(id, values){
+  const sel = $(id);
+  [...new Set(values.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b)))
+    .forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+}
+function decade(y){ return y ? Math.floor(y/10)*10 + "s" : null; }
+
+function apply(){
+  const q = $("q").value.trim().toLowerCase();
+  const genre = $("f-genre").value, players = $("f-players").value, pub = $("f-pub").value,
+        year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
+        board = $("f-board").value, screen = $("f-screen").value, sets = $("f-sets").value,
+        pat = $("f-pat").checked, sort = $("f-sort").value;
+  let out = DATA.filter(r => {
+    if (q && !(r.title.toLowerCase().includes(q) || (r.set||"").includes(q))) return false;
+    if (genre && r.genre_top !== genre) return false;
+    if (pub && r.manufacturer !== pub) return false;
+    if (core && r.core !== core) return false;
+    if (author && r.author !== author) return false;
+    if (board && r.board !== board) return false;
+    if (year && decade(r.year) !== year) return false;
+    if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
+    if (screen === "v" && r.vertical !== true) return false;
+    if (screen === "h" && r.vertical !== false) return false;
+    if (sets === "main" && r.alt) return false;
+    if (pat && !r.patreon) return false;
+    return true;
+  });
+  out.sort((a,b) => sort === "title" ? a.title.localeCompare(b.title)
+                  : sort === "year-asc" ? (a.year||9999)-(b.year||9999) || a.title.localeCompare(b.title)
+                  : (b.year||0)-(a.year||0) || a.title.localeCompare(b.title));
+  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found`;
+  $("rows").innerHTML = out.map(r => `<tr>
+    <td class="title">${esc(r.title)}${r.alt?'<span class="badge b-alt">ALT</span>':""}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}</td>
+    <td class="set">${esc(r.set||"—")}</td>
+    <td>${r.year||"—"}</td>
+    <td>${esc(r.manufacturer||"—")}</td>
+    <td>${esc(r.genre||"—")}</td>
+    <td>${r.players||"—"}</td>
+    <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
+    <td>${esc(r.board)}<br><span class="ports">${esc(r.core)} by ${esc(r.author)}</span></td>
+    <td class="ports">${esc(r.ports.filter(p => p !== r.board + " · " + r.core).join(", ") || "—")}</td>
+  </tr>`).join("");
+}
+
+fetch("games.json").then(r => r.json()).then(d => {
+  DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null}));
+  const cores = new Set(DATA.map(r => r.core_id)).size;
+  const sets = new Set(DATA.map(r => r.set).filter(Boolean)).size;
+  $("stats").innerHTML = `<b>${DATA.length}</b> game entries · <b>${sets}</b> MAME sets · <b>${cores}</b> arcade cores`;
+  $("gen").textContent = new Date().toISOString().slice(0,10);
+  fillSelect("f-genre", DATA.map(r => r.genre_top));
+  fillSelect("f-pub", DATA.map(r => r.manufacturer));
+  fillSelect("f-core", DATA.map(r => r.core));
+  fillSelect("f-author", DATA.map(r => r.author));
+  fillSelect("f-board", DATA.map(r => r.board));
+  fillSelect("f-year", DATA.map(r => decade(r.year)));
+  ["q","f-genre","f-players","f-pub","f-year","f-core","f-author","f-board","f-screen","f-sets","f-pat","f-sort"]
+    .forEach(id => $(id).addEventListener("input", apply));
+  $("reset").addEventListener("click", () => location.reload());
+  apply();
+});
+</script>
+</body>
+</html>
