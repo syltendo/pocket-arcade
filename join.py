@@ -497,7 +497,10 @@ GROUP_MERGES = {"sfzch": "sfa",
                 "wrallyac": "wrally", "wrallyata": "wrally",
                 "wrallyd": "wrally", "wrallye": "wrally",
                 "wrally2b": "wrally2", "wrally2c": "wrally2",
-                "wrally2d": "wrally2"}
+                "wrally2d": "wrally2",
+                # Same story for Gradius III: gradius3ja / gradius3jas are
+                # post-0.264 names for extra Japanese revisions of gradius3.
+                "gradius3ja": "gradius3", "gradius3jas": "gradius3"}
 for src_k, dst_k in GROUP_MERGES.items():
     if src_k in groups and dst_k in groups:
         groups[dst_k].extend(groups.pop(src_k))
