@@ -726,6 +726,22 @@
   "tekken2": [
    "NES / Famicom",
    "SNES / Super Famicom"
+  ],
+  "bucky": [
+   "NES / Famicom"
+  ],
+  "gijoe": [
+   "NES / Famicom"
+  ],
+  "gaiapols": [
+   "NES / Famicom"
+  ],
+  "hook": [
+   "Amiga",
+   "NES / Famicom",
+   "Game Boy",
+   "Master System",
+   "SNES / Super Famicom"
   ]
  }
 }
