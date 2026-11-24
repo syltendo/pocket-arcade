@@ -702,8 +702,10 @@ for key, rs in groups.items():
     # Street Hoop has three names (US / EU / JP).
     DUAL_SPECIAL = {
         "ironclad": ("Iron Clad", "Choutetsu Brikin'ger", None),
-        "pbobblen": ("Puzzle Bobble", None, None),
-        "pbobbl2n": ("Puzzle Bobble 2", None, None),
+        # Puzzle Bobble: US headline, JP title below (Syl, 2026-11-24) —
+        # Bust-A-Move is the US name, Puzzle Bobble the Japanese one.
+        "pbobblen": ("Bust-A-Move", "Puzzle Bobble", None),
+        "pbobbl2n": ("Bust-A-Move Again", "Puzzle Bobble 2", None),
         "fightfev": ("Fight Fever", None, None),
         "strhoop": ("Street Hoop", "Dunk Dream", "Street Slam"),
     }
