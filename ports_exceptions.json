@@ -709,6 +709,16 @@
    "32X",
    "Game Gear",
    "Mega Drive / Genesis"
+  ],
+  "tekken": [
+   "NES / Famicom"
+  ],
+  "tekken3": [
+   "NES / Famicom"
+  ],
+  "title:tekken 2": [
+   "NES / Famicom",
+   "SNES / Super Famicom"
   ]
  }
 }
