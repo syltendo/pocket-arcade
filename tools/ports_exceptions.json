@@ -1,33 +1,694 @@
 {
-  "_comment": "Curated exceptions to the exact-title home-port matching (Syl approved, 2026-11-23). Keys are the arcade parent set name. 'add' = a real home port whose title differs from the arcade title; 'remove' = a same-title home game that is NOT a port of the arcade game. System labels must match join.py SW_SYSTEMS labels.",
-  "add": {
-    "tmnt2": [
-      "SNES / Super Famicom"
-    ],
-    "mslug": [
-      "PlayStation"
-    ]
-  },
-  "remove": {
-    "mjleague": [
-      "NES / Famicom"
-    ],
-    "punisher": [
-      "NES / Famicom"
-    ],
-    "strider": [
-      "NES / Famicom"
-    ],
-    "willow": [
-      "NES / Famicom"
-    ],
-    "xmen": [
-      "32X",
-      "Game Gear",
-      "Mega Drive / Genesis"
-    ],
-    "contra": [
-      "Game Boy"
-    ]
-  }
+ "_comment": "Curated exceptions to the exact-title home-port matching (Syl approved, 2026-11-23). Keys are the arcade parent set name. 'add' = a real home port whose title differs from the arcade title; 'remove' = a same-title home game that is NOT a port of the arcade game. System labels must match join.py SW_SYSTEMS labels.",
+ "add": {
+  "tmnt2": [
+   "SNES / Super Famicom"
+  ],
+  "mslug": [
+   "PlayStation"
+  ],
+  "1943kai": [
+   "PC Engine / TurboGrafx-16",
+   "ZX Spectrum"
+  ],
+  "1943": [
+   "Amiga",
+   "ZX Spectrum"
+  ],
+  "2020bb": [
+   "Mega Drive / Genesis"
+  ],
+  "astorm": [
+   "Commodore 64"
+  ],
+  "altbeast": [
+   "MSX"
+  ],
+  "arknoid2": [
+   "MSX",
+   "NES / Famicom",
+   "X68000",
+   "ZX Spectrum"
+  ],
+  "baddudes": [
+   "Amiga",
+   "Commodore 64",
+   "NES / Famicom",
+   "ZX Spectrum"
+  ],
+  "bstars2": [
+   "NES / Famicom"
+  ],
+  "bionicc": [
+   "Commodore 64",
+   "Game Boy Color"
+  ],
+  "title:bosconian": [
+   "Commodore 64",
+   "MSX",
+   "X68000",
+   "ZX Spectrum"
+  ],
+  "bublbobl": [
+   "Game Boy Color",
+   "PlayStation",
+   "Saturn",
+   "X68000"
+  ],
+  "calibr50": [
+   "Mega Drive / Genesis"
+  ],
+  "cninja": [
+   "Amiga",
+   "Game Boy",
+   "Mega Drive / Genesis",
+   "SNES / Super Famicom"
+  ],
+  "chukatai": [
+   "MSX",
+   "Master System",
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "cleopatr": [
+   "PlayStation"
+  ],
+  "darkseal": [
+   "PlayStation"
+  ],
+  "digdug": [
+   "Game Boy Advance",
+   "X68000"
+  ],
+  "title:donkey kong jr": [
+   "ColecoVision"
+  ],
+  "dkongjr": [
+   "Atari 7800",
+   "Intellivision",
+   "NES / Famicom"
+  ],
+  "ddragon2": [
+   "Amiga",
+   "ZX Spectrum"
+  ],
+  "ddtod": [
+   "Saturn"
+  ],
+  "title:escape from the planet of the robot monsters": [
+   "Commodore 64"
+  ],
+  "fantzone": [
+   "Saturn",
+   "X68000"
+  ],
+  "fantzn2x": [
+   "NES / Famicom"
+  ],
+  "galaga": [
+   "Game Boy"
+  ],
+  "gaunt2": [
+   "Commodore 64"
+  ],
+  "gekiridn": [
+   "Saturn"
+  ],
+  "goldnaxe": [
+   "Game Gear",
+   "Mega CD / Sega CD",
+   "PC Engine / TurboGrafx-16"
+  ],
+  "hyperspt": [
+   "MSX"
+  ],
+  "kchamp": [
+   "Commodore 64"
+  ],
+  "kingdmgp": [
+   "Saturn"
+  ],
+  "pingpong": [
+   "Commodore 64",
+   "NES / Famicom",
+   "ZX Spectrum"
+  ],
+  "title:last blade the": [
+   "PlayStation"
+  ],
+  "magdrop2": [
+   "SNES / Super Famicom",
+   "Saturn"
+  ],
+  "magdrop3": [
+   "Game Boy",
+   "Neo Geo Pocket / Color",
+   "PlayStation",
+   "Saturn"
+  ],
+  "maniach": [
+   "Atari 7800"
+  ],
+  "marble": [
+   "Game Boy Advance",
+   "X68000"
+  ],
+  "matmania": [
+   "Atari 7800",
+   "X68000"
+  ],
+  "metrocrs": [
+   "ZX Spectrum"
+  ],
+  "mpang": [
+   "Amiga",
+   "Commodore 64",
+   "Game Boy",
+   "ZX Spectrum"
+  ],
+  "mspacman": [
+   "Game Boy Color"
+  ],
+  "mbombrd": [
+   "Mega Drive / Genesis"
+  ],
+  "nbajam": [
+   "32X",
+   "Game Boy Advance",
+   "Game Boy Color",
+   "Nintendo 64",
+   "PlayStation",
+   "Saturn"
+  ],
+  "nbajamte": [
+   "32X",
+   "Game Boy",
+   "Game Gear",
+   "Mega CD / Sega CD",
+   "Mega Drive / Genesis",
+   "PlayStation",
+   "SNES / Super Famicom",
+   "Saturn"
+  ],
+  "title:nhl open ice": [
+   "PlayStation"
+  ],
+  "neomrdo": [
+   "Atari 2600",
+   "ColecoVision",
+   "Game Boy",
+   "MSX",
+   "SNES / Super Famicom"
+  ],
+  "outrun": [
+   "Saturn"
+  ],
+  "pang3": [
+   "Amiga",
+   "Commodore 64",
+   "Game Boy",
+   "PlayStation",
+   "ZX Spectrum"
+  ],
+  "panicbom": [
+   "PC Engine / TurboGrafx-16",
+   "PC Engine CD / TurboGrafx-CD",
+   "SNES / Super Famicom",
+   "X68000"
+  ],
+  "pitfall2": [
+   "Atari 2600",
+   "ColecoVision",
+   "Commodore 64",
+   "MSX",
+   "ZX Spectrum"
+  ],
+  "pooyan": [
+   "Commodore 64",
+   "MSX"
+  ],
+  "popnpop": [
+   "Game Boy"
+  ],
+  "puckman": [
+   "Game Boy Advance",
+   "Game Boy Color",
+   "PlayStation"
+  ],
+  "title:puzzle bobble": [
+   "PlayStation"
+  ],
+  "pbobble3": [
+   "Game Boy",
+   "Nintendo 64",
+   "PlayStation"
+  ],
+  "title:q bert": [
+   "Game Boy"
+  ],
+  "rbisland": [
+   "Game Boy",
+   "Master System",
+   "Mega Drive / Genesis",
+   "NES / Famicom",
+   "PC Engine / TurboGrafx-16",
+   "PlayStation",
+   "Saturn",
+   "WonderSwan / Color"
+  ],
+  "rallybik": [
+   "NES / Famicom",
+   "X68000"
+  ],
+  "title:real bout fatal fury special": [
+   "Game Boy",
+   "PlayStation",
+   "Saturn"
+  ],
+  "rygar": [
+   "Atari Lynx",
+   "Master System",
+   "X68000"
+  ],
+  "svc": [
+   "PlayStation"
+  ],
+  "shollow": [
+   "Commodore 64"
+  ],
+  "slammast": [
+   "Mega Drive / Genesis"
+  ],
+  "seganinj": [
+   "MSX",
+   "Master System"
+  ],
+  "silkworm": [
+   "Amiga",
+   "Commodore 64",
+   "NES / Famicom",
+   "ZX Spectrum"
+  ],
+  "smashtv": [
+   "Commodore 64",
+   "Mega Drive / Genesis",
+   "ZX Spectrum"
+  ],
+  "title:smash tv": [
+   "Amiga",
+   "Commodore 64",
+   "Game Gear",
+   "Master System",
+   "Mega Drive / Genesis",
+   "NES / Famicom"
+  ],
+  "sharrier": [
+   "Saturn",
+   "X68000"
+  ],
+  "stakwin2": [
+   "PlayStation",
+   "Saturn"
+  ],
+  "title:street fighter ii special champion edition": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "sf2": [
+   "Commodore 64",
+   "Game Boy"
+  ],
+  "sfz2al": [
+   "PlayStation",
+   "SNES / Super Famicom",
+   "Saturn"
+  ],
+  "s1945p": [
+   "PlayStation"
+  ],
+  "scontra": [
+   "Amiga"
+  ],
+  "superpac": [
+   "Commodore 64",
+   "Game Boy"
+  ],
+  "spf2t": [
+   "Game Boy"
+  ],
+  "ssf2t": [
+   "Amiga",
+   "Game Boy"
+  ],
+  "sxevious": [
+   "Atari 7800",
+   "Commodore 64",
+   "NES / Famicom",
+   "X68000",
+   "ZX Spectrum"
+  ],
+  "szaxxon": [
+   "Atari 2600",
+   "ColecoVision",
+   "Intellivision",
+   "MSX",
+   "ZX Spectrum"
+  ],
+  "pwrgoal": [
+   "Amiga",
+   "SNES / Super Famicom"
+  ],
+  "tengai": [
+   "PlayStation",
+   "Saturn"
+  ],
+  "kof96": [
+   "Game Boy"
+  ],
+  "lkage": [
+   "Commodore 64",
+   "MSX",
+   "ZX Spectrum"
+  ],
+  "3wonders": [
+   "PlayStation",
+   "Saturn"
+  ],
+  "toutrun": [
+   "ZX Spectrum"
+  ],
+  "twinhawk": [
+   "Mega Drive / Genesis",
+   "PC Engine / TurboGrafx-16",
+   "PC Engine CD / TurboGrafx-CD"
+  ],
+  "vsav2": [
+   "Saturn"
+  ],
+  "vaportra": [
+   "Mega Drive / Genesis"
+  ],
+  "vulcan": [
+   "NES / Famicom",
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "wboy": [
+   "MSX",
+   "Mega Drive / Genesis"
+  ],
+  "wb3": [
+   "Mega Drive / Genesis"
+  ],
+  "xsleena": [
+   "Amiga",
+   "Commodore 64",
+   "MSX",
+   "ZX Spectrum"
+  ],
+  "title:combatribes": [
+   "SNES / Super Famicom"
+  ],
+  "afighter": [
+   "Commodore 64"
+  ],
+  "aliensec": [
+   "X68000"
+  ],
+  "aliensyn": [
+   "Commodore 64",
+   "MSX",
+   "X68000"
+  ],
+  "arkretrn": [
+   "PlayStation"
+  ],
+  "bublbob2": [
+   "Saturn"
+  ],
+  "circusc": [
+   "Commodore 64"
+  ],
+  "congo": [
+   "MSX"
+  ],
+  "cuebrick": [
+   "Game Gear",
+   "Mega Drive / Genesis",
+   "X68000"
+  ],
+  "cybots": [
+   "PlayStation"
+  ],
+  "digdug2": [
+   "X68000"
+  ],
+  "drgnbstr": [
+   "X68000"
+  ],
+  "ddux": [
+   "Commodore 64"
+  ],
+  "dynwar": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "title:elevator action": [
+   "Commodore 64"
+  ],
+  "title:fatal fury special": [
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "fshark": [
+   "Amiga",
+   "X68000"
+  ],
+  "forgottn": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "title:frog feast": [
+   "Amiga",
+   "Mega Drive / Genesis",
+   "SNES / Super Famicom",
+   "X68000"
+  ],
+  "galaga88": [
+   "X68000"
+  ],
+  "gemini": [
+   "MSX",
+   "X68000"
+  ],
+  "genpeitd": [
+   "X68000"
+  ],
+  "ghouls": [
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "gunsmoke": [
+   "PlayStation",
+   "Saturn",
+   "ZX Spectrum"
+  ],
+  "title:gyruss": [
+   "PlayStation"
+  ],
+  "karnov": [
+   "Commodore 64"
+  ],
+  "kikikai": [
+   "NES / Famicom"
+  ],
+  "landmakr": [
+   "PlayStation"
+  ],
+  "mappy": [
+   "Game Boy",
+   "X68000"
+  ],
+  "mmaze": [
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "mtwins": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "mikie": [
+   "MSX"
+  ],
+  "motos": [
+   "Commodore 64",
+   "X68000"
+  ],
+  "mutantf": [
+   "X68000"
+  ],
+  "neocup98": [
+   "Neo Geo Pocket / Color"
+  ],
+  "peterpak": [
+   "Commodore 64"
+  ],
+  "higemaru": [
+   "PlayStation",
+   "Saturn"
+  ],
+  "wldcourt": [
+   "X68000"
+  ],
+  "puchicar": [
+   "Game Boy"
+  ],
+  "ichir": [
+   "Game Gear",
+   "Saturn"
+  ],
+  "tantr": [
+   "Saturn"
+  ],
+  "pbobble2": [
+   "Game Boy",
+   "Nintendo 64",
+   "PlayStation",
+   "Saturn"
+  ],
+  "pbobble4": [
+   "Game Boy"
+  ],
+  "roadblst": [
+   "Atari Lynx",
+   "Mega Drive / Genesis",
+   "NES / Famicom"
+  ],
+  "rohga": [
+   "PlayStation",
+   "Saturn"
+  ],
+  "ryukyu": [
+   "Game Gear",
+   "MSX",
+   "PC Engine / TurboGrafx-16",
+   "X68000"
+  ],
+  "title:s t u n runner": [
+   "Commodore 64"
+  ],
+  "skykid": [
+   "NES / Famicom"
+  ],
+  "sstriker": [
+   "X68000"
+  ],
+  "title:space invaders": [
+   "Commodore 64"
+  ],
+  "starforc": [
+   "MSX",
+   "X68000"
+  ],
+  "sfa": [
+   "Game Boy"
+  ],
+  "sf2ce": [
+   "X68000"
+  ],
+  "sfzch": [
+   "Game Boy"
+  ],
+  "shangon": [
+   "X68000"
+  ],
+  "ssf2": [
+   "X68000"
+  ],
+  "flstory": [
+   "X68000"
+  ],
+  "kof97": [
+   "PlayStation"
+  ],
+  "tnzs": [
+   "Amiga",
+   "Master System",
+   "Mega Drive / Genesis",
+   "NES / Famicom",
+   "PC Engine / TurboGrafx-16",
+   "X68000",
+   "ZX Spectrum"
+  ],
+  "roishtar": [
+   "X68000"
+  ],
+  "todruaga": [
+   "Game Boy"
+  ],
+  "tfrceac": [
+   "SNES / Super Famicom",
+   "Saturn"
+  ],
+  "tigeroad": [
+   "Commodore 64"
+  ],
+  "tigerh": [
+   "Atari 7800"
+  ],
+  "title:toobin": [
+   "Commodore 64",
+   "Game Boy",
+   "MSX"
+  ],
+  "twincobr": [
+   "PC Engine / TurboGrafx-16",
+   "PlayStation",
+   "X68000"
+  ],
+  "tcobra2": [
+   "Saturn"
+  ],
+  "unsquad": [
+   "Commodore 64"
+  ],
+  "volfied": [
+   "Commodore 64"
+  ],
+  "wh2": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "title:xeno crisis": [
+   "Mega Drive / Genesis",
+   "Nintendo 64",
+   "SNES / Super Famicom"
+  ],
+  "xevious": [
+   "X68000"
+  ],
+  "zerowing": [
+   "PC Engine / TurboGrafx-16"
+  ],
+  "title:mortalkombat": [
+   "Amiga"
+  ]
+ },
+ "remove": {
+  "mjleague": [
+   "NES / Famicom"
+  ],
+  "punisher": [
+   "NES / Famicom"
+  ],
+  "strider": [
+   "NES / Famicom"
+  ],
+  "willow": [
+   "NES / Famicom"
+  ],
+  "xmen": [
+   "32X",
+   "Game Gear",
+   "Mega Drive / Genesis"
+  ],
+  "contra": [
+   "Game Boy"
+  ]
+ }
 }

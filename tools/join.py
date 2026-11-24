@@ -239,16 +239,73 @@ except Exception:
 # ---- per-(game, core) records -------------------------------------------
 records = []
 for core in data:
-    author = core["core_id"].split(".", 1)[0]
+    author = core.get("author") or core["core_id"].split(".", 1)[0]
     label = core["core_id"].split(".", 1)[1] if "." in core["core_id"] else core["core_id"]
     board = core.get("board") or (core["platforms"][0] if core["platforms"] else label)
     for g in core["games"]:
         s = (g.get("setname") or g.get("setname_hint") or "").lower() or None
         records.append({
             "title": g["title"], "set": s, "core": label, "core_id": core["core_id"],
-            "author": author, "board": board, "alt": g["set_type"] == "alternative",
+            "author": author, "board": board, "repo": core.get("repo"),
+            "alt": g["set_type"] == "alternative",
             "patreon": bool(core["requires_license"]),
         })
+
+# ---- Wikipedia article link (Syl, 2026-11-23): icon in the Game column.
+# Stamp only when the cached article title matches the game title exactly
+# (normalized), or the key is in WIKI_ALLOW: hand-checked same-game articles
+# under an alternate title (e.g. Vulcan Venture -> "Gradius II"). Everything
+# else the search coughed up (companies, films, disambiguation pages, the
+# original a port was adapted from...) gets no icon.
+WIKI_ALLOW = {
+    "1943kai", "2020bb", "bakutotu", "breakrev", "bublbob2", "cninja",
+    "chukatai", "title:cloak dagger", "title:combatribes", "dankuga",
+    "dkongjr", "ddux", "eightman", "fastlane", "genpeitd", "title:get star",
+    "hwrace", "hsf2", "kingdmgp", "landmakr", "title:last blade the",
+    "fitegolf", "lightbr", "makaimurbbl", "maniach", "mmaze", "mmatrix",
+    "megaman2", "megaman", "mpang", "title:mortalkombat", "mbombrd",
+    "nbajamte", "neomrdo", "pang3", "panicbom", "pistoldm", "pitfall2",
+    "pleiads", "ws", "pzloop2", "puzzldpr", "rallybik", "roadblst",
+    "skykiddx", "smashtv", "sfa",
+    "title:street fighter ii special champion edition", "sf2hf", "sf2",
+    "sfzch", "sfz2al", "title:strikeforce", "sbagman", "ssf2", "sxevious",
+    "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
+    "vulcan", "wizdfire", "wrally2", "wrestwar",
+}
+wiki_cache = {}
+_wc = f"{ROOT}/raw/wiki_cache.json"
+if os.path.exists(_wc):
+    wiki_cache = json.load(open(_wc))
+
+def wiki_url(key, title, regional):
+    w = wiki_cache.get(key)
+    if not w or not w.get("article"):
+        return None
+    art = w["article"]
+    titles = {norm_title(title)} | {norm_title(e["t"]) for e in (regional or [])}
+    if norm_title(art) in titles or key in WIKI_ALLOW:
+        return "https://en.wikipedia.org/wiki/" + art.replace(" ", "_")
+    return None
+
+# ---- Core column: platform name + author(s) with GitHub links (Syl, 2026-11-23)
+# Link = the author's GitHub profile when the name is a live GitHub account,
+# else the core's repository. NON_PROFILE: display names verified NOT to be a
+# GitHub profile (404 or not a username) on 2026-11-23.
+NON_PROFILE = {"AwesomeDolphin", "finn2k1", "August and Doctor Lucy"}
+
+def _author_url(author, repo):
+    if author and re.fullmatch(r"[A-Za-z0-9-]+", author) and author not in NON_PROFILE:
+        return f"https://github.com/{author}"
+    return f"https://github.com/{repo}" if repo else None
+
+def _core_authors(rs):
+    by_board = {}
+    for r in rs:
+        by_board.setdefault(r["board"], {})
+        by_board[r["board"]].setdefault(r["author"], _author_url(r["author"], r["repo"]))
+    return [{"platform": b,
+             "authors": [{"name": a, "url": u} for a, u in sorted(authors.items())]}
+            for b, authors in sorted(by_board.items())]
 
 # ---- group by parent set -------------------------------------------------
 groups = {}
@@ -379,9 +436,11 @@ for key, rs in groups.items():
         "genres": genres,
         "genre_top": genres[0] if genres else None,
         "regional": regional_list,
+        "wiki": wiki_url(parent_set or ("title:" + norm_title(title)), title, regional_list),
         "patreon": any(v["patreon"] for v in vlist),
         "has_main": any(not v["alt"] for v in vlist),
         "platforms": platforms,
+        "core_authors": _core_authors(rs),
         "home_ports": sorted(home),
         "cores": sorted({r["core"] for r in rs}),
         "authors": sorted({r["author"] for r in rs}),

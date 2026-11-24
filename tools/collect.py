@@ -38,19 +38,20 @@ for c in cores:
     rel = c["releases"][0]
     pids = rel["core"]["metadata"].get("platform_ids", [])
     plats = [platforms[p] for p in pids if p in platforms]
-    if any(p["category"] == "Arcade" or p["id"] in ARCADE_OVERRIDE for p in plats):
+    if any(p["category"] in ("Arcade", "Arcade Multi") or p["id"] in ARCADE_OVERRIDE for p in plats):
         arcade.append((c, rel, plats))
 print(f"arcade cores: {len(arcade)}", flush=True)
 
 def games_from_zip(c, rel, plats):
     url = rel["download_url"]
     board = next((BOARD_FIX.get(p["id"], p["name"]) for p in plats
-                  if p["category"] == "Arcade" or p["id"] in ARCADE_OVERRIDE), None)
+                  if p["category"] in ("Arcade", "Arcade Multi") or p["id"] in ARCADE_OVERRIDE), None)
     out = {"core_id": c["id"], "repo": f"{c['repository']['owner']}/{c['repository']['name']}",
            "version": rel["core"]["metadata"].get("version"),
            "requires_license": rel.get("requires_license", False),
            "board": board,
-           "platforms": [p["name"] for p in plats], "games": [], "error": None}
+           "platforms": [p["name"] for p in plats], "games": [], "error": None,
+           "author": None}
     try:
         blob = fetch(url)
         if len(blob) > MAX_ZIP:
@@ -60,6 +61,17 @@ def games_from_zip(c, rel, plats):
     except Exception as e:
         out["error"] = f"{type(e).__name__}: {e}"
         return out
+    # the core's own core.json carries the author name as shown on the Pocket
+    for name in z.namelist():
+        parts0 = name.split("/")
+        if len(parts0) == 3 and parts0[0] == "Cores" and parts0[-1].lower() == "core.json":
+            try:
+                md = json.loads(z.read(name)).get("core", {}).get("metadata", {})
+                if md.get("author"):
+                    out["author"] = str(md["author"]).strip()
+            except Exception:
+                pass
+            break
     for name in z.namelist():
         if not name.lower().endswith(".json"):
             continue
