@@ -45,6 +45,20 @@
   .pat-ico svg{vertical-align:-2px}
   .wiki{display:inline-block;color:var(--muted);margin-left:6px;vertical-align:-1px;text-decoration:none}
   .wiki:hover{color:var(--text)}
+  .favbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;margin-left:6px;padding:0;vertical-align:-1px}
+  .favbtn:hover{color:var(--accent)}
+  .favbtn.on{color:var(--accent)}
+  .listbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .listbtns button{flex:1;padding:6px 4px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
+  .listbtns button:hover{color:var(--text);border-color:var(--muted)}
+  #favmenu{position:absolute;z-index:50;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px;min-width:210px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  #favmenu label{display:flex;gap:8px;align-items:center;font-size:14px;text-transform:none;letter-spacing:0;color:var(--text);margin:4px 0;cursor:pointer}
+  #favmenu .newrow{display:flex;gap:6px;margin-top:8px}
+  #favmenu input[type=text]{flex:1;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:13px}
+  #favmenu .newrow button{padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
+  #sharebanner{display:none;max-width:1600px;margin:10px auto 0;padding:10px 20px}
+  #sharebanner .in{background:var(--panel2);border:1px solid var(--accent);border-radius:9px;padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  #sharebanner button{padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
   .snapcell{width:1%;white-space:nowrap}
   .snap{object-fit:contain;border-radius:6px;background:#000;display:block}
   .snap-h{max-width:124px}
@@ -65,6 +79,9 @@
   <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
   <p class="stats" id="stats">Loading…</p>
 </header>
+<div id="sharebanner"><div class="in"><span id="sharetext"></span>
+  <button id="s-view" type="button">View</button><button id="s-save" type="button">Save a copy</button><button id="s-dismiss" type="button">Dismiss</button>
+</div></div>
 <main>
   <aside class="filters">
     <label for="q">Search</label>
@@ -96,6 +113,14 @@
       <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
     </select>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
+    <label for="f-list">My lists</label>
+    <select id="f-list"><option value="">All games</option></select>
+    <div class="listbtns">
+      <button id="l-new" type="button">＋ New list</button>
+      <button id="l-rename" type="button">Rename</button>
+      <button id="l-share" type="button">Share</button>
+      <button id="l-del" type="button">Delete</button>
+    </div>
     <label for="f-sort">Sort by</label>
     <select id="f-sort">
       <option value="title">Title (A–Z)</option><option value="year-asc">Year (oldest first)</option>
@@ -114,6 +139,7 @@
     </table>
   </section>
 </main>
+<div id="favmenu" hidden></div>
 <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
@@ -126,6 +152,7 @@
   “Home ports” are the home versions of the same game on consoles, handhelds and computers that also have an openFPGA core on the Pocket,
   matched by exact title (arcade or regional name) against the MAME software lists, plus a short curated exceptions list — a home version is an adaptation, not the arcade original.
   Screenshots: in-game snaps from the <a href="https://www.progettosnaps.net/snapshots/">progettoSNAPS</a> MAME collection, via <a href="https://github.com/libretro-thumbnails/MAME">libretro-thumbnails</a>.
+  Your lists (☆ on any game) are stored only in this browser — use a list's Share button to send it to someone or move it to another device.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
 <script>
@@ -167,6 +194,8 @@ function apply(){
     if (screen === "v" && r.vertical !== true) return false;
     if (screen === "h" && r.vertical !== false) return false;
     if (pat && !r.patreon) return false;
+    const al = activeList();
+    if (al && !al.games.includes(keyOf(r))) return false;
     return true;
   });
   out.sort((a,b) => sort === "title" ? a.title.localeCompare(b.title)
@@ -180,7 +209,7 @@ function apply(){
     const altHtml = alts.map(e => `<div class="ports">${esc(flagStr(e.r))} ${esc(e.t)}</div>`).join("");
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" alt="">`:""}</td>
-    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}${r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ""}${altHtml}</td>
+    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}${r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${altHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
@@ -193,6 +222,74 @@ function apply(){
   </tr>`;
   }).join("");
 }
+
+// ---- personal lists (localStorage, shareable by link) ----
+const LS_KEY = "padb_lists_v1";
+const normTitle = s => s.toLowerCase().replace(/\s*\([^)]*\)\s*$/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+const keyOf = r => r.set || ("title:" + normTitle(r.title));
+let lists = [];
+try { lists = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { lists = []; }
+let sharedList = null;   // {name, games:[keys]} from a #l= link, not yet saved
+function saveLists(){ localStorage.setItem(LS_KEY, JSON.stringify(lists)); }
+function listById(id){ return lists.find(l => l.id === id) || (sharedList && sharedList.id === id ? sharedList : null); }
+function activeList(){
+  const v = $("f-list").value;
+  return v ? listById(v) : null;
+}
+function refreshListSelect(){
+  const sel = $("f-list"), cur = sel.value;
+  sel.innerHTML = '<option value="">All games</option>';
+  for (const l of lists) {
+    const o = document.createElement("option");
+    o.value = l.id; o.textContent = `${l.name} (${l.games.length})`;
+    sel.appendChild(o);
+  }
+  if (sharedList) {
+    const o = document.createElement("option");
+    o.value = sharedList.id; o.textContent = `${sharedList.name} (shared, ${sharedList.games.length})`;
+    sel.appendChild(o);
+  }
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+function inAnyList(key){ return lists.some(l => l.games.includes(key)); }
+function toggleInList(list, key){
+  const i = list.games.indexOf(key);
+  if (i >= 0) list.games.splice(i, 1); else list.games.push(key);
+  if (list !== sharedList) saveLists();
+  refreshListSelect(); apply();
+}
+function newList(name, games){
+  const l = {id: "l" + Date.now().toString(36) + Math.floor(Math.random()*999), name, games: games || []};
+  lists.push(l); saveLists(); refreshListSelect();
+  return l;
+}
+let menuKey = null;
+function openFavMenu(btn, key){
+  menuKey = key;
+  const m = $("favmenu");
+  if (!lists.length) { const l = newList("Favorites"); }
+  m.innerHTML = lists.map(l =>
+    `<label><input type="checkbox" data-list="${l.id}" ${l.games.includes(key) ? "checked" : ""}> ${esc(l.name)}</label>`).join("")
+    + `<div class="newrow"><input type="text" id="fm-newname" placeholder="New list name…"><button id="fm-new" type="button">Add</button></div>`;
+  m.hidden = false;
+  const r = btn.getBoundingClientRect();
+  m.style.left = Math.min(r.left + window.scrollX, window.innerWidth - 240) + "px";
+  m.style.top = (r.bottom + window.scrollY + 6) + "px";
+  m.querySelectorAll("input[data-list]").forEach(cb => cb.addEventListener("change", () => {
+    toggleInList(listById(cb.dataset.list), menuKey);
+    cb.checked = listById(cb.dataset.list).games.includes(menuKey);
+  }));
+  $("fm-new").addEventListener("click", () => {
+    const name = $("fm-newname").value.trim();
+    if (!name) return;
+    const l = newList(name); toggleInList(l, menuKey);
+    openFavMenu(btn, key);
+  });
+}
+document.addEventListener("click", e => {
+  const m = $("favmenu");
+  if (!m.hidden && !m.contains(e.target) && !e.target.classList.contains("favbtn")) m.hidden = true;
+});
 
 fetch("games.json").then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
@@ -208,8 +305,59 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-sort"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-sort","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
+  $("rows").addEventListener("click", e => {
+    const b = e.target.closest(".favbtn");
+    if (b) openFavMenu(b, b.dataset.key);
+  });
+  $("l-new").addEventListener("click", () => {
+    const name = prompt("Name of the new list:");
+    if (!name || !name.trim()) return;
+    const l = newList(name.trim());
+    $("f-list").value = l.id; apply();
+  });
+  $("l-rename").addEventListener("click", () => {
+    const l = activeList(); if (!l || l === sharedList) return;
+    const name = prompt("Rename list:", l.name);
+    if (name && name.trim()) { l.name = name.trim(); saveLists(); refreshListSelect(); }
+  });
+  $("l-del").addEventListener("click", () => {
+    const l = activeList(); if (!l || l === sharedList) return;
+    if (confirm(`Delete the list “${l.name}”?`)) {
+      lists = lists.filter(x => x.id !== l.id); saveLists();
+      $("f-list").value = ""; refreshListSelect(); apply();
+    }
+  });
+  $("l-share").addEventListener("click", async () => {
+    const l = activeList(); if (!l) { alert("Select a list first."); return; }
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify({name: l.name, games: l.games}))))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const url = location.origin + location.pathname + "#l=" + payload;
+    try { await navigator.clipboard.writeText(url); alert("Share link copied — anyone opening it can view this list and save a copy."); }
+    catch(e) { prompt("Copy this share link:", url); }
+  });
+  // shared list from the URL hash
+  if (location.hash.startsWith("#l=")) {
+    try {
+      const raw = location.hash.slice(3).replace(/-/g, "+").replace(/_/g, "/");
+      const obj = JSON.parse(decodeURIComponent(escape(atob(raw))));
+      if (obj && Array.isArray(obj.games)) {
+        sharedList = {id: "shared", name: String(obj.name || "Shared list"), games: obj.games.map(String)};
+        $("sharetext").textContent = `Shared list “${sharedList.name}” — ${sharedList.games.length} games.`;
+        $("sharebanner").style.display = "block";
+      }
+    } catch(e) { /* malformed link: ignore */ }
+  }
+  $("s-view").addEventListener("click", () => { refreshListSelect(); $("f-list").value = "shared"; apply(); });
+  $("s-save").addEventListener("click", () => {
+    if (!sharedList) return;
+    const l = newList(sharedList.name, [...sharedList.games]);
+    sharedList = null; $("sharebanner").style.display = "none";
+    refreshListSelect(); $("f-list").value = l.id; apply();
+  });
+  $("s-dismiss").addEventListener("click", () => { sharedList = null; $("sharebanner").style.display = "none"; refreshListSelect(); });
+  refreshListSelect();
   $("reset").addEventListener("click", () => location.reload());
   apply();
 });
