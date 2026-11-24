@@ -41,7 +41,7 @@
   .set{color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:nowrap}
   .badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:20px;margin-left:6px;vertical-align:2px}
   .b-alt{background:var(--alt);color:#fff}
-  .b-pat{background:var(--badge);color:#fff}
+  .pat-ico{font-size:12.5px;margin-left:6px;vertical-align:1px;cursor:help}
   .b-tate{background:var(--accent2);color:#06251a}
   .b-coop{background:var(--accent2);color:#06251a}
   .b-vs{background:#d9534f;color:#fff}
@@ -114,7 +114,7 @@
   (a game can carry several genres), simultaneous-play data from
   <a href="https://nplayers.arcadebelgium.be">nplayers.ini</a>. Co-op / Versus badges are derived from the category combined with simultaneous play
   (e.g. a “Versus” category = versus; a simultaneous beat ’em up / shooter / platformer = co-op; simultaneous sports &amp; puzzle games = versus) — a derivation, not per-game documentation.
-  Patreon cores are included and badged.
+  Patreon cores are included and marked with a 🔒.
   All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
   “Home ports” are the home versions of the same game on consoles, handhelds and computers that also have an openFPGA core on the Pocket,
   matched by exact title (arcade or regional name) against the MAME software lists, plus a short curated exceptions list — a home version is an adaptation, not the arcade original.
@@ -171,14 +171,14 @@ function apply(){
     const alts = r.regional.filter(e => e.t !== r.title);
     const altHtml = alts.map(e => `<div class="ports">${esc(flagStr(e.r))} ${esc(e.t)}</div>`).join("");
     return `<tr>
-    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}${altHtml}</td>
+    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="pat-ico" title="Patreon core">🔒</span>':""}${altHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
     <td>${r.players||"—"}</td>
     <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.comp?'<span class="badge b-vs">VERSUS</span>':"") || "—"}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
-    <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
+    <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="pat-ico" title="Patreon core">🔒</span>':""}</div>`).join("")}</td>
     <td class="ports">${esc(r.platforms.join(", "))}</td>
     <td class="ports">${esc((r.home_ports || []).join(", ") || "—")}</td>
   </tr>`;
