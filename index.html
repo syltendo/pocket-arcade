@@ -57,6 +57,12 @@
   .favbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;margin-left:6px;padding:0;vertical-align:-1px}
   .favbtn:hover{color:var(--accent)}
   .favbtn.on{color:var(--accent)}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  .lists-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+  .lists-bar label{margin:0;font-size:13px;color:var(--muted)}
+  .lists-bar select{width:210px}
+  .lists-bar .listbtns{margin-top:0}
+  .lists-bar .listbtns button{flex:none;padding:6px 10px}
   .listbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
   .listbtns button{flex:1;padding:6px 4px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
   .listbtns button:hover{color:var(--text);border-color:var(--muted)}
@@ -88,41 +94,58 @@
     <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
     <label for="f-genre">Genre</label>
     <select id="f-genre"><option value="">All genres</option></select>
-    <label for="f-players">Players</label>
-    <select id="f-players">
-      <option value="">Any</option><option value="1">1 player</option><option value="2">2 players</option>
-      <option value="3">3 players</option><option value="4">4+ players</option>
-    </select>
-    <label for="f-mode">Multiplayer mode</label>
-    <select id="f-mode">
-      <option value="">Any mode</option><option value="coop">Co-op</option>
-      <option value="comp">Versus</option>
-    </select>
+    <div class="frow">
+      <div>
+        <label for="f-players">Players</label>
+        <select id="f-players">
+          <option value="">Any</option><option value="1">1 player</option><option value="2">2 players</option>
+          <option value="3">3 players</option><option value="4">4+ players</option>
+        </select>
+      </div>
+      <div>
+        <label for="f-mode">Multiplayer mode</label>
+        <select id="f-mode">
+          <option value="">Any mode</option><option value="coop">Co-op</option>
+          <option value="comp">Versus</option>
+        </select>
+      </div>
+    </div>
     <label for="f-pub">Publisher / Developer</label>
     <select id="f-pub"><option value="">All publishers</option></select>
-    <label for="f-year">Year</label>
-    <select id="f-year"><option value="">All years</option></select>
-    <label for="f-core">Core</label>
-    <select id="f-core"><option value="">All cores</option></select>
-    <label for="f-author">Core author</label>
-    <select id="f-author"><option value="">All authors</option></select>
-    <label for="f-board">Platform / Board</label>
-    <select id="f-board"><option value="">All platforms</option></select>
-    <label for="f-port">Ports</label>
-    <select id="f-port"><option value="">All ports</option></select>
-    <label for="f-screen">Screen</label>
-    <select id="f-screen">
-      <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
-    </select>
-    <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
-    <label for="f-list">My lists</label>
-    <select id="f-list"><option value="">All games</option></select>
-    <div class="listbtns">
-      <button id="l-new" type="button">＋ New list</button>
-      <button id="l-rename" type="button">Rename</button>
-      <button id="l-share" type="button">Share</button>
-      <button id="l-del" type="button">Delete</button>
+    <div class="frow">
+      <div>
+        <label for="f-year">Year</label>
+        <select id="f-year"><option value="">All years</option></select>
+      </div>
+      <div>
+        <label for="f-screen">Screen</label>
+        <select id="f-screen">
+          <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
+        </select>
+      </div>
     </div>
+    <div class="frow">
+      <div>
+        <label for="f-core">Core</label>
+        <select id="f-core"><option value="">All cores</option></select>
+      </div>
+      <div>
+        <label for="f-author">Core author</label>
+        <select id="f-author"><option value="">All authors</option></select>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label for="f-board">Platform / Board</label>
+        <select id="f-board"><option value="">All platforms</option></select>
+      </div>
+      <div>
+        <label for="f-port">Ports</label>
+        <select id="f-port"><option value="">All ports</option></select>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
+    <label class="check"><input type="checkbox" id="f-hacks"> Show unofficial hacks</label>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -135,6 +158,16 @@
 </div></div>
   </div>
   <section>
+    <div class="lists-bar">
+      <label for="f-list">My lists</label>
+      <select id="f-list"><option value="">All games</option></select>
+      <div class="listbtns">
+        <button id="l-new" type="button">＋ New list</button>
+        <button id="l-rename" type="button">Rename</button>
+        <button id="l-share" type="button">Share</button>
+        <button id="l-del" type="button">Delete</button>
+      </div>
+    </div>
     <p class="count" id="count"></p>
     <table>
       <thead><tr>
@@ -213,7 +246,8 @@ function apply(){
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
         board = $("f-board").value, screen = $("f-screen").value,
         port = $("f-port").value,
-        pat = $("f-pat").checked;
+        pat = $("f-pat").checked,
+        hacks = $("f-hacks").checked;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
     if (q && !r._q.includes(nq)) return false;
@@ -225,6 +259,7 @@ function apply(){
     if (port && !(r._ports || []).includes(port)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
+    if (!hacks && r.hack) return false;
     if (mode === "coop" && !r.coop) return false;
     if (mode === "comp" && !r.comp) return false;
     if (screen === "v" && r.vertical !== true) return false;
@@ -345,7 +380,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-port", DATA.flatMap(r => r._ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");

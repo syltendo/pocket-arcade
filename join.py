@@ -508,6 +508,16 @@ for src_k, dst_k in GROUP_MERGES.items():
 # entry must read Pac-Man).
 TITLE_OVERRIDES = {"puckman": "Pac-Man"}
 
+# Unofficial hacks (Syl, 2026-11-23): hidden by default on the site, behind
+# a "Show unofficial hacks" checkbox. Detection: the [HBMAME] / "- HBMame"
+# tags the cores themselves put in the game titles, plus this curated list
+# of untagged hacks. Homebrew ORIGINAL games (Xeno Crisis, Frog Feast,
+# NeoTRIS...) are NOT hacks and stay visible.
+HACK_TITLES = {"Xevious 2002", "Xevious 2003", "Xevious 2004",
+               "Xevious 2005", "Xevious Black",
+               "Street Fighter II' Champion Re-Edit",
+               "SNK vs. Capcom Remix Ultra", "Windjammers Supersonic"}
+
 out = []
 for key, rs in groups.items():
     parent_set = key if not key.startswith("title:") else None
@@ -614,6 +624,8 @@ for key, rs in groups.items():
         "regional": regional_list,
         "wiki": wiki_url(parent_set or ("title:" + norm_title(title)), title, regional_list),
         "patreon": any(v["patreon"] for v in vlist),
+        "hack": ("[HBMAME]" in title or "- HBMame" in title
+                 or title in HACK_TITLES),
         "has_main": any(not v["alt"] for v in vlist),
         "platforms": platforms,
         "core_authors": _core_authors(rs),
