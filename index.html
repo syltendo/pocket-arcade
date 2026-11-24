@@ -232,7 +232,8 @@ function apply(){
     return c || a.title.localeCompare(b.title);
   });
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
-  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions`;
+  const nc = new Set(out.flatMap(r => r.cores)).size;
+  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions · ${nc} cores`;
   $("rows").innerHTML = out.map(r => {
     const main = r.regional.find(e => e.t === r.title);
     const alts = r.regional.filter(e => e.t !== r.title);
