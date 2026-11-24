@@ -13,15 +13,17 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  header{padding:28px 20px 8px;max-width:1600px;margin:0 auto}
+  header{padding:16px 0 8px}
   h1{margin:0 0 4px;font-size:28px;letter-spacing:.2px}
   h1 .db{color:var(--accent)}
   .sub{color:var(--muted);margin:0 0 6px}
   .stats{color:var(--muted);font-size:13px}
   .stats b{color:var(--text)}
-  main{max-width:1600px;margin:0 auto;padding:12px 20px 40px;display:grid;grid-template-columns:250px 1fr;gap:18px}
-  @media (max-width:860px){main{grid-template-columns:1fr}}
-  .filters{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;position:sticky;top:12px}
+  .shell{max-width:1600px;margin:0 auto;padding:12px 20px 0;display:grid;grid-template-columns:250px 1fr;grid-template-areas:"side head" "side main" "side foot";column-gap:18px;align-items:start}
+  .head{grid-area:head}
+  section{grid-area:main;padding-bottom:40px}
+  @media (max-width:860px){.shell{grid-template-columns:1fr;grid-template-areas:"head" "side" "main" "foot"}}
+  .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;position:sticky;top:12px}
   @media (max-width:860px){.filters{position:static}}
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
   .filters label:first-child{margin-top:0}
@@ -64,7 +66,7 @@
   #favmenu .newrow{display:flex;gap:6px;margin-top:8px}
   #favmenu input[type=text]{flex:1;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:13px}
   #favmenu .newrow button{padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
-  #sharebanner{display:none;max-width:1600px;margin:10px auto 0;padding:10px 20px}
+  #sharebanner{display:none;margin:10px 0 0;padding:0}
   #sharebanner .in{background:var(--panel2);border:1px solid var(--accent);border-radius:9px;padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   #sharebanner button{padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
   .snapcell{width:1%;white-space:nowrap}
@@ -77,20 +79,12 @@
   .ver{font-size:13px;margin:1px 0}
   .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
-  footer{max-width:1600px;margin:0 auto;padding:0 20px 36px;color:var(--muted);font-size:13px}
+  footer{grid-area:foot;padding:0 0 36px;color:var(--muted);font-size:13px}
   a{color:var(--accent)}
 </style>
 </head>
 <body>
-<header>
-  <h1>Pocket Arcade <span class="db">Database</span></h1>
-  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
-  <p class="stats" id="stats">Loading…</p>
-</header>
-<div id="sharebanner"><div class="in"><span id="sharetext"></span>
-  <button id="s-view" type="button">View</button><button id="s-save" type="button">Save a copy</button><button id="s-dismiss" type="button">Dismiss</button>
-</div></div>
-<main>
+<div class="shell">
   <aside class="filters">
     <label for="q">Search</label>
     <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
@@ -131,6 +125,16 @@
     </div>
     <button id="reset">Reset all filters</button>
   </aside>
+  <div class="head">
+<header>
+  <h1>Pocket Arcade <span class="db">Database</span></h1>
+  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
+  <p class="stats" id="stats">Loading…</p>
+</header>
+<div id="sharebanner"><div class="in"><span id="sharetext"></span>
+  <button id="s-view" type="button">View</button><button id="s-save" type="button">Save a copy</button><button id="s-dismiss" type="button">Dismiss</button>
+</div></div>
+  </div>
   <section>
     <p class="count" id="count"></p>
     <table>
@@ -141,10 +145,7 @@
       <tbody id="rows"></tbody>
     </table>
   </section>
-</main>
-<div id="favmenu" hidden></div>
-<div id="notebox" hidden><h4 id="nb-title"></h4><p id="nb-text"></p></div>
-<footer>
+  <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
   <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a> remapped to a simpler gameplay taxonomy
@@ -160,6 +161,10 @@
   Your lists (☆ on any game) are stored only in this browser — use a list's Share button to send it to someone or move it to another device.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
+</div>
+<div id="favmenu" hidden></div>
+<div id="notebox" hidden><h4 id="nb-title"></h4><p id="nb-text"></p></div>
+
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));

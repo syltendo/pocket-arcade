@@ -245,30 +245,79 @@ def map_genres(cat, setname=None):
 # on the Pocket, whose base title exactly matches the arcade game's title
 # (main or regional). Same-title-but-different games and renamed real ports
 # are curated in ports_exceptions.json (add / remove, keyed by parent set).
-SW_SYSTEMS = {
-    "nes": "NES / Famicom", "snes": "SNES / Super Famicom",
+SW_LISTS = {
+    "nes": "nes", "snes": "snes",
+    "megadriv": "megadriv", "sms": "sms",
+    "gamegear": "gamegear", "gameboy": "gameboy", "gbcolor": "gbcolor",
+    "gba": "gba", "pce": "pce",
+    "tg16": "pce", "pcecd": "pcecd",
+    "segacd": "segacd", "32x": "32x", "saturn": "saturn",
+    "psx": "psx", "n64": "n64", "a2600": "a2600",
+    "a7800": "a7800", "lynx": "lynx", "coleco": "coleco",
+    "intv": "intv", "vectrex": "vectrex",
+    "ngp": "ngp", "ngpc": "ngp",
+    "wswan": "wswan", "wscolor": "wswan",
+    "msx1_cart": "msx", "msx2_cart": "msx",
+    # SuperGrafx games run on the Pocket's PC Engine core; SG-1000 and
+    # Amstrad CPC are Pocket platforms too (added 2026-11-23 after Syl
+    # spotted 1941's SuperGrafx port missing).
+    "sgx": "pce", "sg1000": "sg1000",
+    "cpc_cass": "cpc", "cpc_flop": "cpc",
+    "c64_cart": "c64", "c64_cass": "c64",
+    "amigaocs_flop": "amiga", "spectrum_cass": "spectrum",
+}
+# Display names (Syl, 2026-11-23). A (jp, west) pair renders region-aware:
+# only Japanese releases -> the Japanese name alone (SFC), only Western
+# releases -> the Western name alone (SNES), both or unknown -> "SFC / SNES".
+SW_LABELS = {
+    "nes": ("Famicom", "NES"), "snes": ("SFC", "SNES"),
+    "pce": ("PCE", "TG16"), "pcecd": ("PCECD", "TGCD"),
     "megadriv": "Mega Drive / Genesis", "sms": "Master System",
-    "gamegear": "Game Gear", "gameboy": "Game Boy", "gbcolor": "Game Boy Color",
-    "gba": "Game Boy Advance", "pce": "PC Engine / TurboGrafx-16",
-    "tg16": "PC Engine / TurboGrafx-16", "pcecd": "PC Engine CD / TurboGrafx-CD",
+    "gamegear": "Game Gear", "gameboy": "GB", "gbcolor": "GBC",
+    "gba": "GBA",
     "segacd": "Mega CD / Sega CD", "32x": "32X", "saturn": "Saturn",
     "psx": "PlayStation", "n64": "Nintendo 64", "a2600": "Atari 2600",
     "a7800": "Atari 7800", "lynx": "Atari Lynx", "coleco": "ColecoVision",
     "intv": "Intellivision", "vectrex": "Vectrex",
-    "ngp": "Neo Geo Pocket / Color", "ngpc": "Neo Geo Pocket / Color",
-    "wswan": "WonderSwan / Color", "wscolor": "WonderSwan / Color",
-    "msx1_cart": "MSX", "msx2_cart": "MSX",
-    # SuperGrafx games run on the Pocket's PC Engine core; SG-1000 and
-    # Amstrad CPC are Pocket platforms too (added 2026-11-23 after Syl
-    # spotted 1941's SuperGrafx port missing).
-    "sgx": "PC Engine / TurboGrafx-16", "sg1000": "SG-1000",
-    "cpc_cass": "Amstrad CPC", "cpc_flop": "Amstrad CPC",
-    "c64_cart": "Commodore 64", "c64_cass": "Commodore 64",
-    "amigaocs_flop": "Amiga", "spectrum_cass": "ZX Spectrum",
+    "ngp": "Neo Geo Pocket / Color", "wswan": "WonderSwan / Color",
+    "msx": "MSX", "sg1000": "SG-1000",
+    "cpc": "Amstrad CPC", "c64": "C64",
+    "amiga": "Amiga", "spectrum": "ZX Spectrum",
 }
+# ports_exceptions.json still uses the earlier display labels.
+LEGACY_PORT_LABELS = {
+    "NES / Famicom": "nes", "SNES / Super Famicom": "snes",
+    "PC Engine / TurboGrafx-16": "pce", "PC Engine CD / TurboGrafx-CD": "pcecd",
+    "Game Boy": "gameboy", "Game Boy Color": "gbcolor",
+    "Game Boy Advance": "gba", "Commodore 64": "c64",
+}
+def port_system(label):
+    """Map an exceptions-file label (old or new vocabulary) to a system key;
+    unknown labels (e.g. X68000, which has no software list) pass through."""
+    if label in LEGACY_PORT_LABELS:
+        return LEGACY_PORT_LABELS[label]
+    for k, v in SW_LABELS.items():
+        if v == label or (isinstance(v, tuple) and label in (v[0], v[1], f"{v[0]} / {v[1]}")):
+            return k
+    return label
+def port_label(syskey, flags):
+    lab = SW_LABELS.get(syskey, syskey)
+    if isinstance(lab, tuple):
+        if flags and flags.get("jp") and not flags.get("west"):
+            return lab[0]
+        if flags and flags.get("west") and not flags.get("jp"):
+            return lab[1]
+        return f"{lab[0]} / {lab[1]}"
+    return lab
+def sw_regions(desc):
+    """Regions from the (…) groups of a software-list description."""
+    txt = " ".join(re.findall(r"\(([^)]*)\)", desc))
+    jp = "Japan" in txt or "World" in txt
+    west = any(w in txt for w in ("USA", "Europe", "World", "Australia", "Canada"))
+    return jp, west
 sw_index = {}
 os.makedirs(f"{ROOT}/raw/swlists", exist_ok=True)
-for fname, label in SW_SYSTEMS.items():
+for fname, syskey in SW_LISTS.items():
     path = f"{ROOT}/raw/swlists/{fname}.xml"
     if not os.path.exists(path):
         try:
@@ -278,11 +327,23 @@ for fname, label in SW_SYSTEMS.items():
         except Exception as e:
             print(f"software list {fname}: download failed ({e})")
             continue
+    # The pce/sgx lists carry no region annotations, but membership in the
+    # PC Engine list IS a Japanese release (and tg16 membership a Western
+    # one) — use the list itself as the region signal there.
+    list_region = {"pce": "jp", "sgx": "jp", "tg16": "west"}.get(fname)
     try:
         for sw in ET.parse(path).getroot().iter("software"):
             desc = (sw.findtext("description") or "").strip()
             if desc:
-                sw_index.setdefault(norm_title(desc), set()).add(label)
+                jp, west = sw_regions(desc)
+                if list_region == "jp":
+                    jp = True
+                elif list_region == "west":
+                    west = True
+                slot = sw_index.setdefault(norm_title(desc), {}).setdefault(
+                    syskey, {"jp": False, "west": False})
+                slot["jp"] |= jp
+                slot["west"] |= west
     except Exception as e:
         print(f"software list {fname}: parse failed ({e})")
 print(f"software-list titles indexed: {len(sw_index)}")
@@ -488,12 +549,18 @@ for key, rs in groups.items():
     regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     genres = map_genres(cat, parent_set)
-    home = set()
+    home_sys = {}
     for k in {norm_title(title)} | {norm_title(e["t"]) for e in regional_list}:
-        home |= sw_index.get(k, set())
+        for sk, fl in sw_index.get(k, {}).items():
+            cur = home_sys.setdefault(sk, {"jp": False, "west": False})
+            cur["jp"] |= fl["jp"]
+            cur["west"] |= fl["west"]
     exc_key = parent_set or ("title:" + norm_title(title))
-    home |= set(ports_exc.get("add", {}).get(exc_key, []))
-    home -= set(ports_exc.get("remove", {}).get(exc_key, []))
+    for lab in ports_exc.get("add", {}).get(exc_key, []):
+        home_sys.setdefault(port_system(lab), None)
+    for lab in ports_exc.get("remove", {}).get(exc_key, []):
+        home_sys.pop(port_system(lab), None)
+    home = {port_label(sk, fl) for sk, fl in home_sys.items()}
     platforms = sorted({c for v in vlist for c in v["cores"]})
     # multiplayer modes: simultaneous play from nplayers.ini; co-op / comp
     # derived from the catver category + simultaneous play (see site footer)
