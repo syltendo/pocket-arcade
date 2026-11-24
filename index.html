@@ -21,7 +21,7 @@
   .head{grid-area:head}
   section{grid-area:main;padding-bottom:40px}
   @media (max-width:860px){.shell{grid-template-columns:1fr;grid-template-areas:"head" "side" "main" "foot"}}
-  .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;position:sticky;top:12px}
+  .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;max-height:calc(100vh - 24px);overflow-y:auto;position:sticky;top:12px}
   @media (max-width:860px){.filters{position:static}}
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
   .filters label:first-child{margin-top:0}
@@ -139,7 +139,7 @@
     <table>
       <thead><tr>
         <th></th><th class="sortable" data-sort="title">Game</th><th class="sortable" data-sort="year">Year</th><th class="sortable" data-sort="pub">Publisher</th><th class="sortable" data-sort="genre">Genre</th>
-        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="screen">Screen</th><th class="sortable has-tip" data-sort="core" title="Only the cores currently playable on the Analogue Pocket are listed.">Core</th><th class="sortable" data-sort="ports">Ports</th>
+        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="screen">Screen</th><th class="sortable" data-sort="core">Core</th><th class="sortable has-tip" data-sort="ports" title="Only ports currently playable on the Analogue Pocket are listed.">Ports</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
