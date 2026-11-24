@@ -445,6 +445,7 @@ WIKI_ALLOW = {
     "sfzch", "sfz2al", "title:strikeforce", "sbagman", "ssf2", "sxevious",
     "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
     "vulcan", "wizdfire", "wrally2", "wrestwar", "willow",
+    "aliens", "commando", "bionicc", "captcomm", "sonicwi2",
 }
 wiki_cache = {}
 _wc = f"{ROOT}/raw/wiki_cache.json"
@@ -576,6 +577,9 @@ TITLE_OVERRIDES = {"puckman": "Pac-Man",
                    # Battle, a distinct variant edition — the standard US
                    # title stays The New Challengers (no US-title swap).
                    "ssf2": "Super Street Fighter II: The New Challengers",
+                   # The Pocket core ships the Unlimited Version; headline
+                   # is the plain game name (Syl, 2026-11-24).
+                   "bbakraid": "Battle Bakraid",
                    # MAME names these parents after their latest revision;
                    # the entries carry the plain game title.
                    "tekken2": "Tekken 2", "souledge": "Soul Edge"}
