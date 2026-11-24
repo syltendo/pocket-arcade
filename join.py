@@ -32,7 +32,11 @@ SET_ALIASES = {"combatribes": "ctribe",
                # titles state the parentage (Saulabi Spirits = the Korean
                # Samurai Shodown II; Quiz Salibtamjeong = Quiz Daisousa Sen).
                "samsho2k": "samsho2", "smsho2k2": "samsho2",
-               "quizdask": "quizdais"}
+               "quizdask": "quizdais",
+               # pbbblenb is the bootleg of the Neo Geo Puzzle Bobble; the
+               # title resolver can't attach it (two MAME parents share the
+               # "Puzzle Bobble" title: Taito's and the Neo Geo port).
+               "pbbblenb": "pbobblen"}
 for _a, _b in SET_ALIASES.items():
     if _a in wanted:
         wanted.add(_b)
