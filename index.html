@@ -35,6 +35,9 @@
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
   th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--panel2);white-space:nowrap}
+  th.sortable{cursor:pointer;user-select:none}
+  th.sortable:hover{color:var(--text)}
+  th .arr{color:var(--accent);font-size:10px}
   tr:last-child td{border-bottom:none}
   tbody tr:hover{background:#1a212e}
   .title{font-weight:600}
@@ -121,19 +124,14 @@
       <button id="l-share" type="button">Share</button>
       <button id="l-del" type="button">Delete</button>
     </div>
-    <label for="f-sort">Sort by</label>
-    <select id="f-sort">
-      <option value="title">Title (A–Z)</option><option value="year-asc">Year (oldest first)</option>
-      <option value="year-desc">Year (newest first)</option>
-    </select>
     <button id="reset">Reset all filters</button>
   </aside>
   <section>
     <p class="count" id="count"></p>
     <table>
       <thead><tr>
-        <th></th><th>Game</th><th>Year</th><th>Publisher</th><th>Genre</th>
-        <th>Players</th><th>Screen</th><th>Core</th><th>Ports</th>
+        <th></th><th class="sortable" data-sort="title">Game</th><th class="sortable" data-sort="year">Year</th><th class="sortable" data-sort="pub">Publisher</th><th class="sortable" data-sort="genre">Genre</th>
+        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="screen">Screen</th><th class="sortable" data-sort="core">Core</th><th class="sortable" data-sort="ports">Ports</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -166,6 +164,24 @@ const flagStr = regions => (regions||[]).map(r => FLAGS[r] || "").filter(Boolean
 const ROMAN = {ii:"2", iii:"3", iv:"4", v:"5", vi:"6", vii:"7", viii:"8", ix:"9", x:"10"};
 const normSearch = s => s.toLowerCase().replace(/[a-z]+/g, t => ROMAN[t] || t);
 let DATA = [];
+let sortKey = "title", sortDir = 1;
+const SORTVAL = {
+  title:   r => r.title.toLowerCase(),
+  year:    r => r.year,
+  pub:     r => (r.manufacturer || "").toLowerCase() || null,
+  genre:   r => ((r.genres && r.genres[0]) || "").toLowerCase() || null,
+  players: r => r.players,
+  screen:  r => r.vertical === null ? null : (r.vertical ? 1 : 0),
+  core:    r => ((r.core_authors && r.core_authors[0] && r.core_authors[0].platform) || "").toLowerCase() || null,
+  ports:   r => (r.home_ports || []).length,
+};
+function markHeaders(){
+  document.querySelectorAll("th.sortable").forEach(th => {
+    const base = th.dataset.label || th.textContent.replace(/ [▲▼]$/, "");
+    th.dataset.label = base;
+    th.innerHTML = esc(base) + (th.dataset.sort === sortKey ? ` <span class="arr">${sortDir === 1 ? "▲" : "▼"}</span>` : "");
+  });
+}
 
 function fillSelect(id, values){
   const sel = $(id);
@@ -179,7 +195,7 @@ function apply(){
   const genre = $("f-genre").value, players = $("f-players").value, mode = $("f-mode").value, pub = $("f-pub").value,
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
         board = $("f-board").value, screen = $("f-screen").value,
-        pat = $("f-pat").checked, sort = $("f-sort").value;
+        pat = $("f-pat").checked;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
     if (q && !r._q.includes(nq)) return false;
@@ -199,9 +215,14 @@ function apply(){
     if (al && !al.games.includes(keyOf(r))) return false;
     return true;
   });
-  out.sort((a,b) => sort === "title" ? a.title.localeCompare(b.title)
-                  : sort === "year-asc" ? (a.year||9999)-(b.year||9999) || a.title.localeCompare(b.title)
-                  : (b.year||0)-(a.year||0) || a.title.localeCompare(b.title));
+  const sv = SORTVAL[sortKey];
+  out.sort((a,b) => {
+    const va = sv(a), vb = sv(b);
+    if (va === null || va === undefined) return vb === null || vb === undefined ? a.title.localeCompare(b.title) : 1;
+    if (vb === null || vb === undefined) return -1;
+    const c = (typeof va === "string" ? va.localeCompare(vb) : va - vb) * sortDir;
+    return c || a.title.localeCompare(b.title);
+  });
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
   $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions`;
   $("rows").innerHTML = out.map(r => {
@@ -255,6 +276,13 @@ function toggleInList(list, key){
   const i = list.games.indexOf(key);
   if (i >= 0) list.games.splice(i, 1); else list.games.push(key);
   if (list !== sharedList) saveLists();
+  document.querySelectorAll("th.sortable").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.sort;
+    if (k === sortKey) sortDir = -sortDir;
+    else { sortKey = k; sortDir = (k === "year" || k === "players" || k === "ports") ? -1 : 1; }
+    markHeaders(); apply();
+  }));
+  markHeaders();
   refreshListSelect(); apply();
 }
 function newList(name, games){
@@ -304,7 +332,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-sort","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
