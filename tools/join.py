@@ -324,6 +324,13 @@ def _core_authors(rs):
             entry["authors"].sort(key=lambda a: a["name"])
     return out
 
+# CPS Changer sets are CPS-1.5 hardware, wherever the core ships them
+# (Jotego bundles the Changer Street Fighter Zero sets with his CPS-1 core;
+# Syl, 2026-11-23: they belong under CPS-1.5, not CPS-1).
+for r in records:
+    if r["set"] and meta.get(r["set"]) and "CPS Changer" in (meta[r["set"]]["desc"] or ""):
+        r["board"] = "Capcom CPS-1.5"
+
 # ---- group by parent set -------------------------------------------------
 groups = {}
 for r in records:
