@@ -25,7 +25,9 @@ print(f"setnames wanted: {len(wanted)}")
 # Set-name aliases: a core's instance file can carry a non-MAME name for a
 # known set (atrac17's Combatribes core ships "combatribes"; MAME's set is
 # "ctribe"). Aliasing restores the game's full metadata (Syl, 2026-11-23).
-SET_ALIASES = {"combatribes": "ctribe"}
+SET_ALIASES = {"combatribes": "ctribe",
+               # pram0d's Turtles in Time core suffixes its EU sets with _ap
+               "tmht22pe_ap": "tmht22pe", "tmht24pe_ap": "tmht24pe"}
 for _a, _b in SET_ALIASES.items():
     if _a in wanted:
         wanted.add(_b)
