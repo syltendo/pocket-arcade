@@ -108,6 +108,8 @@
     <select id="f-author"><option value="">All authors</option></select>
     <label for="f-board">Platform / Board</label>
     <select id="f-board"><option value="">All platforms</option></select>
+    <label for="f-port">Ports</label>
+    <select id="f-port"><option value="">All ports</option></select>
     <label for="f-screen">Screen</label>
     <select id="f-screen">
       <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
@@ -203,6 +205,7 @@ function apply(){
   const genre = $("f-genre").value, players = $("f-players").value, mode = $("f-mode").value, pub = $("f-pub").value,
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
         board = $("f-board").value, screen = $("f-screen").value,
+        port = $("f-port").value,
         pat = $("f-pat").checked;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
@@ -212,6 +215,7 @@ function apply(){
     if (core && !r.cores.includes(core)) return false;
     if (author && !r.authors.includes(author)) return false;
     if (board && !r.boards.includes(board)) return false;
+    if (port && !(r.home_ports || []).includes(port)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
     if (mode === "coop" && !r.coop) return false;
@@ -331,8 +335,9 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-core", DATA.flatMap(r => r.cores));
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
+  fillSelect("f-port", DATA.flatMap(r => r.home_ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
