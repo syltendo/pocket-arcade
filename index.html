@@ -8,7 +8,7 @@
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3242;
-    --text:#e6edf3; --muted:#9aa7b8; --accent:#f0a832; --accent2:#3fb68b;
+    --text:#e6edf3; --muted:#9aa7b8; --accent:#ff2038; --accent2:#3fb68b;
     --badge:#8957e5; --alt:#57606a;
   }
   *{box-sizing:border-box}
@@ -48,6 +48,11 @@
   .pat-ico svg{vertical-align:-2px}
   .wiki{display:inline-block;color:var(--muted);margin-left:6px;vertical-align:-1px;text-decoration:none}
   .wiki:hover{color:var(--text)}
+  .infobtn{background:none;border:none;cursor:pointer;color:var(--accent);padding:0;margin-left:6px;vertical-align:-2px}
+  .infobtn:hover{color:var(--text)}
+  #notebox{position:absolute;z-index:50;background:var(--panel2);border:1px solid var(--accent);border-radius:9px;padding:12px 14px;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  #notebox h4{margin:0 0 6px;font-size:14px}
+  #notebox p{margin:0;font-size:13.5px;color:var(--text);white-space:pre-wrap}
   .favbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;margin-left:6px;padding:0;vertical-align:-1px}
   .favbtn:hover{color:var(--accent)}
   .favbtn.on{color:var(--accent)}
@@ -138,6 +143,7 @@
   </section>
 </main>
 <div id="favmenu" hidden></div>
+<div id="notebox" hidden><h4 id="nb-title"></h4><p id="nb-text"></p></div>
 <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
@@ -231,7 +237,7 @@ function apply(){
     const altHtml = alts.map(e => `<div class="ports">${esc(flagStr(e.r))} ${esc(e.t)}</div>`).join("");
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" alt="">`:""}</td>
-    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}${r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${altHtml}</td>
+    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}${r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button><button class="infobtn" data-note="${esc(keyOf(r))}" title="Note" type="button" ${NOTES[keyOf(r)] || NOTES[r.title] ? "" : "hidden"}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></button>${altHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
@@ -247,6 +253,7 @@ function apply(){
 const LS_KEY = "padb_lists_v1";
 const normTitle = s => s.toLowerCase().replace(/\s*\([^)]*\)\s*$/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 const keyOf = r => r.set || ("title:" + normTitle(r.title));
+let NOTES = {};
 let lists = [];
 try { lists = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { lists = []; }
 let sharedList = null;   // {name, games:[keys]} from a #l= link, not yet saved
@@ -337,6 +344,30 @@ fetch("games.json").then(r => r.json()).then(d => {
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
     if (b) openFavMenu(b, b.dataset.key);
+    const ib = e.target.closest(".infobtn");
+    if (ib) {
+      const g = DATA.find(x => keyOf(x) === ib.dataset.note);
+      const note = NOTES[ib.dataset.note] || (g && NOTES[g.title]);
+      if (g && note) {
+        $("nb-title").textContent = g.title;
+        $("nb-text").textContent = note;
+        const nb = $("notebox"), r2 = ib.getBoundingClientRect();
+        nb.hidden = false;
+        nb.style.left = Math.min(r2.left + window.scrollX, window.innerWidth - 360) + "px";
+        nb.style.top = (r2.bottom + window.scrollY + 6) + "px";
+      }
+    }
+  });
+  document.addEventListener("click", e => {
+    const nb = $("notebox");
+    if (!nb.hidden && !nb.contains(e.target) && !e.target.closest(".infobtn")) nb.hidden = true;
+  });
+  fetch("notes.json").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(n => {
+    NOTES = n || {};
+    document.querySelectorAll(".infobtn").forEach(b => {
+      const g = DATA.find(x => keyOf(x) === b.dataset.note);
+      if (NOTES[b.dataset.note] || (g && NOTES[g.title])) b.hidden = false;
+    });
   });
   $("l-new").addEventListener("click", () => {
     const name = prompt("Name of the new list:");

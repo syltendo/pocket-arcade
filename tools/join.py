@@ -22,6 +22,14 @@ for core in data:
             wanted.add(s.lower())
 print(f"setnames wanted: {len(wanted)}")
 
+# Set-name aliases: a core's instance file can carry a non-MAME name for a
+# known set (atrac17's Combatribes core ships "combatribes"; MAME's set is
+# "ctribe"). Aliasing restores the game's full metadata (Syl, 2026-11-23).
+SET_ALIASES = {"combatribes": "ctribe"}
+for _a, _b in SET_ALIASES.items():
+    if _a in wanted:
+        wanted.add(_b)
+
 # pass 1: cloneof map for every machine (cheap), so clone chains resolve to the root parent
 cloneof = {}
 for _ev, el in ET.iterparse(f"{ROOT}/raw/mame.xml", events=("end",)):
@@ -323,6 +331,10 @@ def _core_authors(rs):
                 "url": "https://github.com/Mazamars312/Analogue_Pocket_Neogeo"})
             entry["authors"].sort(key=lambda a: a["name"])
     return out
+
+for r in records:
+    if r["set"] in SET_ALIASES:
+        r["set"] = SET_ALIASES[r["set"]]
 
 # CPS Changer sets are CPS-1.5 hardware, wherever the core ships them
 # (Jotego bundles the Changer Street Fighter Zero sets with his CPS-1 core;
