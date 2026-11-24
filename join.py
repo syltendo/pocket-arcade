@@ -246,7 +246,7 @@ def map_genres(cat, setname=None):
 # (main or regional). Same-title-but-different games and renamed real ports
 # are curated in ports_exceptions.json (add / remove, keyed by parent set).
 SW_LISTS = {
-    "nes": "nes", "snes": "snes",
+    "nes": "nes", "famicom_flop": "fds", "snes": "snes",
     "megadriv": "megadriv", "sms": "sms",
     "gamegear": "gamegear", "gameboy": "gameboy", "gbcolor": "gbcolor",
     "gba": "gba", "pce": "pce",
@@ -274,7 +274,7 @@ SW_LABELS = {
     "pce": ("PCE", "TG16"), "pcecd": ("PCECD", "TGCD"),
     "megadriv": "Mega Drive / Genesis", "sms": "Master System",
     "gamegear": "Game Gear", "gameboy": "GB", "gbcolor": "GBC",
-    "gba": "GBA",
+    "gba": "GBA", "fds": "FDS",
     "segacd": "Mega CD / Sega CD", "32x": "32X", "saturn": "Saturn",
     "psx": "PlayStation", "n64": "Nintendo 64", "a2600": "Atari 2600",
     "a7800": "Atari 7800", "lynx": "Atari Lynx", "coleco": "ColecoVision",
@@ -357,6 +357,8 @@ records = []
 for core in data:
     author = core.get("author") or core["core_id"].split(".", 1)[0]
     label = core["core_id"].split(".", 1)[1] if "." in core["core_id"] else core["core_id"]
+    if label.endswith("_Analogizer"):
+        continue  # Analogizer variants duplicate their base core (Syl, 2026-11-23): not listed
     board = core.get("board") or (core["platforms"][0] if core["platforms"] else label)
     for g in core["games"]:
         s = (g.get("setname") or g.get("setname_hint") or "").lower() or None
