@@ -224,29 +224,29 @@ for key, rs in groups.items():
     regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     platforms = sorted({c for v in vlist for c in v["cores"]})
-    # multiplayer modes: simultaneous play from nplayers.ini; co-op / versus
+    # multiplayer modes: simultaneous play from nplayers.ini; co-op / comp
     # derived from the catver category + simultaneous play (see site footer)
     npl_hits = [npl[s] for s in [parent_set] + [v["set"] for v in vlist] if s and s in npl]
     sim = any(s_ for p_, s_ in npl_hits if p_ >= 2)
     npl_players = max((p_ for p_, _ in npl_hits), default=0)
     gt = cat.split(" / ")[0] if cat else None
-    versus = coop = False
-    if "Versus Co-op" in cat:
-        versus = coop = True
+    comp = coop = False
+    if "Versus Co-op" in cat:  # catver's own category names keep the word "Versus"
+        comp = coop = True
     elif "Versus" in cat:
-        versus = True
-    if sim and not versus and (cat == "Fighter / 2.5D" or
+        comp = True
+    if sim and not comp and (cat == "Fighter / 2.5D" or
                                (gt in ("Shooter", "Platform", "Maze") and cat != "Shooter / Gallery")):
         coop = True
-    if sim and gt == "Sports" and not coop:
-        versus = True
+    if sim and gt in ("Sports", "Puzzle") and not coop:
+        comp = True
     out.append({
         "title": title,
         "set": parent_set,
         "year": (src or {}).get("year") or None,
         "manufacturer": (src or {}).get("manufacturer") or None,
         "players": npl_players or (src or {}).get("players") or None,
-        "sim": sim, "coop": coop, "versus": versus,
+        "sim": sim, "coop": coop, "comp": comp,
         "buttons": (src or {}).get("buttons") or None,
         "vertical": (src or {}).get("vertical") if src else None,
         "genre": cat or None,
@@ -267,4 +267,4 @@ nv = sum(len(r["versions"]) for r in out)
 print(f"games (grouped): {len(out)}  versions total: {nv}")
 print(f"  with year: {sum(1 for r in out if r['year'])}  genre: {sum(1 for r in out if r['genre'])}  players: {sum(1 for r in out if r['players'])}")
 print(f"  multi-version games: {sum(1 for r in out if len(r['versions']) > 1)}  multi-platform: {sum(1 for r in out if len(r['platforms']) > 1)}")
-print(f"  modes: sim {sum(1 for r in out if r['sim'])}  co-op {sum(1 for r in out if r['coop'])}  versus {sum(1 for r in out if r['versus'])}")
+print(f"  modes: sim {sum(1 for r in out if r['sim'])}  co-op {sum(1 for r in out if r['coop'])}  comp {sum(1 for r in out if r['comp'])}")
