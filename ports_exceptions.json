@@ -674,6 +674,9 @@
   ],
   "zerowing": [
    "PC Engine / TurboGrafx-16"
+  ],
+  "souledge": [
+   "PlayStation"
   ]
  },
  "remove": {
@@ -717,6 +720,10 @@
    "NES / Famicom"
   ],
   "title:tekken 2": [
+   "NES / Famicom",
+   "SNES / Super Famicom"
+  ],
+  "tekken2": [
    "NES / Famicom",
    "SNES / Super Famicom"
   ]

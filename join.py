@@ -27,7 +27,12 @@ print(f"setnames wanted: {len(wanted)}")
 # "ctribe"). Aliasing restores the game's full metadata (Syl, 2026-11-23).
 SET_ALIASES = {"combatribes": "ctribe",
                # pram0d's Turtles in Time core suffixes its EU sets with _ap
-               "tmht22pe_ap": "tmht22pe", "tmht24pe_ap": "tmht24pe"}
+               "tmht22pe_ap": "tmht22pe", "tmht24pe_ap": "tmht24pe",
+               # Korean releases, post-0.264 set names; the cores' own
+               # titles state the parentage (Saulabi Spirits = the Korean
+               # Samurai Shodown II; Quiz Salibtamjeong = Quiz Daisousa Sen).
+               "samsho2k": "samsho2", "smsho2k2": "samsho2",
+               "quizdask": "quizdais"}
 for _a, _b in SET_ALIASES.items():
     if _a in wanted:
         wanted.add(_b)
@@ -71,7 +76,11 @@ def parse_region(desc):
     return "USA" if best[1] == "US" else best[1]
 
 def norm_title(t):
-    return re.sub(r"[^a-z0-9]+", " ", base_title(t).lower()).strip()
+    t = base_title(t).strip()
+    m = re.match(r"^(.*),\s*(the|a|an)$", t, re.I)   # "Last Blade, The" -> "The Last Blade"
+    if m:
+        t = f"{m.group(2)} {m.group(1)}"
+    return re.sub(r"[^a-z0-9]+", " ", t.lower()).strip()
 
 def suffix(desc):
     m = re.search(r"\(([^)]*)\)\s*$", desc)
@@ -85,8 +94,20 @@ def suffix(desc):
 # the title literally IS a set name (Midway cores name their files by set),
 # attach it. Bootleg parents are excluded (a "Fatal Fury Special" record
 # must not root on the fatfurspb bootleg) and ambiguous titles never match.
-def norm_title(t):
-    return re.sub(r"[^a-z0-9]+", " ", base_title(t).lower()).strip()
+def title_keys(t):
+    """All normalized keys a title answers to: the full base title, each
+    segment of a dual/subtitled MAME description ("English / Japanese",
+    "Title - Subtitle", "Title: Subtitle"), and space-squashed variants
+    ("Iron Clad" vs the cores' "Ironclad")."""
+    bt = base_title(t).strip()
+    segs = [bt] + [s.strip() for s in re.split(r"\s/\s|\s-\s|:\s", bt) if s.strip()]
+    keys = set()
+    for s in segs:
+        k = norm_title(s)
+        if k:
+            keys.add(k)
+            keys.add(k.replace(" ", ""))
+    return keys
 
 _parent_titles = {}
 for _ev, el in ET.iterparse(f"{ROOT}/raw/mame.xml", events=("end",)):
@@ -95,7 +116,8 @@ for _ev, el in ET.iterparse(f"{ROOT}/raw/mame.xml", events=("end",)):
     if not el.get("cloneof"):
         _desc = (el.findtext("description") or "")
         if "bootleg" not in _desc.lower():
-            _parent_titles.setdefault(norm_title(_desc), []).append(el.get("name", "").lower())
+            for _k in title_keys(_desc):
+                _parent_titles.setdefault(_k, []).append(el.get("name", "").lower())
     el.clear()
 PARENT_BY_TITLE = {k: v[0] for k, v in _parent_titles.items() if len(v) == 1}
 
@@ -111,8 +133,11 @@ for core in data:
         if re.fullmatch(r"[a-z0-9_]+", t.lower()) and t.lower() in cloneof \
                 and t.lower() not in RESOLVER_FILENAME_DENY:
             new = t.lower()
-        elif norm_title(t) in PARENT_BY_TITLE:
-            new = PARENT_BY_TITLE[norm_title(t)]
+        else:
+            for _k in [norm_title(t)] + sorted(title_keys(t)):
+                if _k in PARENT_BY_TITLE:
+                    new = PARENT_BY_TITLE[_k]
+                    break
         if new:
             g["setname"] = new
             wanted.add(new)
@@ -515,7 +540,13 @@ GROUP_MERGES = {"sfzch": "sfa",
                 # "Donkey Kong Jr." is the same game as Donkey Kong Junior;
                 # the dedicated DonkeyKongJr core ships it under the short
                 # title with no set name at all.
-                "title:donkey kong jr": "dkongjr"}
+                "title:donkey kong jr": "dkongjr",
+                # Namco System 11: the core ships the Ver.A data folders as
+                # paths (no set), which form a plain-title group, while the
+                # MAME parent IS the later revision (Tekken 2 Ver.B, Soul
+                # Edge Ver. II) — one game each (Syl, 2026-11-24).
+                "title:tekken 2": "tekken2",
+                "title:soul edge": "souledge"}
 for src_k, dst_k in GROUP_MERGES.items():
     if src_k in groups and dst_k in groups:
         groups[dst_k].extend(groups.pop(src_k))
@@ -524,7 +555,10 @@ for src_k, dst_k in GROUP_MERGES.items():
 # Curated display titles (Syl): the name the game is known by beats the MAME
 # parent's original-region name (Puck Man is the Japanese original, but the
 # entry must read Pac-Man).
-TITLE_OVERRIDES = {"puckman": "Pac-Man"}
+TITLE_OVERRIDES = {"puckman": "Pac-Man",
+                   # MAME names these parents after their latest revision;
+                   # the entries carry the plain game title.
+                   "tekken2": "Tekken 2", "souledge": "Soul Edge"}
 
 # Unofficial hacks (Syl, 2026-11-23): hidden by default on the site, behind
 # a "Show unofficial hacks" checkbox. Detection: the [HBMAME] / "- HBMame"
