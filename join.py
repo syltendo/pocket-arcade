@@ -375,7 +375,7 @@ for core in data:
 # original a port was adapted from...) gets no icon.
 WIKI_ALLOW = {
     "88games", "1942", "asteroid", "tekken", "xenophob", "llander", "tron",
-    "cloak", "indytemp", "tempest",
+    "cloak", "indytemp", "tempest", "chelnov",
     "1943kai", "2020bb", "bakutotu", "breakrev", "bublbob2", "cninja",
     "chukatai", "title:cloak dagger", "title:combatribes", "dankuga",
     "dkongjr", "ddux", "eightman", "fastlane", "genpeitd", "title:get star",
