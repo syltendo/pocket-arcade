@@ -71,7 +71,6 @@
   .snap{object-fit:contain;border-radius:6px;background:#000;display:block}
   .snap-h{max-width:124px}
   .snap-v{max-width:124px}
-  .b-tate{background:var(--accent2);color:#06251a}
   .b-coop{background:var(--accent2);color:#06251a}
   .b-vs{background:#d9534f;color:#fff}
   .ver{font-size:13px;margin:1px 0}
@@ -256,7 +255,7 @@ function apply(){
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
     <td>${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
-    <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
+    <td>${r.vertical===null?"—":r.vertical?"Vertical":"Horizontal"}</td>
     <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}</td>
     <td class="ports">${esc((r.home_ports || []).join(", ") || "—")}</td>
   </tr>`;
