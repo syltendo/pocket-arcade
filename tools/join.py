@@ -117,6 +117,78 @@ for line in open(f"{ROOT}/raw/nplayers.ini", encoding="utf-8", errors="replace")
             npl[k.strip().lower()] = (int(m.group(1)), "sim" in v)
 print(f"nplayers entries: {len(npl)}")
 
+
+# ---- genre taxonomy (Syl, 2026-11-23) -------------------------------------
+# catver categories are remapped to Syl's own genre list (the one he uses for
+# his Pocket library folders). A game can carry SEVERAL genres when its catver
+# category is genuinely hybrid. Machine-type categories (Arcade, Game Console,
+# Medal Game...) are never genres: those games are mapped by gameplay or fall
+# to "Other". Adventure / RPG exist in the taxonomy but no catver arcade entry
+# maps to them yet (they will appear when no-genre games are hand-classified).
+SET_GENRE_OVERRIDES = {
+    "sfzch": ["Vs. Fighting"],        # catver: Game Console / Home Videogame
+    "wofch": ["Beat 'em Up"],         # catver: Game Console / Home Videogame
+    "3wonders": ["Action", "Platformer", "Shoot 'em Up", "Puzzle"],  # compilation
+}
+
+def map_genres(cat, setname=None):
+    if setname in SET_GENRE_OVERRIDES:
+        return SET_GENRE_OVERRIDES[setname]
+    if not cat:
+        return []
+    c = re.sub(r"\s*\*[^*]*\*", "", cat).strip()  # drop "* Mature *" etc.
+    if c.startswith("Fighter / Versus"):
+        return ["Vs. Fighting"]
+    if c in ("Fighter / 2D", "Fighter / Misc.", "Fighter / Vertical"):
+        return ["Vs. Fighting"]
+    if c == "Fighter / 2.5D" or c == "Platform / Fighter Scrolling":
+        return ["Beat 'em Up"]
+    if c in ("Platform / Shooter Scrolling", "Platform / Shooter"):
+        return ["Run 'n' Gun", "Platformer"]
+    if c == "Shooter / Walking":
+        return ["Run 'n' Gun"]
+    if c.startswith("Shooter / Driving"):
+        return ["Shoot 'em Up", "Racing"]
+    if c.startswith("Shooter"):
+        return ["Shoot 'em Up"]
+    if c.startswith("Platform / Run"):
+        return ["Platformer"]
+    if c.startswith("Platform"):
+        return ["Action", "Platformer"]
+    if c == "Maze / Shooter Large" or c == "Maze / Shooter Small":
+        return ["Maze", "Shoot 'em Up"]
+    if c == "Maze / Driving":
+        return ["Maze", "Racing"]
+    if c == "Maze / Fighter":
+        return ["Maze", "Action"]
+    if c.startswith("Maze"):
+        return ["Maze"]
+    if c == "Puzzle / Maze":
+        return ["Puzzle", "Maze"]
+    if c.startswith("Puzzle"):
+        return ["Puzzle"]
+    if c.startswith("Driving"):
+        return ["Racing"]
+    if c.startswith("Sports"):
+        return ["Sports"]
+    if c.startswith("Quiz"):
+        return ["Quiz"]
+    if c == "Tabletop / Shanghai":
+        return ["Tabletop", "Puzzle"]
+    if c.startswith("Tabletop"):
+        return ["Tabletop"]
+    if c.startswith("Ball & Paddle"):
+        return ["Action"]
+    if c.startswith("Climbing"):
+        return ["Action", "Platformer"]
+    if c == "Multiplay / Mini-Games":
+        return ["Puzzle", "Action"]
+    if c == "Redemption Game / Action":
+        return ["Action"]
+    if c.startswith("Misc."):
+        return ["Action"]
+    return ["Other"]
+
 # ---- per-(game, core) records -------------------------------------------
 records = []
 for core in data:
@@ -223,6 +295,7 @@ for key, rs in groups.items():
             e["r"].add(v["region"])
     regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
+    genres = map_genres(cat, parent_set)
     platforms = sorted({c for v in vlist for c in v["cores"]})
     # multiplayer modes: simultaneous play from nplayers.ini; co-op / comp
     # derived from the catver category + simultaneous play (see site footer)
@@ -249,8 +322,9 @@ for key, rs in groups.items():
         "sim": sim, "coop": coop, "comp": comp,
         "buttons": (src or {}).get("buttons") or None,
         "vertical": (src or {}).get("vertical") if src else None,
-        "genre": cat or None,
-        "genre_top": cat.split(" / ")[0] if cat else None,
+        "genre": ", ".join(genres) if genres else None,
+        "genres": genres,
+        "genre_top": genres[0] if genres else None,
         "regional": regional_list,
         "patreon": any(v["patreon"] for v in vlist),
         "has_main": any(not v["alt"] for v in vlist),

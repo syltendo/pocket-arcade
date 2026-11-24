@@ -88,11 +88,7 @@
     <select id="f-screen">
       <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
     </select>
-    <label for="f-sets">Sets</label>
-    <select id="f-sets">
-      <option value="all">All games</option><option value="main">Games with a main set only</option>
-    </select>
-    <label class="check"><input type="checkbox" id="f-pat"> Patreon / beta cores only</label>
+    <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
     <label for="f-sort">Sort by</label>
     <select id="f-sort">
       <option value="title">Title (A–Z)</option><option value="year-asc">Year (oldest first)</option>
@@ -114,10 +110,11 @@
 <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
-  <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>, simultaneous-play data from
+  <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a> remapped to a simpler gameplay taxonomy
+  (a game can carry several genres), simultaneous-play data from
   <a href="https://nplayers.arcadebelgium.be">nplayers.ini</a>. Co-op / Versus badges are derived from the category combined with simultaneous play
   (e.g. a “Versus” category = versus; a simultaneous beat ’em up / shooter / platformer = co-op; simultaneous sports &amp; puzzle games = versus) — a derivation, not per-game documentation.
-  Beta / Patreon cores are included and badged.
+  Patreon cores are included and badged.
   All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
@@ -143,12 +140,12 @@ function apply(){
   const q = $("q").value.trim().toLowerCase();
   const genre = $("f-genre").value, players = $("f-players").value, mode = $("f-mode").value, pub = $("f-pub").value,
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
-        board = $("f-board").value, screen = $("f-screen").value, sets = $("f-sets").value,
+        board = $("f-board").value, screen = $("f-screen").value,
         pat = $("f-pat").checked, sort = $("f-sort").value;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
     if (q && !r._q.includes(nq)) return false;
-    if (genre && r.genre_top !== genre) return false;
+    if (genre && !(r.genres || []).includes(genre)) return false;
     if (pub && r.manufacturer !== pub) return false;
     if (core && !r.cores.includes(core)) return false;
     if (author && !r.authors.includes(author)) return false;
@@ -159,7 +156,6 @@ function apply(){
     if (mode === "comp" && !r.comp) return false;
     if (screen === "v" && r.vertical !== true) return false;
     if (screen === "h" && r.vertical !== false) return false;
-    if (sets === "main" && !r.has_main) return false;
     if (pat && !r.patreon) return false;
     return true;
   });
@@ -176,7 +172,7 @@ function apply(){
     <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}${altHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
-    <td>${esc(r.genre||"—")}</td>
+    <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
     <td>${r.players||"—"}</td>
     <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.comp?'<span class="badge b-vs">VERSUS</span>':"") || "—"}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
@@ -194,13 +190,13 @@ fetch("games.json").then(r => r.json()).then(d => {
   const nv = DATA.reduce((n,r) => n + r.versions.length, 0);
   $("stats").innerHTML = `<b>${DATA.length}</b> games · <b>${nv}</b> versions · <b>${cores}</b> arcade cores`;
   $("gen").textContent = new Date().toISOString().slice(0,10);
-  fillSelect("f-genre", DATA.map(r => r.genre_top));
+  fillSelect("f-genre", DATA.flatMap(r => r.genres || []));
   fillSelect("f-pub", DATA.map(r => r.manufacturer));
   fillSelect("f-core", DATA.flatMap(r => r.cores));
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-sets","f-pat","f-sort"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-pat","f-sort"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("reset").addEventListener("click", () => location.reload());
   apply();
