@@ -817,6 +817,17 @@
   ],
   "roadrunn": [
    "SNES / Super Famicom"
+  ],
+  "asterix": [
+   "SNES / Super Famicom",
+   "Atari 2600",
+   "Master System"
+  ],
+  "mshvsf": [
+   "SNES / Super Famicom"
+  ],
+  "xmvsf": [
+   "SNES / Super Famicom"
   ]
  }
 }
