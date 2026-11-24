@@ -366,6 +366,18 @@ $("chips").addEventListener("click", e => {
   if (d) { d.clear(); apply(); }
 });
 
+// Note text joins the search index (Syl, 2026-11-24): a game mentioned
+// in another game's note makes that note's game searchable by its name
+// (e.g. "Commando" finds Mercs, "Sunset Riders" finds Mystic Warriors).
+function indexNotes(){
+  if (!Object.keys(NOTES).length) return;
+  DATA.forEach(r => {
+    if (r._nq) return;
+    const note = NOTES[keyOf(r)] || NOTES[r.title];
+    if (note) { r._q += " " + normSearch(note); r._nq = true; }
+  });
+}
+
 // ---- Lightbox navigation (Syl, 2026-11-24): arrow keys / on-screen
 // arrows move through the screenshots of the currently displayed games.
 let LB_LIST = [], LB_IDX = -1;
@@ -455,6 +467,7 @@ fetch("games.json").then(r => r.json()).then(d => {
     _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t),
                     ...Object.values(r.ports_aka || {}),
                     ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
+  indexNotes();
   $("gen").textContent = new Date().toISOString().slice(0,10);
   fillSelect("f-genre", DATA.flatMap(r => r.genres || []));
   fillSelect("f-pub", DATA.map(r => r.manufacturer));
@@ -473,6 +486,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   // not behind an (i) icon. Re-render once the file arrives.
   fetch("notes.json").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(n => {
     NOTES = n || {};
+    indexNotes();
     if (DATA.length) apply();
   });
   $("l-new").addEventListener("click", () => {
