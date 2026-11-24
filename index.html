@@ -43,6 +43,9 @@
   .b-alt{background:var(--alt);color:#fff}
   .b-pat{background:var(--badge);color:#fff}
   .b-tate{background:var(--accent2);color:#06251a}
+  .b-coop{background:var(--accent2);color:#06251a}
+  .b-vs{background:#d9534f;color:#fff}
+  .b-sim{background:#3d5a80;color:#fff}
   .ver{font-size:13px;margin:1px 0}
   .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
@@ -66,6 +69,11 @@
     <select id="f-players">
       <option value="">Any</option><option value="1">1 player</option><option value="2">2 players</option>
       <option value="3">3 players</option><option value="4">4+ players</option>
+    </select>
+    <label for="f-mode">Multiplayer mode</label>
+    <select id="f-mode">
+      <option value="">Any mode</option><option value="coop">Co-op</option>
+      <option value="versus">Versus</option><option value="sim">Simultaneous (any)</option>
     </select>
     <label for="f-pub">Publisher / Developer</label>
     <select id="f-pub"><option value="">All publishers</option></select>
@@ -98,7 +106,7 @@
     <table>
       <thead><tr>
         <th>Game</th><th>Year</th><th>Publisher</th><th>Genre</th>
-        <th>Pl.</th><th>Screen</th><th>Versions</th><th>Platforms (ports)</th>
+        <th>Pl.</th><th>Mode</th><th>Screen</th><th>Versions</th><th>Platforms (ports)</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -107,7 +115,10 @@
 <footer>
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
-  <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>. Beta / Patreon cores are included and badged.
+  <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>, simultaneous-play data from
+  <a href="https://nplayers.arcadebelgium.be">nplayers.ini</a>. Co-op / Versus badges are derived from the category combined with simultaneous play
+  (e.g. a “Versus” category, or a simultaneous beat ’em up / shooter / platformer = co-op) — a derivation, not per-game documentation.
+  Beta / Patreon cores are included and badged.
   All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
@@ -131,7 +142,7 @@ function decade(y){ return y ? Math.floor(y/10)*10 + "s" : null; }
 
 function apply(){
   const q = $("q").value.trim().toLowerCase();
-  const genre = $("f-genre").value, players = $("f-players").value, pub = $("f-pub").value,
+  const genre = $("f-genre").value, players = $("f-players").value, mode = $("f-mode").value, pub = $("f-pub").value,
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
         board = $("f-board").value, screen = $("f-screen").value, sets = $("f-sets").value,
         pat = $("f-pat").checked, sort = $("f-sort").value;
@@ -145,6 +156,9 @@ function apply(){
     if (board && !r.boards.includes(board)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
+    if (mode === "coop" && !r.coop) return false;
+    if (mode === "versus" && !r.versus) return false;
+    if (mode === "sim" && !r.sim) return false;
     if (screen === "v" && r.vertical !== true) return false;
     if (screen === "h" && r.vertical !== false) return false;
     if (sets === "main" && !r.has_main) return false;
@@ -166,6 +180,7 @@ function apply(){
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc(r.genre||"—")}</td>
     <td>${r.players||"—"}</td>
+    <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.versus?'<span class="badge b-vs">VERSUS</span>':"") || (r.sim?'<span class="badge b-sim">SIMULTANEOUS</span>':"—")}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
     <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
     <td class="ports">${esc(r.platforms.join(", "))}</td>
@@ -187,7 +202,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-pub","f-year","f-core","f-author","f-board","f-screen","f-sets","f-pat","f-sort"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-screen","f-sets","f-pat","f-sort"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("reset").addEventListener("click", () => location.reload());
   apply();
