@@ -648,6 +648,13 @@ for key, rs in groups.items():
     for lab in ports_exc.get("remove", {}).get(exc_key, []):
         home_sys.pop(port_system(lab), None)
     home = {port_label(sk, fl) for sk, fl in home_sys.items()}
+    # "Also known as": ports released under a different title (curated in
+    # ports_exceptions.json "aka", keyed by system key) — e.g. the NES
+    # Contra is Probotector in Europe; Gunlock's Saturn port is Layer
+    # Section / Galactic Attack (Syl, 2026-11-24).
+    aka_src = ports_exc.get("aka", {}).get(exc_key, {})
+    ports_aka = {port_label(sk, fl): aka_src[sk]
+                  for sk, fl in home_sys.items() if sk in aka_src}
     platforms = sorted({c for v in vlist for c in v["cores"]})
     # multiplayer modes: simultaneous play from nplayers.ini; co-op / comp
     # derived from the catver category + simultaneous play (see site footer)
@@ -686,6 +693,7 @@ for key, rs in groups.items():
         "platforms": platforms,
         "core_authors": _core_authors(rs),
         "home_ports": sorted(home),
+        "ports_aka": ports_aka,
         "cores": sorted({r["core"] for r in rs}),
         "authors": sorted({r["author"] for r in rs}),
         "boards": sorted({r["board"] for r in rs}),

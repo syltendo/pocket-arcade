@@ -78,6 +78,7 @@
   .ver{font-size:13px;margin:1px 0}
   .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
+  .aka{color:var(--muted);font-size:12px;font-style:italic;opacity:.85}
   footer{grid-area:foot;padding:0 0 36px;color:var(--muted);font-size:13px}
   a{color:var(--accent)}
 </style>
@@ -286,7 +287,7 @@ function apply(){
     <td>${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
     <td>${r.vertical===null?"—":r.vertical?"Vertical":"Horizontal"}</td>
     <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}</td>
-    <td class="ports">${esc((r.home_ports || []).join(", ") || "—")}</td>
+    <td class="ports">${(r.home_ports || []).length ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "—"}</td>
   </tr>`;
   }).join("");
 }

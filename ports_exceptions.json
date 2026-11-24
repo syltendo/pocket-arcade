@@ -677,6 +677,9 @@
   ],
   "souledge": [
    "PlayStation"
+  ],
+  "gunlock": [
+   "Saturn"
   ]
  },
  "remove": {
@@ -829,5 +832,13 @@
   "xmvsf": [
    "SNES / Super Famicom"
   ]
+ },
+ "aka": {
+  "contra": {
+   "nes": "Probotector"
+  },
+  "gunlock": {
+   "saturn": "Galactic Attack"
+  }
  }
 }
