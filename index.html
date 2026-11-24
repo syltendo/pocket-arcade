@@ -72,7 +72,7 @@
     <label for="f-mode">Multiplayer mode</label>
     <select id="f-mode">
       <option value="">Any mode</option><option value="coop">Co-op</option>
-      <option value="comp">Competitive</option>
+      <option value="comp">Versus</option>
     </select>
     <label for="f-pub">Publisher / Developer</label>
     <select id="f-pub"><option value="">All publishers</option></select>
@@ -115,8 +115,8 @@
   <p>Data: <a href="https://openfpga-library.github.io/analogue-pocket/">openFPGA Library</a> (core list &amp; releases; game lists come from each core's own instance files),
   MAME 0.264 metadata (year, publisher, players, orientation, parent/clone grouping), genres from
   <a href="https://www.progettosnaps.net/catver/">progettoSNAPS catver</a>, simultaneous-play data from
-  <a href="https://nplayers.arcadebelgium.be">nplayers.ini</a>. Co-op / Competitive badges are derived from the category combined with simultaneous play
-  (e.g. a “Versus” category = competitive; a simultaneous beat ’em up / shooter / platformer = co-op; simultaneous sports &amp; puzzle games = competitive) — a derivation, not per-game documentation.
+  <a href="https://nplayers.arcadebelgium.be">nplayers.ini</a>. Co-op / Versus badges are derived from the category combined with simultaneous play
+  (e.g. a “Versus” category = versus; a simultaneous beat ’em up / shooter / platformer = co-op; simultaneous sports &amp; puzzle games = versus) — a derivation, not per-game documentation.
   Beta / Patreon cores are included and badged.
   All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
@@ -178,7 +178,7 @@ function apply(){
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc(r.genre||"—")}</td>
     <td>${r.players||"—"}</td>
-    <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.comp?'<span class="badge b-vs">COMPETITIVE</span>':"") || "—"}</td>
+    <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.comp?'<span class="badge b-vs">VERSUS</span>':"") || "—"}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
     <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
     <td class="ports">${esc(r.platforms.join(", "))}</td>
