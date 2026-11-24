@@ -8,7 +8,7 @@
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2a3242;
-    --text:#e6edf3; --muted:#9aa7b8; --accent:#ff2038; --accent2:#3fb68b;
+    --text:#e6edf3; --muted:#9aa7b8; --accent:#2e8cff; --accent2:#3fb68b;
     --badge:#8957e5; --alt:#57606a;
   }
   *{box-sizing:border-box}
@@ -283,13 +283,6 @@ function toggleInList(list, key){
   const i = list.games.indexOf(key);
   if (i >= 0) list.games.splice(i, 1); else list.games.push(key);
   if (list !== sharedList) saveLists();
-  document.querySelectorAll("th.sortable").forEach(th => th.addEventListener("click", () => {
-    const k = th.dataset.sort;
-    if (k === sortKey) sortDir = -sortDir;
-    else { sortKey = k; sortDir = (k === "year" || k === "players" || k === "ports") ? -1 : 1; }
-    markHeaders(); apply();
-  }));
-  markHeaders();
   refreshListSelect(); apply();
 }
 function newList(name, games){
@@ -415,6 +408,13 @@ fetch("games.json").then(r => r.json()).then(d => {
     refreshListSelect(); $("f-list").value = l.id; apply();
   });
   $("s-dismiss").addEventListener("click", () => { sharedList = null; $("sharebanner").style.display = "none"; refreshListSelect(); });
+  document.querySelectorAll("th.sortable").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.sort;
+    if (k === sortKey) sortDir = -sortDir;
+    else { sortKey = k; sortDir = (k === "year" || k === "players" || k === "ports") ? -1 : 1; }
+    markHeaders(); apply();
+  }));
+  markHeaders();
   refreshListSelect();
   $("reset").addEventListener("click", () => location.reload());
   apply();
