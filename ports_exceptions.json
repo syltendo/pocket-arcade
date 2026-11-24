@@ -742,6 +742,81 @@
    "Game Boy",
    "Master System",
    "SNES / Super Famicom"
+  ],
+  "bionicc": [
+   "NES / Famicom"
+  ],
+  "bstars2": [
+   "NES / Famicom"
+  ],
+  "indytemp": [
+   "NES / Famicom"
+  ],
+  "rygar": [
+   "NES / Famicom"
+  ],
+  "robocop": [
+   "NES / Famicom"
+  ],
+  "robocop2": [
+   "NES / Famicom"
+  ],
+  "superman": [
+   "NES / Famicom"
+  ],
+  "shadoww": [
+   "NES / Famicom"
+  ],
+  "doubledr": [
+   "NES / Famicom"
+  ],
+  "ddragon2": [
+   "NES / Famicom"
+  ],
+  "rollerg": [
+   "NES / Famicom"
+  ],
+  "dynwar": [
+   "NES / Famicom"
+  ],
+  "wof": [
+   "NES / Famicom"
+  ],
+  "sxevious": [
+   "NES / Famicom"
+  ],
+  "title:tetris": [
+   "NES / Famicom"
+  ],
+  "sf2": [
+   "NES / Famicom"
+  ],
+  "sfa2": [
+   "NES / Famicom"
+  ],
+  "kof96": [
+   "NES / Famicom"
+  ],
+  "kof97": [
+   "NES / Famicom"
+  ],
+  "goldnaxe": [
+   "NES / Famicom"
+  ],
+  "blktiger": [
+   "NES / Famicom"
+  ],
+  "captaven": [
+   "NES / Famicom"
+  ],
+  "wh2": [
+   "NES / Famicom"
+  ],
+  "spang": [
+   "NES / Famicom"
+  ],
+  "roadrunn": [
+   "SNES / Super Famicom"
   ]
  }
 }
