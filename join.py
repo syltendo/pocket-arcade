@@ -432,7 +432,7 @@ WIKI_ALLOW = {
     "title:street fighter ii special champion edition", "sf2hf", "sf2",
     "sfzch", "sfz2al", "title:strikeforce", "sbagman", "ssf2", "sxevious",
     "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
-    "vulcan", "wizdfire", "wrally2", "wrestwar",
+    "vulcan", "wizdfire", "wrally2", "wrestwar", "willow",
 }
 wiki_cache = {}
 _wc = f"{ROOT}/raw/wiki_cache.json"
