@@ -181,6 +181,17 @@ SET_GENRE_OVERRIDES = {
     "sfzch": ["Vs. Fighting"],        # catver: Game Console / Home Videogame
     "wofch": ["Beat 'em Up"],         # catver: Game Console / Home Videogame
     "3wonders": ["Action", "Platformer", "Shoot 'em Up", "Puzzle"],  # compilation
+    # catver's "Fighter / 2D" bucket is side-scrolling action, NOT versus
+    # fighting (Syl flagged Mystic Warriors, 2026-11-23; whole class fixed).
+    "mystwarr": ["Run 'n' Gun"],        # Konami run 'n' gun (Sunset Riders kin)
+    "loht": ["Platformer"],             # Legend of Hero Tonma
+    "nspirit": ["Platformer"],          # Ninja Spirit
+    "lkage": ["Platformer"],            # The Legend of Kage
+    "edrandy": ["Platformer"],          # Edward Randy (whip action)
+    "myhero": ["Beat 'em Up"],
+    "splatter": ["Beat 'em Up"],        # Splatter House
+    "superman": ["Beat 'em Up"],        # Taito Superman
+    "wndrmomo": ["Beat 'em Up"],        # Wonder Momo
 }
 
 def map_genres(cat, setname=None):
