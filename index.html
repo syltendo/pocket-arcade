@@ -58,11 +58,6 @@
   .favbtn:hover{color:var(--accent)}
   .favbtn.on{color:var(--accent)}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
-  .lists-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
-  .lists-bar label{margin:0;font-size:13px;color:var(--muted)}
-  .lists-bar select{width:210px}
-  .lists-bar .listbtns{margin-top:0}
-  .lists-bar .listbtns button{flex:none;padding:6px 10px}
   .listbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
   .listbtns button{flex:1;padding:6px 4px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
   .listbtns button:hover{color:var(--text);border-color:var(--muted)}
@@ -146,6 +141,14 @@
     </div>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
     <label class="check"><input type="checkbox" id="f-hacks"> Show unofficial hacks</label>
+    <label for="f-list">My lists</label>
+    <select id="f-list"><option value="">All games</option></select>
+    <div class="listbtns">
+      <button id="l-new" type="button">＋ New list</button>
+      <button id="l-rename" type="button">Rename</button>
+      <button id="l-share" type="button">Share</button>
+      <button id="l-del" type="button">Delete</button>
+    </div>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -158,16 +161,6 @@
 </div></div>
   </div>
   <section>
-    <div class="lists-bar">
-      <label for="f-list">My lists</label>
-      <select id="f-list"><option value="">All games</option></select>
-      <div class="listbtns">
-        <button id="l-new" type="button">＋ New list</button>
-        <button id="l-rename" type="button">Rename</button>
-        <button id="l-share" type="button">Share</button>
-        <button id="l-del" type="button">Delete</button>
-      </div>
-    </div>
     <p class="count" id="count"></p>
     <table>
       <thead><tr>
