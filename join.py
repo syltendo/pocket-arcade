@@ -487,7 +487,10 @@ for key in list(groups):
 # phase 3: curated merges — same game, but MAME keeps two parents (Syl,
 # 2026-11-23: the CPS Changer "Street Fighter Zero" sets are the same game
 # as Street Fighter Alpha: Warriors' Dreams).
-GROUP_MERGES = {"sfzch": "sfa"}
+GROUP_MERGES = {"sfzch": "sfa",
+                # silkwrmj (Japan set) is unknown to MAME 0.264, so its
+                # record lands in a title group; it is the same game.
+                "title:silkworm": "silkworm"}
 for src_k, dst_k in GROUP_MERGES.items():
     if src_k in groups and dst_k in groups:
         groups[dst_k].extend(groups.pop(src_k))
