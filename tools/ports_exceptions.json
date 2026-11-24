@@ -1,0 +1,30 @@
+{
+  "_comment": "Curated exceptions to the exact-title home-port matching (Syl approved, 2026-11-23). Keys are the arcade parent set name. 'add' = a real home port whose title differs from the arcade title; 'remove' = a same-title home game that is NOT a port of the arcade game. System labels must match join.py SW_SYSTEMS labels.",
+  "add": {
+    "tmnt2": [
+      "SNES / Super Famicom"
+    ],
+    "mslug": [
+      "PlayStation"
+    ]
+  },
+  "remove": {
+    "mjleague": [
+      "NES / Famicom"
+    ],
+    "punisher": [
+      "NES / Famicom"
+    ],
+    "strider": [
+      "NES / Famicom"
+    ],
+    "willow": [
+      "NES / Famicom"
+    ],
+    "xmen": [
+      "32X",
+      "Game Gear",
+      "Mega Drive / Genesis"
+    ]
+  }
+}

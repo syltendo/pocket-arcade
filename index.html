@@ -101,7 +101,7 @@
     <table>
       <thead><tr>
         <th>Game</th><th>Year</th><th>Publisher</th><th>Genre</th>
-        <th>Pl.</th><th>Mode</th><th>Screen</th><th>Versions</th><th>Platforms (ports)</th>
+        <th>Pl.</th><th>Mode</th><th>Screen</th><th>Versions</th><th>Core (openFPGA)</th><th>Home ports (Pocket)</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -116,6 +116,8 @@
   (e.g. a “Versus” category = versus; a simultaneous beat ’em up / shooter / platformer = co-op; simultaneous sports &amp; puzzle games = versus) — a derivation, not per-game documentation.
   Patreon cores are included and badged.
   All versions of a game (regions, revisions, bootlegs, hacks) are grouped under a single entry.
+  “Home ports” are the home versions of the same game on consoles, handhelds and computers that also have an openFPGA core on the Pocket,
+  matched by exact title (arcade or regional name) against the MAME software lists, plus a short curated exceptions list — a home version is an adaptation, not the arcade original.
   This site indexes metadata only — no ROMs. Generated <span id="gen"></span>.</p>
 </footer>
 <script>
@@ -178,6 +180,7 @@ function apply(){
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
     <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
     <td class="ports">${esc(r.platforms.join(", "))}</td>
+    <td class="ports">${esc((r.home_ports || []).join(", ") || "—")}</td>
   </tr>`;
   }).join("");
 }

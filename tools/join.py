@@ -8,7 +8,7 @@ and "platforms" lists every Pocket platform/core combination running it.
 Inputs : data/games-v0.json, raw/mame.xml (MAME 0.264 -listxml), raw/catver.ini
 Output : site/games.json
 """
-import json, re
+import json, os, re
 import xml.etree.ElementTree as ET
 
 ROOT = "/home/hatch/workspace/pocket-arcade-db"
@@ -189,6 +189,53 @@ def map_genres(cat, setname=None):
         return ["Action"]
     return ["Other"]
 
+
+# ---- home ports: MAME software lists (Syl, 2026-11-23) --------------------
+# A home port = a software-list entry, on a system that has an openFPGA core
+# on the Pocket, whose base title exactly matches the arcade game's title
+# (main or regional). Same-title-but-different games and renamed real ports
+# are curated in ports_exceptions.json (add / remove, keyed by parent set).
+SW_SYSTEMS = {
+    "nes": "NES / Famicom", "snes": "SNES / Super Famicom",
+    "megadriv": "Mega Drive / Genesis", "sms": "Master System",
+    "gamegear": "Game Gear", "gameboy": "Game Boy", "gbcolor": "Game Boy Color",
+    "gba": "Game Boy Advance", "pce": "PC Engine / TurboGrafx-16",
+    "tg16": "PC Engine / TurboGrafx-16", "pcecd": "PC Engine CD / TurboGrafx-CD",
+    "segacd": "Mega CD / Sega CD", "32x": "32X", "saturn": "Saturn",
+    "psx": "PlayStation", "n64": "Nintendo 64", "a2600": "Atari 2600",
+    "a7800": "Atari 7800", "lynx": "Atari Lynx", "coleco": "ColecoVision",
+    "intv": "Intellivision", "vectrex": "Vectrex",
+    "ngp": "Neo Geo Pocket / Color", "ngpc": "Neo Geo Pocket / Color",
+    "wswan": "WonderSwan / Color", "wscolor": "WonderSwan / Color",
+    "msx1_cart": "MSX", "msx2_cart": "MSX",
+    "c64_cart": "Commodore 64", "c64_cass": "Commodore 64",
+    "amigaocs_flop": "Amiga", "spectrum_cass": "ZX Spectrum",
+}
+sw_index = {}
+os.makedirs(f"{ROOT}/raw/swlists", exist_ok=True)
+for fname, label in SW_SYSTEMS.items():
+    path = f"{ROOT}/raw/swlists/{fname}.xml"
+    if not os.path.exists(path):
+        try:
+            import urllib.request
+            urllib.request.urlretrieve(
+                f"https://raw.githubusercontent.com/mamedev/mame/mame0264/hash/{fname}.xml", path)
+        except Exception as e:
+            print(f"software list {fname}: download failed ({e})")
+            continue
+    try:
+        for sw in ET.parse(path).getroot().iter("software"):
+            desc = (sw.findtext("description") or "").strip()
+            if desc:
+                sw_index.setdefault(norm_title(desc), set()).add(label)
+    except Exception as e:
+        print(f"software list {fname}: parse failed ({e})")
+print(f"software-list titles indexed: {len(sw_index)}")
+try:
+    ports_exc = json.load(open(f"{ROOT}/ports_exceptions.json"))
+except Exception:
+    ports_exc = {"add": {}, "remove": {}}
+
 # ---- per-(game, core) records -------------------------------------------
 records = []
 for core in data:
@@ -296,6 +343,12 @@ for key, rs in groups.items():
     regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     genres = map_genres(cat, parent_set)
+    home = set()
+    for k in {norm_title(title)} | {norm_title(e["t"]) for e in regional_list}:
+        home |= sw_index.get(k, set())
+    exc_key = parent_set or ("title:" + norm_title(title))
+    home |= set(ports_exc.get("add", {}).get(exc_key, []))
+    home -= set(ports_exc.get("remove", {}).get(exc_key, []))
     platforms = sorted({c for v in vlist for c in v["cores"]})
     # multiplayer modes: simultaneous play from nplayers.ini; co-op / comp
     # derived from the catver category + simultaneous play (see site footer)
@@ -329,6 +382,7 @@ for key, rs in groups.items():
         "patreon": any(v["patreon"] for v in vlist),
         "has_main": any(not v["alt"] for v in vlist),
         "platforms": platforms,
+        "home_ports": sorted(home),
         "cores": sorted({r["core"] for r in rs}),
         "authors": sorted({r["author"] for r in rs}),
         "boards": sorted({r["board"] for r in rs}),
