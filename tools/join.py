@@ -298,11 +298,21 @@ def _author_url(author, repo):
         return f"https://github.com/{author}"
     return f"https://github.com/{repo}" if repo else None
 
+# Curated extra credits (Syl, 2026-11-23): a dev to mention for a platform
+# even when a given game's instance list comes from another core only —
+# Mazamars' Neo Geo core plays the whole Neo Geo library, including the few
+# sets only NeoMillie's list carries.
+AUTHOR_CREDIT = {"Neo Geo": [("Mazamars312", "https://github.com/Mazamars312")]}
+
 def _core_authors(rs):
     by_board = {}
     for r in rs:
         by_board.setdefault(r["board"], {})
         by_board[r["board"]].setdefault(r["author"], _author_url(r["author"], r["repo"]))
+    for board, extra in AUTHOR_CREDIT.items():
+        if board in by_board:
+            for name, url in extra:
+                by_board[board].setdefault(name, url)
     return [{"platform": b,
              "authors": [{"name": a, "url": u} for a, u in sorted(authors.items())]}
             for b, authors in sorted(by_board.items())]
