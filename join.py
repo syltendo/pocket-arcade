@@ -511,7 +511,11 @@ GROUP_MERGES = {"sfzch": "sfa",
                 "wrally2d": "wrally2",
                 # Same story for Gradius III: gradius3ja / gradius3jas are
                 # post-0.264 names for extra Japanese revisions of gradius3.
-                "gradius3ja": "gradius3", "gradius3jas": "gradius3"}
+                "gradius3ja": "gradius3", "gradius3jas": "gradius3",
+                # "Donkey Kong Jr." is the same game as Donkey Kong Junior;
+                # the dedicated DonkeyKongJr core ships it under the short
+                # title with no set name at all.
+                "title:donkey kong jr": "dkongjr"}
 for src_k, dst_k in GROUP_MERGES.items():
     if src_k in groups and dst_k in groups:
         groups[dst_k].extend(groups.pop(src_k))
