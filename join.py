@@ -490,7 +490,14 @@ for key in list(groups):
 GROUP_MERGES = {"sfzch": "sfa",
                 # silkwrmj (Japan set) is unknown to MAME 0.264, so its
                 # record lands in a title group; it is the same game.
-                "title:silkworm": "silkworm"}
+                "title:silkworm": "silkworm",
+                # Gaelco renamed its World Rally sets after MAME 0.264;
+                # current MAME (via Arcade Database) lists these as clones
+                # of wrally / wrally2 (Syl approved the merge, 2026-11-23).
+                "wrallyac": "wrally", "wrallyata": "wrally",
+                "wrallyd": "wrally", "wrallye": "wrally",
+                "wrally2b": "wrally2", "wrally2c": "wrally2",
+                "wrally2d": "wrally2"}
 for src_k, dst_k in GROUP_MERGES.items():
     if src_k in groups and dst_k in groups:
         groups[dst_k].extend(groups.pop(src_k))
