@@ -287,35 +287,36 @@ def wiki_url(key, title, regional):
         return "https://en.wikipedia.org/wiki/" + art.replace(" ", "_")
     return None
 
-# ---- Core column: platform name + author(s) with GitHub links (Syl, 2026-11-23)
-# Link = the author's GitHub profile when the name is a live GitHub account,
-# else the core's repository. NON_PROFILE: display names verified NOT to be a
-# GitHub profile (404 or not a username) on 2026-11-23.
-NON_PROFILE = {"AwesomeDolphin", "finn2k1", "August and Doctor Lucy"}
-
-def _author_url(author, repo):
-    if author and re.fullmatch(r"[A-Za-z0-9-]+", author) and author not in NON_PROFILE:
-        return f"https://github.com/{author}"
-    return f"https://github.com/{repo}" if repo else None
-
-# Curated extra credits (Syl, 2026-11-23): a dev to mention for a platform
-# even when a given game's instance list comes from another core only —
-# Mazamars' Neo Geo core plays the whole Neo Geo library, including the few
-# sets only NeoMillie's list carries.
-AUTHOR_CREDIT = {"Neo Geo": [("Mazamars312", "https://github.com/Mazamars312")]}
-
+# ---- Core column: platform name + author(s), each author linked to the
+# GitHub REPOSITORY of their core for that platform (Syl, 2026-11-23 —
+# not the author's profile page). When an author has several cores on one
+# platform, prefer the repo they own themselves (e.g. Mazamars312's own
+# NeoGeo repo over the Analogizer fork's repo).
 def _core_authors(rs):
-    by_board = {}
+    repos = {}
     for r in rs:
-        by_board.setdefault(r["board"], {})
-        by_board[r["board"]].setdefault(r["author"], _author_url(r["author"], r["repo"]))
-    for board, extra in AUTHOR_CREDIT.items():
-        if board in by_board:
-            for name, url in extra:
-                by_board[board].setdefault(name, url)
-    return [{"platform": b,
-             "authors": [{"name": a, "url": u} for a, u in sorted(authors.items())]}
-            for b, authors in sorted(by_board.items())]
+        repos.setdefault(r["board"], {}).setdefault(r["author"], set())
+        if r["repo"]:
+            repos[r["board"]][r["author"]].add(r["repo"])
+    out = []
+    for board, authors in sorted(repos.items()):
+        lst = []
+        for name, rset in sorted(authors.items()):
+            pick = next((x for x in sorted(rset) if x.split("/")[0].lower() == name.lower()),
+                        sorted(rset)[0] if rset else None)
+            lst.append({"name": name,
+                        "url": f"https://github.com/{pick}" if pick else None})
+        out.append({"platform": board, "authors": lst})
+    # Curated extra credit (Syl, 2026-11-23): Mazamars' Neo Geo core plays the
+    # whole Neo Geo library, including the few sets only NeoMillie's list
+    # carries — credit him on every Neo Geo entry.
+    for entry in out:
+        if entry["platform"] == "Neo Geo" and \
+                not any(a["name"] == "Mazamars312" for a in entry["authors"]):
+            entry["authors"].append({"name": "Mazamars312",
+                "url": "https://github.com/Mazamars312/Analogue_Pocket_Neogeo"})
+            entry["authors"].sort(key=lambda a: a["name"])
+    return out
 
 # ---- group by parent set -------------------------------------------------
 groups = {}
