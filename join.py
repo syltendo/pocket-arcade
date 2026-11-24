@@ -679,6 +679,54 @@ for key, rs in groups.items():
         title = us_titles[0]
     if parent_set in TITLE_OVERRIDES:
         title = TITLE_OVERRIDES[parent_set]
+    # Dual "English / Japanese" titles (mostly SNK bilingual MAME
+    # descriptions): headline = the English title, the Japanese one
+    # becomes the 🇯🇵 line (Syl, 2026-11-24 — Real Bout Fatal Fury 2).
+    # Classification hand-checked over all 67 dual titles in the base.
+    DUAL_JP_SECOND = {
+        "3countb", "sonicwi2", "sonicwi3", "aodk", "alpham2", "aof",
+        "aof2", "aof3", "bjourney", "demonwld", "kabukikl", "fatfury1",
+        "fatfury2", "fatfury3", "fatfursp", "ganryu", "karnovr", "kizuna",
+        "kyustrkr", "legendos", "matrim", "miexchng", "turfmast", "pgoal",
+        "popbounc", "joyjoy", "ragnagrd", "rallybik", "rbff1", "rbff2",
+        "rbffspec", "samsho", "samsho2", "samsho3", "samsho4", "samsho5",
+        "samsh5sp", "savagere", "sengoku", "sengoku2", "sengoku3",
+        "snowbro2", "spinmast", "stakwin", "sdodgeb", "ssideki",
+        "ssideki2", "ssideki3", "ssideki4", "irrmaze", "kof98", "lastblad",
+        "lastbld2", "tokio", "truxton2", "gowcaizr", "wildfang",
+        "wjammers", "zedblade", "zintrckb", "pipibibs",
+    }
+    # (headline, 🇯🇵 title, 🇪🇺 title) for the ones the default rule
+    # would get wrong: JP-first Iron Clad; Puzzle Bobble's second name
+    # is the US one, not a JP title; Fight Fever's is Korean (no line);
+    # Street Hoop has three names (US / EU / JP).
+    DUAL_SPECIAL = {
+        "ironclad": ("Iron Clad", "Choutetsu Brikin'ger", None),
+        "pbobblen": ("Puzzle Bobble", None, None),
+        "pbobbl2n": ("Puzzle Bobble 2", None, None),
+        "fightfev": ("Fight Fever", None, None),
+        "strhoop": ("Street Hoop", "Dunk Dream", "Street Slam"),
+    }
+    if " / " in title and (parent_set in DUAL_JP_SECOND or parent_set in DUAL_SPECIAL):
+        old_title = title
+        if parent_set in DUAL_SPECIAL:
+            title, jp_t, eu_t = DUAL_SPECIAL[parent_set]
+        else:
+            title, jp_t = title.split(" / ", 1)[0], title.split(" / ", 1)[1]
+            eu_t = None
+        regional_list = [e for e in regional_list if e["t"] != old_title]
+        for t_new, reg in ((jp_t, "Japan"), (eu_t, "Europe")):
+            if not t_new:
+                continue
+            for e in regional_list:
+                if e["t"] == t_new:
+                    if reg not in e["r"]:
+                        e["r"] = sorted(set(e["r"]) | {reg})
+                    break
+            else:
+                regional_list.append({"t": t_new, "r": [reg]})
+        if parent_set in TITLE_OVERRIDES:
+            title = TITLE_OVERRIDES[parent_set]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     genres = map_genres(cat, parent_set)
     home_sys = {}
