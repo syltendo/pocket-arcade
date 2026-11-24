@@ -481,7 +481,7 @@ WIKI_ALLOW = {
     "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
     "vulcan", "wizdfire", "wrally2", "wrestwar", "willow",
     "aliens", "commando", "bionicc", "captcomm", "sonicwi2",
-    "asterix", "avengers", "nemo",
+    "asterix", "avengers", "nemo", "pocketrc",
 }
 wiki_cache = {}
 _wc = f"{ROOT}/raw/wiki_cache.json"
