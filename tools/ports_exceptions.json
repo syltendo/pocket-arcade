@@ -693,6 +693,9 @@
   "aliens": [
    "Amstrad CPC",
    "ZX Spectrum"
+  ],
+  "sfz2al": [
+   "SNES / Super Famicom"
   ]
  }
 }
