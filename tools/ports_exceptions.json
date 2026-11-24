@@ -25,6 +25,9 @@
       "32X",
       "Game Gear",
       "Mega Drive / Genesis"
+    ],
+    "contra": [
+      "Game Boy"
     ]
   }
 }
