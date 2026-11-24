@@ -208,6 +208,11 @@ SW_SYSTEMS = {
     "ngp": "Neo Geo Pocket / Color", "ngpc": "Neo Geo Pocket / Color",
     "wswan": "WonderSwan / Color", "wscolor": "WonderSwan / Color",
     "msx1_cart": "MSX", "msx2_cart": "MSX",
+    # SuperGrafx games run on the Pocket's PC Engine core; SG-1000 and
+    # Amstrad CPC are Pocket platforms too (added 2026-11-23 after Syl
+    # spotted 1941's SuperGrafx port missing).
+    "sgx": "PC Engine / TurboGrafx-16", "sg1000": "SG-1000",
+    "cpc_cass": "Amstrad CPC", "cpc_flop": "Amstrad CPC",
     "c64_cart": "Commodore 64", "c64_cass": "Commodore 64",
     "amigaocs_flop": "Amiga", "spectrum_cass": "ZX Spectrum",
 }
