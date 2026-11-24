@@ -491,6 +491,11 @@ for src_k, dst_k in GROUP_MERGES.items():
         groups[dst_k].extend(groups.pop(src_k))
         print(f"phase3 merge: {src_k} -> {dst_k}")
 
+# Curated display titles (Syl): the name the game is known by beats the MAME
+# parent's original-region name (Puck Man is the Japanese original, but the
+# entry must read Pac-Man).
+TITLE_OVERRIDES = {"puckman": "Pac-Man"}
+
 out = []
 for key, rs in groups.items():
     parent_set = key if not key.startswith("title:") else None
@@ -500,6 +505,8 @@ for key, rs in groups.items():
         title = base_title(pm["desc"])
     else:
         title = base_title(rs[0]["title"])
+    if parent_set in TITLE_OVERRIDES:
+        title = TITLE_OVERRIDES[parent_set]
     # metadata: parent's MAME record first, else any member's
     src = pm
     if not src:
