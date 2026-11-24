@@ -572,6 +572,10 @@ for src_k, dst_k in GROUP_MERGES.items():
 # parent's original-region name (Puck Man is the Japanese original, but the
 # entry must read Pac-Man).
 TITLE_OVERRIDES = {"puckman": "Pac-Man",
+                   # ssf2's USA-tagged regional entry is The Tournament
+                   # Battle, a distinct variant edition — the standard US
+                   # title stays The New Challengers (no US-title swap).
+                   "ssf2": "Super Street Fighter II: The New Challengers",
                    # MAME names these parents after their latest revision;
                    # the entries carry the plain game title.
                    "tekken2": "Tekken 2", "souledge": "Soul Edge"}
@@ -646,6 +650,35 @@ for key, rs in groups.items():
         if v.get("region"):
             e["r"].add(v["region"])
     regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
+    regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
+    # Region tags MAME descriptions don't carry, hand-checked (Syl's
+    # flag simplification, 2026-11-24): these titles' regions are common
+    # knowledge but their clone descriptions state none.
+    REGION_TITLE_TAGS = {
+        "contra": {"Gryzor": "Europe"},
+        "commando": {"Senjou no Ookami": "Japan"},
+        "aliensec": {"Baraduke": "Japan"},
+        "congo": {"Tip Top": "Europe"},
+        "ajax": {"Typhoon": "USA"},
+        "aso": {"Alpha Mission": "USA", "ASO - Armored Scrum Object": "Japan"},
+        "combatsc": {"Boot Camp": "USA"},
+        "gberet": {"Green Beret": "Japan"},
+    }
+    for e in regional_list:
+        tag = REGION_TITLE_TAGS.get(parent_set, {}).get(e["t"])
+        if tag and tag not in e["r"]:
+            e["r"] = sorted(set(e["r"]) | {tag})
+    # US title by default (Syl, 2026-11-24): when a distinct USA release
+    # title exists, it headlines — Pang -> Buster Bros., Green Beret ->
+    # Rush'n Attack, Shadow Warriors -> Ninja Gaiden... The previous
+    # title stays on as a regional alt (JP/EU lines). Curated overrides
+    # still win.
+    us_titles = [e["t"] for e in regional_list
+                 if "USA" in e["r"] and norm_title(e["t"]) != norm_title(title)]
+    if us_titles:
+        title = us_titles[0]
+    if parent_set in TITLE_OVERRIDES:
+        title = TITLE_OVERRIDES[parent_set]
     regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     genres = map_genres(cat, parent_set)
     home_sys = {}
