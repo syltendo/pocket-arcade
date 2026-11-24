@@ -222,8 +222,7 @@
    "ZX Spectrum"
   ],
   "magdrop2": [
-   "SNES / Super Famicom",
-   "Saturn"
+   "Neo Geo CD"
   ],
   "magdrop3": [
    "Game Boy",
@@ -680,6 +679,12 @@
   ],
   "gunlock": [
    "Saturn"
+  ],
+  "samsh5sp": [
+   "AES"
+  ],
+  "crswd2bl": [
+   "Neo Geo CD"
   ]
  },
  "remove": {

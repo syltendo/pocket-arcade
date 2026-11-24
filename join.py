@@ -300,7 +300,7 @@ def map_genres(cat, setname=None):
 # (main or regional). Same-title-but-different games and renamed real ports
 # are curated in ports_exceptions.json (add / remove, keyed by parent set).
 SW_LISTS = {
-    "nes": "nes", "famicom_flop": "fds", "snes": "snes",
+    "nes": "nes", "famicom_flop": "fds", "snes": "snes", "neocd": "neocd",
     "megadriv": "megadriv", "sms": "sms",
     "gamegear": "gamegear", "gameboy": "gameboy", "gbcolor": "gbcolor",
     "gba": "gba", "pce": "pce",
@@ -337,6 +337,7 @@ SW_LABELS = {
     "msx": "MSX", "sg1000": "SG-1000",
     "cpc": "Amstrad CPC", "c64": "C64",
     "amiga": "Amiga", "spectrum": "ZX Spectrum",
+    "neocd": "Neo Geo CD", "aes": "AES",
 }
 # ports_exceptions.json still uses the earlier display labels.
 LEGACY_PORT_LABELS = {
@@ -389,18 +390,49 @@ for fname, syskey in SW_LISTS.items():
         for sw in ET.parse(path).getroot().iter("software"):
             desc = (sw.findtext("description") or "").strip()
             if desc:
-                jp, west = sw_regions(desc)
-                if list_region == "jp":
-                    jp = True
-                elif list_region == "west":
-                    west = True
-                slot = sw_index.setdefault(norm_title(desc), {}).setdefault(
-                    syskey, {"jp": False, "west": False})
-                slot["jp"] |= jp
-                slot["west"] |= west
+                # Neo Geo CD descriptions often pack both regional names
+                # in one string ("Bust-A-Move (USA) ~ Puzzle Bobble
+                # (Japan)"): index each side as its own title.
+                parts = [p.strip() for p in desc.split("~")] if fname == "neocd" else [desc]
+                for part in parts:
+                    jp, west = sw_regions(part)
+                    if list_region == "jp":
+                        jp = True
+                    elif list_region == "west":
+                        west = True
+                    slot = sw_index.setdefault(norm_title(part), {}).setdefault(
+                        syskey, {"jp": False, "west": False})
+                    slot["jp"] |= jp
+                    slot["west"] |= west
     except Exception as e:
         print(f"software list {fname}: parse failed ({e})")
 print(f"software-list titles indexed: {len(sw_index)}")
+# Neo Geo AES releases (Syl, 2026-11-24): MAME's neogeo list mixes MVS
+# and AES cartridges in one list — each entry's "release" sharedfeat
+# says which formats the game was actually released on ("MVS,AES" vs
+# "MVS" only, e.g. Irritating Maze and the 1999 Puzzle Bobble 2 are
+# MVS-only releases). Matched by set name further down, not by title.
+AES_SETS = set()
+_aes_path = f"{ROOT}/raw/swlists/neogeo.xml"
+if not os.path.exists(_aes_path):
+    try:
+        import urllib.request
+        urllib.request.urlretrieve(
+            "https://raw.githubusercontent.com/mamedev/mame/mame0264/hash/neogeo.xml", _aes_path)
+    except Exception as e:
+        print(f"neogeo list: download failed ({e})")
+if os.path.exists(_aes_path):
+    try:
+        for sw in ET.parse(_aes_path).getroot().iter("software"):
+            rel = ""
+            for sf in sw.iter("sharedfeat"):
+                if sf.get("name") == "release":
+                    rel = sf.get("value") or ""
+            if "AES" in rel:
+                AES_SETS.add(sw.get("name"))
+    except Exception as e:
+        print(f"neogeo list: parse failed ({e})")
+print(f"AES releases: {len(AES_SETS)} sets")
 try:
     ports_exc = json.load(open(f"{ROOT}/ports_exceptions.json"))
 except Exception:
@@ -446,6 +478,7 @@ WIKI_ALLOW = {
     "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
     "vulcan", "wizdfire", "wrally2", "wrestwar", "willow",
     "aliens", "commando", "bionicc", "captcomm", "sonicwi2",
+    "asterix", "avengers",
 }
 wiki_cache = {}
 _wc = f"{ROOT}/raw/wiki_cache.json"
@@ -741,6 +774,10 @@ for key, rs in groups.items():
             cur = home_sys.setdefault(sk, {"jp": False, "west": False})
             cur["jp"] |= fl["jp"]
             cur["west"] |= fl["west"]
+    # AES home release, matched by set name against MAME's release data.
+    game_sets = {parent_set} | {v["set"] for v in vlist if v.get("set")}
+    if game_sets & AES_SETS:
+        home_sys.setdefault("aes", {"jp": False, "west": False})
     exc_key = parent_set or ("title:" + norm_title(title))
     for lab in ports_exc.get("add", {}).get(exc_key, []):
         home_sys.setdefault(port_system(lab), None)
