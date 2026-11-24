@@ -36,7 +36,10 @@ SET_ALIASES = {"combatribes": "ctribe",
                # pbbblenb is the bootleg of the Neo Geo Puzzle Bobble; the
                # title resolver can't attach it (two MAME parents share the
                # "Puzzle Bobble" title: Taito's and the Neo Geo port).
-               "pbbblenb": "pbobblen"}
+               "pbbblenb": "pbobblen",
+               # A core ships Mortal Kombat under the filename-style set
+               # "mortalkombat"; MAME's parent is "mk" (Syl, 2026-11-24).
+               "mortalkombat": "mk"}
 for _a, _b in SET_ALIASES.items():
     if _a in wanted:
         wanted.add(_b)
