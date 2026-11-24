@@ -133,7 +133,7 @@
     <table>
       <thead><tr>
         <th></th><th>Game</th><th>Year</th><th>Publisher</th><th>Genre</th>
-        <th>Pl.</th><th>Mode</th><th>Screen</th><th>Versions</th><th>Core</th><th>Ports</th>
+        <th>Players / Mode</th><th>Screen</th><th>Versions</th><th>Core</th><th>Ports</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
@@ -213,8 +213,7 @@ function apply(){
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
-    <td>${r.players||"—"}</td>
-    <td>${(r.coop?'<span class="badge b-coop">CO-OP</span>':"") + (r.comp?'<span class="badge b-vs">VERSUS</span>':"") || "—"}</td>
+    <td>${r.players ? `${r.players} player${r.players>1?"s":""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
     <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}</div>`).join("")}</td>
     <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}</td>
