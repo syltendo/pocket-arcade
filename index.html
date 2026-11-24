@@ -173,6 +173,13 @@ const FLAGS = {Japan:"🇯🇵", USA:"🇺🇸", Europe:"🇪🇺", World:"🌍"
 const flagStr = regions => (regions||[]).map(r => FLAGS[r] || "").filter(Boolean).join(" ");
 const ROMAN = {ii:"2", iii:"3", iv:"4", v:"5", vi:"6", vii:"7", viii:"8", ix:"9", x:"10"};
 const normSearch = s => s.toLowerCase().replace(/[a-z]+/g, t => ROMAN[t] || t);
+// The Ports filter works per machine, not per regional label: Famicom/NES,
+// SFC/SNES, PCE/TG16 and PCECD/TGCD are one filter entry each (the combined
+// label), however the port is labelled on a given game.
+const PORT_CANON = {"Famicom":"Famicom / NES","NES":"Famicom / NES",
+  "SFC":"SFC / SNES","SNES":"SFC / SNES","PCE":"PCE / TG16","TG16":"PCE / TG16",
+  "PCECD":"PCECD / TGCD","TGCD":"PCECD / TGCD"};
+const canonPort = p => PORT_CANON[p] || p;
 let DATA = [];
 let sortKey = "title", sortDir = 1;
 const SORTVAL = {
@@ -215,7 +222,7 @@ function apply(){
     if (core && !r.cores.includes(core)) return false;
     if (author && !r.authors.includes(author)) return false;
     if (board && !r.boards.includes(board)) return false;
-    if (port && !(r.home_ports || []).includes(port)) return false;
+    if (port && !(r._ports || []).includes(port)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
     if (mode === "coop" && !r.coop) return false;
@@ -327,6 +334,7 @@ document.addEventListener("click", e => {
 
 fetch("games.json").then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
+    _ports: [...new Set((r.home_ports || []).map(canonPort))],
     _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t),
                     ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
   $("gen").textContent = new Date().toISOString().slice(0,10);
@@ -335,7 +343,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   fillSelect("f-core", DATA.flatMap(r => r.cores));
   fillSelect("f-author", DATA.flatMap(r => r.authors));
   fillSelect("f-board", DATA.flatMap(r => r.boards));
-  fillSelect("f-port", DATA.flatMap(r => r.home_ports || []));
+  fillSelect("f-port", DATA.flatMap(r => r._ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
   ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
