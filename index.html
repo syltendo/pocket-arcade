@@ -36,6 +36,7 @@
   th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
   th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--panel2);white-space:nowrap}
   th.sortable{cursor:pointer;user-select:none}
+  th.has-tip{text-decoration:underline dotted;text-underline-offset:3px}
   th.sortable:hover{color:var(--text)}
   th .arr{color:var(--accent);font-size:10px}
   tr:last-child td{border-bottom:none}
@@ -138,7 +139,7 @@
     <table>
       <thead><tr>
         <th></th><th class="sortable" data-sort="title">Game</th><th class="sortable" data-sort="year">Year</th><th class="sortable" data-sort="pub">Publisher</th><th class="sortable" data-sort="genre">Genre</th>
-        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="screen">Screen</th><th class="sortable" data-sort="core">Core</th><th class="sortable" data-sort="ports">Ports</th>
+        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="screen">Screen</th><th class="sortable has-tip" data-sort="core" title="Only the cores currently playable on the Analogue Pocket are listed.">Core</th><th class="sortable" data-sort="ports">Ports</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table>
