@@ -56,12 +56,24 @@ def root(s):
     return s
 
 def base_title(desc):
-    t = desc
-    while True:
-        t2 = re.sub(r"\s*\([^)]*\)\s*$", "", t).strip()
-        if t2 == t:
-            return t
-        t = t2
+    # Strip trailing (…) groups, with balanced nesting: the old [^)]*
+    # regex failed on "Dragon Spirit (new version (DS3))" and leaked the
+    # whole suffix into the display title (also Rompers, Splatter House).
+    t = desc.strip()
+    while t.endswith(")"):
+        depth = 0; start = -1; i = len(t) - 1
+        while i >= 0:
+            if t[i] == ")":
+                depth += 1
+            elif t[i] == "(":
+                depth -= 1
+                if depth == 0:
+                    start = i; break
+            i -= 1
+        if start < 0:
+            break
+        t = t[:start].rstrip()
+    return t
 
 REGION_WORDS = ["Hong Kong", "Japan", "USA", "Europe", "World", "Asia", "Korea",
                 "Brazil", "Australia", "Canada", "China", "Taiwan", "Germany",

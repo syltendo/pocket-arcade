@@ -88,6 +88,7 @@
   .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
   .aka{color:var(--muted);font-size:12px;font-style:italic;opacity:.85}
+  .vcount{color:var(--muted);font-size:11.5px;margin-top:2px}
   .tate{display:inline-block;margin-left:2px;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.06em;background:#f5a623;color:#2a1800;vertical-align:2px;white-space:nowrap}
   .snap{cursor:zoom-in}
   #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:60;cursor:zoom-out;padding:20px}
@@ -301,7 +302,7 @@ function apply(){
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
     <td>${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
-    <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}</td>
+    <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}${r.versions.length > 1 ? `<div class="vcount">${r.versions.length} versions</div>` : ""}</td>
     <td class="ports">${(r.home_ports || []).length ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "—"}</td>
   </tr>`;
   }).join("");
