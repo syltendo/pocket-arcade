@@ -258,6 +258,7 @@ for core in data:
 # else the search coughed up (companies, films, disambiguation pages, the
 # original a port was adapted from...) gets no icon.
 WIKI_ALLOW = {
+    "88games",
     "1943kai", "2020bb", "bakutotu", "breakrev", "bublbob2", "cninja",
     "chukatai", "title:cloak dagger", "title:combatribes", "dankuga",
     "dkongjr", "ddux", "eightman", "fastlane", "genpeitd", "title:get star",
