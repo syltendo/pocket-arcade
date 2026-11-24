@@ -36,6 +36,37 @@ def root(s):
         s = cloneof[s]
     return s
 
+def base_title(desc):
+    t = desc
+    while True:
+        t2 = re.sub(r"\s*\([^)]*\)\s*$", "", t).strip()
+        if t2 == t:
+            return t
+        t = t2
+
+REGION_WORDS = ["Hong Kong", "Japan", "USA", "Europe", "World", "Asia", "Korea",
+                "Brazil", "Australia", "Canada", "China", "Taiwan", "Germany",
+                "France", "Spain", "Italy", "UK", "US"]
+
+def parse_region(desc):
+    """Region = earliest region keyword inside any (…) group of a MAME description."""
+    best = None
+    for grp in re.findall(r"\(([^)]*)\)", desc):
+        for w in REGION_WORDS:
+            m = re.search(rf"\b{re.escape(w)}\b", grp)
+            if m and (best is None or m.start() < best[0]):
+                best = (m.start(), w)
+    if not best:
+        return None
+    return "USA" if best[1] == "US" else best[1]
+
+def norm_title(t):
+    return re.sub(r"[^a-z0-9]+", " ", base_title(t).lower()).strip()
+
+def suffix(desc):
+    m = re.search(r"\(([^)]*)\)\s*$", desc)
+    return m.group(1) if m else ""
+
 full = wanted | {root(s) for s in wanted}
 meta = {}
 for _ev, el in ET.iterparse(f"{ROOT}/raw/mame.xml", events=("end",)):
@@ -45,8 +76,10 @@ for _ev, el in ET.iterparse(f"{ROOT}/raw/mame.xml", events=("end",)):
     if name in full:
         disp = el.find("display")
         inp = el.find("input")
+        desc = (el.findtext("description") or "").strip()
         meta[name] = {
-            "desc": (el.findtext("description") or "").strip(),
+            "desc": desc,
+            "region": parse_region(desc),
             "year": (el.findtext("year") or "").strip(),
             "manufacturer": (el.findtext("manufacturer") or "").strip(),
             "cloneof": el.get("cloneof"),
@@ -68,16 +101,6 @@ for line in open(f"{ROOT}/raw/catver.ini", encoding="utf-8", errors="replace"):
         k, v = line.split("=", 1)
         genre[k.strip().lower()] = v.strip()
 print(f"catver entries: {len(genre)}")
-
-def base_title(desc):
-    return re.sub(r"\s*\([^)]*\)\s*$", "", desc).strip()
-
-def norm_title(t):
-    return re.sub(r"[^a-z0-9]+", " ", base_title(t).lower()).strip()
-
-def suffix(desc):
-    m = re.search(r"\(([^)]*)\)\s*$", desc)
-    return m.group(1) if m else ""
 
 # ---- per-(game, core) records -------------------------------------------
 records = []
@@ -157,13 +180,34 @@ for key, rs in groups.items():
             "label": suffix((meta.get(r["set"]) or {}).get("desc", "")) or (r["title"] if r["title"] != title else ""),
             "title": r["title"],
             "cores": set(), "alt": True, "patreon": False,
+            "mtitle": None, "region": None, "mtitle_mame": False,
         })
+        m = meta.get(r["set"]) if r["set"] else None
+        if m and m["desc"]:
+            if not v["mtitle_mame"]:
+                v["mtitle"] = base_title(m["desc"])
+                v["region"] = m["region"]
+                v["mtitle_mame"] = True
+        elif not v["mtitle"]:
+            v["mtitle"] = base_title(r["title"])
+            v["region"] = parse_region(r["title"])
         v["cores"].add(r["core"] if r["board"].lower() == r["core"].lower() else f"{r['board']} · {r['core']}")
         v["alt"] = v["alt"] and r["alt"] and (r["set"] != parent_set)
         v["patreon"] = v["patreon"] or r["patreon"]
     vlist = sorted(versions.values(), key=lambda v: (v["alt"], v["set"] or v["title"]))
     for v in vlist:
         v["cores"] = sorted(v["cores"])
+        v.pop("mtitle_mame", None)
+    # regional titles: distinct names for this game, with the regions using each
+    regional = {}
+    for v in vlist:
+        if not v.get("mtitle"):
+            continue
+        e = regional.setdefault(norm_title(v["mtitle"]), {"t": v["mtitle"], "r": set()})
+        if v.get("region"):
+            e["r"].add(v["region"])
+    regional_list = [{"t": e["t"], "r": sorted(e["r"])} for e in regional.values()]
+    regional_list.sort(key=lambda e: (norm_title(e["t"]) != norm_title(title), e["t"]))
     platforms = sorted({c for v in vlist for c in v["cores"]})
     out.append({
         "title": title,
@@ -175,6 +219,7 @@ for key, rs in groups.items():
         "vertical": (src or {}).get("vertical") if src else None,
         "genre": cat or None,
         "genre_top": cat.split(" / ")[0] if cat else None,
+        "regional": regional_list,
         "patreon": any(v["patreon"] for v in vlist),
         "has_main": any(not v["alt"] for v in vlist),
         "platforms": platforms,

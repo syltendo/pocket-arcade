@@ -114,6 +114,12 @@
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FLAGS = {Japan:"🇯🇵", USA:"🇺🇸", Europe:"🇪🇺", World:"🌍", Asia:"🌏", Korea:"🇰🇷", Brazil:"🇧🇷",
+               Australia:"🇦🇺", Canada:"🇨🇦", China:"🇨🇳", Taiwan:"🇹🇼", "Hong Kong":"🇭🇰", Germany:"🇩🇪",
+               France:"🇫🇷", Spain:"🇪🇸", Italy:"🇮🇹", UK:"🇬🇧"};
+const flagStr = regions => (regions||[]).map(r => FLAGS[r] || "").filter(Boolean).join(" ");
+const ROMAN = {ii:"2", iii:"3", iv:"4", v:"5", vi:"6", vii:"7", viii:"8", ix:"9", x:"10"};
+const normSearch = s => s.toLowerCase().replace(/[a-z]+/g, t => ROMAN[t] || t);
 let DATA = [];
 
 function fillSelect(id, values){
@@ -129,9 +135,9 @@ function apply(){
         year = $("f-year").value, core = $("f-core").value, author = $("f-author").value,
         board = $("f-board").value, screen = $("f-screen").value, sets = $("f-sets").value,
         pat = $("f-pat").checked, sort = $("f-sort").value;
+  const nq = normSearch(q);
   let out = DATA.filter(r => {
-    if (q && !(r.title.toLowerCase().includes(q) || (r.set||"").includes(q) ||
-               r.versions.some(v => (v.set||"").includes(q) || v.title.toLowerCase().includes(q)))) return false;
+    if (q && !r._q.includes(nq)) return false;
     if (genre && r.genre_top !== genre) return false;
     if (pub && r.manufacturer !== pub) return false;
     if (core && !r.cores.includes(core)) return false;
@@ -150,8 +156,12 @@ function apply(){
                   : (b.year||0)-(a.year||0) || a.title.localeCompare(b.title));
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
   $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions`;
-  $("rows").innerHTML = out.map(r => `<tr>
-    <td class="title">${esc(r.title)}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}</td>
+  $("rows").innerHTML = out.map(r => {
+    const main = r.regional.find(e => e.t === r.title);
+    const alts = r.regional.filter(e => e.t !== r.title);
+    const altHtml = alts.map(e => `<div class="ports">${esc(flagStr(e.r))} ${esc(e.t)}</div>`).join("");
+    return `<tr>
+    <td class="title">${esc(flagStr(main ? main.r : []))} ${esc(r.title)}${r.patreon?'<span class="badge b-pat">PATREON</span>':""}${altHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc(r.genre||"—")}</td>
@@ -159,11 +169,14 @@ function apply(){
     <td>${r.vertical===null?"—":r.vertical?'Vertical <span class="badge b-tate">TATE</span>':"Horizontal"}</td>
     <td>${r.versions.map(v => `<div class="ver">${esc(v.label || (v.set === r.set ? "Main set" : v.title))}<span class="set">${esc(v.set||"")}</span>${v.alt?'<span class="badge b-alt">ALT</span>':""}${v.patreon?'<span class="badge b-pat">PATREON</span>':""}</div>`).join("")}</td>
     <td class="ports">${esc(r.platforms.join(", "))}</td>
-  </tr>`).join("");
+  </tr>`;
+  }).join("");
 }
 
 fetch("games.json").then(r => r.json()).then(d => {
-  DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null}));
+  DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
+    _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t),
+                    ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
   const cores = new Set(DATA.flatMap(r => r.cores)).size;
   const nv = DATA.reduce((n,r) => n + r.versions.length, 0);
   $("stats").innerHTML = `<b>${DATA.length}</b> games · <b>${nv}</b> versions · <b>${cores}</b> arcade cores`;
