@@ -182,7 +182,7 @@
       </div>
     </div>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
-    <label class="check"><input type="checkbox" id="f-hacks"> Show unofficial hacks</label>
+    <label class="check"><input type="checkbox" id="f-hacks" checked> Hacks &amp; Homebrews</label>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -318,7 +318,7 @@ function apply(){
     if (port && !(r._ports || []).includes(port)) return false;
     if (year && decade(r.year) !== year) return false;
     if (players){ if (!r.players) return false; if (players === "4" ? r.players < 4 : r.players !== +players) return false; }
-    if (!hacks && r.hack) return false;
+    if (!hacks && (r.hack || r.brew)) return false;
     if (mode === "coop" && !r.coop) return false;
     if (mode === "comp" && !r.comp) return false;
     if (screen === "v" && r.vertical !== true) return false;
@@ -402,7 +402,7 @@ const FILTER_DEFS = [
   selDef("f-board", "Platform"),
   selDef("f-port", "Ports"),
   chkDef("f-pat", "Patreon cores only"),
-  chkDef("f-hacks", "Unofficial hacks"),
+  chkDef("f-hacks", "Hacks & Homebrews"),
   selDef("f-list", "List"),
 ];
 function syncFilterUI(){
