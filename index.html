@@ -25,7 +25,12 @@
   @media (max-width:860px){.filters{position:static}}
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
   .filters label:first-child{margin-top:0}
-  select,input[type=search]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
+  select,input[type=search],input[type=email]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
+  #authbox{margin-top:14px;border-top:1px solid var(--line)}
+  #authbox button{width:100%;margin-top:6px;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-size:13.5px}
+  #authbox button:hover{border-color:var(--accent)}
+  .authmsg{font-size:12px;color:var(--muted);margin-top:6px;min-height:14px}
+  .authwho{font-size:13px;color:var(--text);margin-top:10px;word-break:break-all}
   .check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--text);text-transform:none;letter-spacing:0}
   .check input{accent-color:var(--accent)}
   #reset{margin-top:16px;width:100%;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
@@ -169,6 +174,19 @@
       <button id="l-share" type="button">Share</button>
       <button id="l-del" type="button">Delete</button>
     </div>
+    <div id="authbox" hidden>
+      <div id="auth-out">
+        <label for="auth-email">Account — sync your lists</label>
+        <input type="email" id="auth-email" placeholder="you@email.com" autocomplete="email">
+        <button id="auth-send" type="button">Email me a sign-in link</button>
+        <div id="auth-msg" class="authmsg"></div>
+      </div>
+      <div id="auth-in" hidden>
+        <div id="auth-who" class="authwho"></div>
+        <button id="auth-out-btn" type="button">Sign out</button>
+        <div id="sync-msg" class="authmsg"></div>
+      </div>
+    </div>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -210,6 +228,7 @@
 </div>
 <div id="favmenu" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -406,7 +425,7 @@ let NOTES = {};
 let lists = [];
 try { lists = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { lists = []; }
 let sharedList = null;   // {name, games:[keys]} from a #l= link, not yet saved
-function saveLists(){ localStorage.setItem(LS_KEY, JSON.stringify(lists)); }
+function saveLists(){ localStorage.setItem(LS_KEY, JSON.stringify(lists)); scheduleSync(); }
 function listById(id){ return lists.find(l => l.id === id) || (sharedList && sharedList.id === id ? sharedList : null); }
 function activeList(){
   const v = $("f-list").value;
@@ -466,6 +485,81 @@ document.addEventListener("click", e => {
   const m = $("favmenu");
   if (!m.hidden && !m.contains(e.target) && !e.target.classList.contains("favbtn")) m.hidden = true;
 });
+
+// ---- Accounts (Supabase, Syl 2026-11-24): sign-in by email magic link;
+// lists sync to the account. Signed out = the local lists above, exactly
+// as before. The anon key is public by design; row-level security in
+// the database restricts every user to their own lists.
+const SUPABASE_URL = "https://epxzqmdgkylnztrltjlk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVweHpxbWRna3lsbnp0cmx0amxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1NjA2MTcsImV4cCI6MjExMTEzNjYxN30.4DAnCFACfGp5HTj8JB4zp1U5DqZ8rQulLY3AV9GNxNQ";
+let sb = null, sbUser = null, guestLists = null, syncTimer = null;
+function setSyncMsg(t){ const el = $("sync-msg"); if (el) el.textContent = t || ""; }
+function scheduleSync(){
+  if (!sbUser) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncAll, 700);
+}
+async function syncAll(){
+  if (!sb || !sbUser) return;
+  setSyncMsg("Syncing…");
+  const rows = lists.map(l => ({id: l.id, user_id: sbUser.id, name: l.name,
+    games: l.games, updated_at: new Date().toISOString()}));
+  let err = null;
+  if (rows.length) { const r = await sb.from("lists").upsert(rows); err = r.error; }
+  if (!err) {
+    let q = sb.from("lists").delete().eq("user_id", sbUser.id);
+    if (rows.length) q = q.not("id", "in", "(" + rows.map(r => '"' + r.id + '"').join(",") + ")");
+    const r2 = await q; err = r2.error;
+  }
+  setSyncMsg(err ? "Sync failed — lists are kept on this device and will retry."
+                 : "Lists synced ✓");
+}
+async function onSignedIn(user){
+  sbUser = user;
+  $("auth-out").hidden = true; $("auth-in").hidden = false;
+  $("auth-who").textContent = "Signed in as " + (user.email || "");
+  setSyncMsg("Loading your lists…");
+  const { data, error } = await sb.from("lists").select("id,name,games").order("created_at");
+  if (error) { setSyncMsg("Could not load your account lists."); return; }
+  guestLists = lists;
+  if (data && data.length) {
+    lists = data.map(r => ({id: r.id, name: r.name, games: Array.isArray(r.games) ? r.games : []}));
+    saveLists();
+  } else if (lists.length) {
+    await syncAll();   // first sign-in: import this device's lists
+  }
+  refreshListSelect(); apply();
+  setSyncMsg("Lists synced ✓");
+}
+function onSignedOut(){
+  sbUser = null;
+  if (guestLists) { lists = guestLists; guestLists = null; }
+  localStorage.setItem(LS_KEY, JSON.stringify(lists));
+  $("auth-out").hidden = false; $("auth-in").hidden = true;
+  refreshListSelect(); apply();
+}
+function initAuth(){
+  if (!window.supabase || !SUPABASE_URL.startsWith("https://")) return;
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  $("authbox").hidden = false;
+  $("auth-send").addEventListener("click", async () => {
+    const email = $("auth-email").value.trim(), msg = $("auth-msg");
+    if (!email) { msg.textContent = "Enter your email first."; return; }
+    msg.textContent = "Sending…";
+    const { error } = await sb.auth.signInWithOtp({ email,
+      options: { emailRedirectTo: location.origin + location.pathname } });
+    msg.textContent = error ? ("Could not send: " + error.message)
+                            : "Check your inbox — your sign-in link is on its way.";
+  });
+  $("auth-out-btn").addEventListener("click", async () => { await sb.auth.signOut(); });
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session && session.user) { if (!sbUser || sbUser.id !== session.user.id) onSignedIn(session.user); }
+    else if (event === "SIGNED_OUT") onSignedOut();
+  });
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session && data.session.user && !sbUser) onSignedIn(data.session.user);
+  });
+}
 
 fetch("games.json").then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
@@ -549,6 +643,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   }));
   markHeaders();
   refreshListSelect();
+  initAuth();
   $("reset").addEventListener("click", () => location.reload());
   // Screenshot lightbox: click a snap to see it large, click anywhere
   // (or Esc) to close. (Syl, 2026-11-24)
