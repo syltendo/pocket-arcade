@@ -514,6 +514,44 @@ document.addEventListener("click", e => {
   if (!m.hidden && !m.contains(e.target) && !e.target.classList.contains("favbtn")) m.hidden = true;
 });
 
+// In-place editing of the personal note shown under a game while viewing
+// one of your own lists: click the note (or the "Add a note…" placeholder),
+// type, Enter or click away to save, Esc to cancel. Empty text removes it.
+$("rows").addEventListener("click", e => {
+  const d = e.target.closest(".gblurb[data-edit]");
+  if (d) startBlurbEdit(d);
+});
+function startBlurbEdit(d){
+  if (d.querySelector("input")) return;
+  const al = activeList();
+  if (!al || al.id === "shared") return;
+  const key = d.dataset.edit;
+  const cur = (al.blurbs || {})[key] || "";
+  d.innerHTML = "";
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.className = "blurb-edit"; inp.maxLength = 280;
+  inp.value = cur; inp.placeholder = "Add a note…";
+  d.appendChild(inp);
+  inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+  let done = false;
+  const finish = save => {
+    if (done) return; done = true;
+    if (save) {
+      if (!al.blurbs) al.blurbs = {};
+      const v = inp.value.trim();
+      if (v) al.blurbs[key] = v; else delete al.blurbs[key];
+      saveLists();
+    }
+    apply();
+  };
+  inp.addEventListener("blur", () => finish(true));
+  inp.addEventListener("keydown", ev => {
+    if (ev.key === "Enter") { ev.preventDefault(); inp.blur(); }
+    else if (ev.key === "Escape") { ev.stopPropagation(); finish(false); }
+  });
+  inp.addEventListener("click", ev => ev.stopPropagation());
+}
+
 // ---- Accounts (Supabase, Syl 2026-11-24): sign-in by email magic link;
 // lists sync to the account. Signed out = the local lists above, exactly
 // as before. The anon key is public by design; row-level security in
