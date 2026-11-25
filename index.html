@@ -668,7 +668,7 @@ function initAuth(){
   });
 }
 
-fetch("games.json").then(r => r.json()).then(d => {
+fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
     _ports: [...new Set((r.home_ports || []).map(canonPort))],
     _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t), ...(r.west ? [r.west] : []),
@@ -691,7 +691,7 @@ fetch("games.json").then(r => r.json()).then(d => {
   });
   // Notes (Syl, 2026-11-24): shown as a small line under the game title,
   // not behind an (i) icon. Re-render once the file arrives.
-  fetch("notes.json").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(n => {
+  fetch("notes.json", {cache: "no-cache"}).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(n => {
     NOTES = n || {};
     indexNotes();
     if (DATA.length) apply();
