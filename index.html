@@ -1003,11 +1003,17 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     if (w) { tipFor === w ? hideTip() : showTip(w); }
     else hideTip();
   });
+  // Hover-to-show only on devices with a real hover capability: on touch
+  // screens the synthetic mouseover fires before the tap's click and would
+  // open-then-instantly-close the bubble on the first tap.
+  const HOVERABLE = matchMedia("(hover: hover)").matches;
   document.addEventListener("mouseover", e => {
+    if (!HOVERABLE) return;
     const w = e.target.closest ? e.target.closest(".westcon") : null;
     if (w && tipFor !== w) showTip(w);
   });
   document.addEventListener("mouseout", e => {
+    if (!HOVERABLE) return;
     const w = e.target.closest ? e.target.closest(".westcon") : null;
     if (w && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".westcon") === w)) hideTip();
   });
