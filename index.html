@@ -289,7 +289,7 @@
         <button id="l-share" type="button">Share</button>
         <button id="l-del" type="button">Delete</button>
       </div>
-      <div class="titleswitch" role="group" aria-label="Title order"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button><button type="button" data-tmode="eu" title="European title first">🇪🇺 EU</button></div>
+      <div class="titleswitch" role="group" aria-label="Title order"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button></div>
       <div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
     </div>
     <p class="count" id="count"></p>
@@ -378,12 +378,17 @@ function titleSet(r){
   const jpT = jpE ? jpE.t : (r.west ? r.title : null);
   const euT = euE ? euE.t : null;
   const usT = r.west || r.title;
-  const want = TMODE === "jp" ? jpT : euT;
+  const want = TMODE === "jp" ? jpT : TMODE === "eu" ? euT : usT;
   if (!want) return { head: r.title, subsHtml: westHtml + altHtml };
+  if (TMODE === "us" && want === r.title) return { head: r.title, subsHtml: westHtml + altHtml };
+  const order = TMODE === "jp" ? [[usT, "🇺🇸"], [euT, "🇪🇺"]]
+              : TMODE === "eu" ? [[usT, "🇺🇸"], [jpT, "🇯🇵"]]
+              : [[jpT, "🇯🇵"], [euT, "🇪🇺"]];
+  const seenT = new Set([want]);
   const lines = [];
-  if (usT !== want) lines.push(`<div class="ports">🇺🇸 ${esc(usT)}</div>`);
-  const otherT = TMODE === "jp" ? euT : jpT;
-  if (otherT && otherT !== want && otherT !== usT) lines.push(`<div class="ports">${TMODE === "jp" ? "🇪🇺" : "🇯🇵"} ${esc(otherT)}</div>`);
+  for (const [t, flag] of order) {
+    if (t && !seenT.has(t)) { lines.push(`<div class="ports">${flag} ${esc(t)}</div>`); seenT.add(t); }
+  }
   return { head: want, subsHtml: lines.join("") };
 }
 
@@ -954,7 +959,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     b.addEventListener("click", () => setView(b.dataset.view));
   });
   TMODE = localStorage.getItem("padb_titles") || "mix";
-  if (!["mix", "jp", "eu"].includes(TMODE)) TMODE = "mix";
+  if (!["mix", "jp", "us"].includes(TMODE)) TMODE = "mix";
   document.querySelectorAll(".titleswitch button").forEach(b => {
     b.classList.toggle("on", b.dataset.tmode === TMODE);
     b.addEventListener("click", () => setTMode(b.dataset.tmode));
