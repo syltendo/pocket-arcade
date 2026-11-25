@@ -128,6 +128,9 @@
   .lb-nav:hover{background:rgba(255,255,255,.25)}
   #lb-prev{left:10px}
   #lb-next{right:10px}
+  #lb-snd{position:absolute;top:14px;right:14px;width:44px;height:44px;border:none;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+  #lb-snd:hover{background:rgba(255,255,255,.25)}
+  #lb-snd[hidden]{display:none}
   #lb-cap{color:#eee;margin-top:12px;font-size:15px}
   footer{grid-area:foot;padding:0 0 36px;color:var(--muted);font-size:13px}
   a{color:var(--accent)}
@@ -458,6 +461,12 @@ function indexNotes(){
 // ---- Lightbox navigation (Syl, 2026-11-24): arrow keys / on-screen
 // arrows move through the screenshots of the currently displayed games.
 let LB_LIST = [], LB_IDX = -1;
+let SND = true;
+try { SND = localStorage.getItem("padb_sound") !== "0"; } catch (e) {}
+const SND_ON_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9.5 9.5 0 0 1 0 13"/></svg>';
+const SND_OFF_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor" stroke="none"/><line x1="16" y1="9" x2="22" y2="15"/><line x1="22" y1="9" x2="16" y2="15"/></svg>';
+function updSndIcon(){ const b = $("lb-snd"), vid = $("lb-vid"); if (b) b.innerHTML = (vid && !vid.muted) ? SND_ON_SVG : SND_OFF_SVG; }
+function toggleSnd(){ const vid = $("lb-vid"); SND = !SND; try { localStorage.setItem("padb_sound", SND ? "1" : "0"); } catch (e) {} vid.muted = !SND; if (SND) vid.play().catch(() => {}); updSndIcon(); }
 function stopLB(){ const vid = $("lb-vid"); if (vid) vid.pause(); }
 function closeLB(){ stopLB(); $("lightbox").hidden = true; }
 function openLB(i){
@@ -472,10 +481,14 @@ function openLB(i){
     vid.poster = "snaps/" + r.snap;
     if (vid.dataset.cur !== vf) { vid.src = "videos/" + vf; vid.dataset.cur = vf; }
     vid.currentTime = 0;
-    vid.play().catch(() => {});
+    vid.muted = !SND;
+    $("lb-snd").hidden = false;
+    updSndIcon();
+    vid.play().catch(() => { if (!vid.muted) { vid.muted = true; updSndIcon(); vid.play().catch(() => {}); } });
   } else {
     stopLB();
     vid.hidden = true;
+    $("lb-snd").hidden = true;
     lb.hidden = false;
     lb.src = "snaps/" + r.snap;
     lb.className = r.vertical ? "lb-v" : "";
@@ -788,6 +801,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   document.addEventListener("click", e => {
     if (e.target.closest("#lb-prev")) { navLB(-1); return; }
     if (e.target.closest("#lb-next")) { navLB(1); return; }
+    if (e.target.closest("#lb-snd")) { toggleSnd(); return; }
     const im = e.target.closest("img.snap");
     if (im) { openLB(parseInt(im.dataset.lbi || "0", 10)); return; }
     if (e.target.closest("#lightbox")) closeLB();
@@ -801,6 +815,6 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   apply();
 });
 </script>
-<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
+<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
 </body>
 </html>
