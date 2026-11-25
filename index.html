@@ -95,6 +95,10 @@
   .snap-v{max-width:124px}
   .b-coop{background:var(--accent2);color:#06251a}
   .b-vs{background:#d9534f;color:#fff}
+  .b-hack{background:#c2185b;color:#fff}
+  .b-brew{background:#00838f;color:#fff}
+  .kindline{margin-top:3px}
+  .kindline .badge{margin-left:0}
   .ver{font-size:13px;margin:1px 0}
   .ver .set{margin-left:4px}
   .ports{color:var(--muted);font-size:13px}
@@ -362,9 +366,11 @@ function apply(){
     // Wikipedia icon on its own line after the titles and the editorial
     // note; the personal note (when viewing a list) goes below it.
     const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
+    const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
+      : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">`:""}</td>
-    <td class="title">${esc(r.title)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${westHtml}${altHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
+    <td class="title">${esc(r.title)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${westHtml}${altHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
