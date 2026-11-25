@@ -346,6 +346,7 @@ function apply(){
     const alts = r.regional.filter(e => e.t !== r.title);
     const altHtml = alts.filter(e => e.r.includes("Japan") || e.r.includes("Europe") || e.r.includes("UK"))
       .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
+    const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
     const noteTxt = NOTES[keyOf(r)] || NOTES[r.title] || "";
     // Personal note: shown only while viewing a list, under the Wikipedia
     // line, and edited in place (Syl, 2026-11-24). Shared lists are read-only.
@@ -362,7 +363,7 @@ function apply(){
     const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">`:""}</td>
-    <td class="title">${esc(r.title)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${altHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
+    <td class="title">${esc(r.title)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${westHtml}${altHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
@@ -658,7 +659,7 @@ function initAuth(){
 fetch("games.json").then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
     _ports: [...new Set((r.home_ports || []).map(canonPort))],
-    _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t),
+    _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t), ...(r.west ? [r.west] : []),
                     ...Object.values(r.ports_aka || {}),
                     ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
   indexNotes();
