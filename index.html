@@ -343,7 +343,7 @@ const canonPort = p => PORT_CANON[p] || p;
 let DATA = [];
 let sortKey = "title", sortDir = 1;
 const SORTVAL = {
-  title:   r => r.title.toLowerCase(),
+  title:   r => titleSet(r).head.toLowerCase(),
   year:    r => r.year,
   pub:     r => (r.manufacturer || "").toLowerCase() || null,
   genre:   r => ((r.genres && r.genres[0]) || "").toLowerCase() || null,
@@ -456,10 +456,10 @@ function apply(){
   const sv = SORTVAL[sortKey];
   out.sort((a,b) => {
     const va = sv(a), vb = sv(b);
-    if (va === null || va === undefined) return vb === null || vb === undefined ? a.title.localeCompare(b.title) : 1;
+    if (va === null || va === undefined) return vb === null || vb === undefined ? titleSet(a).head.localeCompare(titleSet(b).head) : 1;
     if (vb === null || vb === undefined) return -1;
     const c = (typeof va === "string" ? va.localeCompare(vb) : va - vb) * sortDir;
-    return c || a.title.localeCompare(b.title);
+    return c || titleSet(a).head.localeCompare(titleSet(b).head);
   });
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
   const nc = new Set(out.flatMap(r => r.cores)).size;
