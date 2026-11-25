@@ -27,32 +27,6 @@
   @media (max-width:860px){.shell{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "side" "main" "foot"}}
   .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;height:fit-content;max-height:calc(100vh - 24px);overflow-y:auto;position:sticky;top:12px}
   @media (max-width:860px){.filters{position:static}}
-  /* Mobile pass (2026-11-25): collapsible filters, table scrolls inside
-     its own box instead of stretching the page, larger lightbox. */
-  #filtertoggle{display:none}
-  @media (max-width:860px){
-    .shell{padding:10px 10px 0}
-    h1{font-size:24px}
-    #filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 12px;margin:0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14.5px;font-weight:600;cursor:pointer}
-    #ft-count{color:var(--accent);font-weight:600;font-size:13px}
-    .filters{max-height:none;overflow:visible}
-    .filters.collapsed>*:not(#filtertoggle){display:none}
-    html,body{overflow-x:clip}
-    body{-webkit-text-size-adjust:100%}
-    select,input[type=search],input[type=email]{font-size:16px}
-    .head,section,footer,.filters{min-width:0}
-    .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-    table{min-width:680px;font-size:14px}
-    th,td{padding:6px 8px}
-    .snap-h,.snap-v{max-width:84px}
-    tbody td:nth-child(2){max-width:300px}
-    .gblurb{max-width:280px}
-    #authmenu{width:min(290px,86vw)}
-    #lightbox{padding:10px}
-    #lightbox img,#lightbox video{width:94vw;height:auto;max-height:72vh}
-    #lightbox img.lb-v,#lightbox video.lb-v{width:auto;height:80vh;max-width:94vw}
-    .lb-nav{width:40px;height:56px}
-  }
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:9px 0 3px}
   .side-h{font-size:12.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.07em;margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line)}
   .filters label:first-child{margin-top:0}
@@ -180,6 +154,32 @@
   #lb-cap{color:#eee;margin-top:12px;font-size:15px}
   footer{grid-area:foot;padding:0 0 36px;color:var(--muted);font-size:13px}
   a{color:var(--accent)}
+  /* Mobile pass (2026-11-25): collapsible filters, table scrolls inside
+     its own box instead of stretching the page, larger lightbox. */
+  #filtertoggle{display:none}
+  @media (max-width:860px){
+    .shell{padding:10px 10px 0}
+    h1{font-size:24px}
+    #filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 12px;margin:0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14.5px;font-weight:600;cursor:pointer}
+    #ft-count{color:var(--accent);font-weight:600;font-size:13px}
+    .filters{max-height:none;overflow:visible}
+    .filters.collapsed>*:not(#filtertoggle){display:none}
+    html,body{overflow-x:clip}
+    body{-webkit-text-size-adjust:100%}
+    select,input[type=search],input[type=email]{font-size:16px}
+    .head,section,footer,.filters{min-width:0}
+    .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+    table{min-width:680px;font-size:14px}
+    th,td{padding:6px 8px}
+    .snap-h,.snap-v{max-width:84px}
+    tbody td:nth-child(2){max-width:300px}
+    .gblurb{max-width:280px}
+    #authmenu{width:min(290px,86vw)}
+    #lightbox{padding:10px}
+    #lightbox img,#lightbox video{width:94vw;height:auto;max-height:72vh}
+    #lightbox img.lb-v,#lightbox video.lb-v{width:auto;height:80vh;max-width:94vw}
+    .lb-nav{width:40px;height:56px}
+  }
 </style>
 </head>
 <body>
