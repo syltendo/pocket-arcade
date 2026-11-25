@@ -21,6 +21,7 @@
   h1 .db{color:var(--accent)}
   .sub{color:var(--muted);margin:0 0 6px}
   h1 .logo{height:30px;width:30px;vertical-align:-5px;margin-right:9px}
+  h1{cursor:pointer}
   .shell{max-width:1600px;margin:0 auto;padding:12px 20px 0;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-areas:"side head" "side main" "side foot";column-gap:18px;align-items:start}
   .head{grid-area:head}
   section{grid-area:main;padding-bottom:40px}
@@ -947,6 +948,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   refreshListSelect();
   initAuth();
   $("reset").addEventListener("click", () => location.reload());
+  document.querySelector("h1").addEventListener("click", () => location.reload());
   $("filtertoggle").addEventListener("click", () => {
     const f = document.querySelector(".filters");
     const collapsed = f.classList.toggle("collapsed");
