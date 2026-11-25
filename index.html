@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pocket Arcade Database — every arcade game playable on the Analogue Pocket</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/png" sizes="64x64" href="favicon.png">
 <meta name="description" content="Searchable database of arcade games playable on the Analogue Pocket via openFPGA cores. One entry per game, with all its versions and every platform/core that runs it. Filter by genre, players, publisher, year, core and screen orientation.">
 <style>
   :root{
@@ -18,6 +20,7 @@
   h1{margin:0 0 4px;font-size:28px;letter-spacing:.2px}
   h1 .db{color:var(--accent)}
   .sub{color:var(--muted);margin:0 0 6px}
+  h1 .logo{height:30px;width:30px;vertical-align:-5px;margin-right:9px}
   .shell{max-width:1600px;margin:0 auto;padding:12px 20px 0;display:grid;grid-template-columns:250px 1fr;grid-template-areas:"side head" "side main" "side foot";column-gap:18px;align-items:start}
   .head{grid-area:head}
   section{grid-area:main;padding-bottom:40px}
@@ -198,7 +201,7 @@
   <div class="head">
 <header>
   <div class="headmain">
-    <h1>Pocket Arcade <span class="db">Database</span></h1>
+    <h1><img class="logo" src="favicon.svg" alt="">Pocket Arcade <span class="db">Database</span></h1>
     <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
   </div>
   <div id="authbox" hidden>
