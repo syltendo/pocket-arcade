@@ -108,6 +108,8 @@
   .ports{color:var(--muted);font-size:13px}
   .aka{color:var(--muted);font-size:12px;font-style:italic;opacity:.85}
   .gnote{color:var(--muted);font-size:11.5px;font-weight:400;font-style:italic;margin-top:2px}
+  .westcon{border-bottom:1px dotted var(--muted);cursor:help}
+  .infoic{vertical-align:-2px;margin-left:3px;color:var(--muted)}
   .wikiline{margin-top:3px}
   .wikiline .wiki{margin-left:0}
   tbody td:nth-child(2){max-width:480px}
@@ -367,29 +369,38 @@ function fillSelect(id, values){
 }
 function decade(y){ return y ? Math.floor(y/10)*10 + "s" : null; }
 
+const INFO_SVG = `<svg class="infoic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.6" fill="currentColor" stroke="none"/></svg>`;
+function westTip(r){ return `Not a US arcade title \u2014 '${r.west}' is the name of the console versions.`; }
+function westSpan(r){ return `<span class="westcon" title="${esc(westTip(r))}">${esc(r.west)}</span>${INFO_SVG}`; }
+
 function titleSet(r){
-  const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
+  const westHtml = r.west ? `<div class="ports">🇺🇸 ${r.west_console ? westSpan(r) : esc(r.west)}</div>` : "";
   const altHtml = r.regional.filter(e => e.t !== r.title)
     .filter(e => e.r.includes("Japan") || e.r.includes("Europe") || e.r.includes("UK"))
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
-  if (TMODE === "mix") return { head: r.title, subsHtml: westHtml + altHtml };
+  if (TMODE === "mix") return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
   const jpE = r.regional.find(e => e.t !== r.title && e.r.includes("Japan"));
   const euE = r.regional.find(e => e.t !== r.title && (e.r.includes("Europe") || e.r.includes("UK")));
   const jpT = jpE ? jpE.t : (r.west ? r.title : null);
   const euT = euE ? euE.t : null;
   const usT = r.west || r.title;
   const want = TMODE === "jp" ? jpT : TMODE === "eu" ? euT : usT;
-  if (!want) return { head: r.title, subsHtml: westHtml + altHtml };
-  if (TMODE === "us" && want === r.title) return { head: r.title, subsHtml: westHtml + altHtml };
+  if (!want) return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
+  if (TMODE === "us" && want === r.title) return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
   const order = TMODE === "jp" ? [[usT, "🇺🇸"], [euT, "🇪🇺"]]
               : TMODE === "eu" ? [[usT, "🇺🇸"], [jpT, "🇯🇵"]]
               : [[jpT, "🇯🇵"], [euT, "🇪🇺"]];
   const seenT = new Set([want]);
   const lines = [];
   for (const [t, flag] of order) {
-    if (t && !seenT.has(t)) { lines.push(`<div class="ports">${flag} ${esc(t)}</div>`); seenT.add(t); }
+    if (t && !seenT.has(t)) {
+      const inner = (t === r.west && r.west_console) ? westSpan(r) : esc(t);
+      lines.push(`<div class="ports">${flag} ${inner}</div>`); seenT.add(t);
+    }
   }
-  return { head: want, subsHtml: lines.join("") };
+  const headHtml = (want === r.west && r.west_console)
+    ? `<span class="westcon" title="${esc(westTip(r))}">${esc(want)}</span>${INFO_SVG}` : esc(want);
+  return { head: want, headHtml, subsHtml: lines.join("") };
 }
 
 function cardHtml(r){
@@ -414,7 +425,7 @@ function cardHtml(r){
   return `<div class="card">
     <div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}</div>
     <div class="card-body">
-      <div class="card-title">${esc(ts.head)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
+      <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
       ${kindHtml}${ts.subsHtml}
       <div class="card-meta">${r.year || "—"} · ${esc(r.manufacturer || "—")}</div>
       <div class="card-meta">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}${r.players ? ` · ${r.players} player${r.players > 1 ? "s" : ""}${r.players > 1 && !r.sim ? " (alternating)" : ""}` : ""}${r.coop ? ' <span class="badge b-coop">CO-OP</span>' : ""}${r.comp ? ' <span class="badge b-vs">VERSUS</span>' : ""}</div>
@@ -495,7 +506,7 @@ function apply(){
       : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">`:""}</td>
-    <td class="title">${esc(ts.head)}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
+    <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
