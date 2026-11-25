@@ -374,7 +374,9 @@ function westTip(r){ return `Not a US arcade title \u2014 '${r.west}' is the nam
 function westSpan(r){ return `<span class="westcon" title="${esc(westTip(r))}">${esc(r.west)}</span>${INFO_SVG}`; }
 
 function titleSet(r){
-  const westHtml = r.west ? `<div class="ports">🇺🇸 ${r.west_console ? westSpan(r) : esc(r.west)}</div>` : "";
+  const westHtml = r.west ? (r.west_console
+    ? `<div class="ports">${westSpan(r)}</div>`
+    : `<div class="ports">🇺🇸 ${esc(r.west)}</div>`) : "";
   const altHtml = r.regional.filter(e => e.t !== r.title)
     .filter(e => e.r.includes("Japan") || e.r.includes("Europe") || e.r.includes("UK"))
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
@@ -394,8 +396,9 @@ function titleSet(r){
   const lines = [];
   for (const [t, flag] of order) {
     if (t && !seenT.has(t)) {
-      const inner = (t === r.west && r.west_console) ? westSpan(r) : esc(t);
-      lines.push(`<div class="ports">${flag} ${inner}</div>`); seenT.add(t);
+      seenT.add(t);
+      if (t === r.west && r.west_console) lines.push(`<div class="ports">${westSpan(r)}</div>`);
+      else lines.push(`<div class="ports">${flag} ${esc(t)}</div>`);
     }
   }
   const headHtml = (want === r.west && r.west_console)
