@@ -481,7 +481,7 @@ WIKI_ALLOW = {
     "szaxxon", "pwrgoal", "title:top hunter", "tumblep", "toutrun", "vsav2",
     "vulcan", "wizdfire", "wrally2", "wrestwar", "willow",
     "aliens", "commando", "bionicc", "captcomm", "sonicwi2",
-    "asterix", "avengers", "nemo", "pocketrc", "strider",
+    "asterix", "avengers", "nemo", "pocketrc", "strider", "gng",
 }
 wiki_cache = {}
 _wc = f"{ROOT}/raw/wiki_cache.json"
@@ -703,6 +703,7 @@ for key, rs in groups.items():
         "aso": {"Alpha Mission": "USA", "ASO - Armored Scrum Object": "Japan"},
         "combatsc": {"Boot Camp": "USA"},
         "gberet": {"Green Beret": "Japan"},
+        "hyperspt": {"Hyper Olympic '84": "Japan"},
     }
     for e in regional_list:
         tag = REGION_TITLE_TAGS.get(parent_set, {}).get(e["t"])
