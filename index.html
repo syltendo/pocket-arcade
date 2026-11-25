@@ -13,7 +13,8 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  header{padding:16px 0 8px}
+  header{padding:16px 0 8px;display:flex;gap:10px 22px;align-items:flex-start;flex-wrap:wrap}
+  .headmain{flex:1 1 430px;min-width:260px}
   h1{margin:0 0 4px;font-size:28px;letter-spacing:.2px}
   h1 .db{color:var(--accent)}
   .sub{color:var(--muted);margin:0 0 6px}
@@ -26,15 +27,22 @@
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
   .filters label:first-child{margin-top:0}
   select,input[type=search],input[type=email]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
-  #authbox{margin-top:14px;border-top:1px solid var(--line)}
+  #authbox{flex:0 1 290px;margin-left:auto;padding-top:6px}
+  #authbox label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
   #authbox button{width:100%;margin-top:6px;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-size:13.5px}
   #authbox button:hover{border-color:var(--accent)}
   .authmsg{font-size:12px;color:var(--muted);margin-top:6px;min-height:14px}
-  .authwho{font-size:13px;color:var(--text);margin-top:10px;word-break:break-all}
+  .authwho{font-size:13px;color:var(--text);margin-top:2px;word-break:break-all}
+  @media (max-width:860px){#authbox{flex:1 1 100%;margin-left:0}}
+  .listbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .listbar label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .listbar label.on{color:var(--accent)}
+  .listbar select{width:auto;min-width:180px}
+  .listbar .count{margin:0 0 0 auto}
   .check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--text);text-transform:none;letter-spacing:0}
   .check input{accent-color:var(--accent)}
   #reset{margin-top:16px;width:100%;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
-  .filters select.on,.filters input[type="search"].on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:rgba(46,140,255,.08)}
+  select.on,.filters input[type="search"].on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:rgba(46,140,255,.08)}
   .filters label.on{color:var(--accent)}
   .filters label.check.on{font-weight:700}
   #reset.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
@@ -67,8 +75,8 @@
   .favbtn:hover{color:var(--accent)}
   .favbtn.on{color:var(--accent)}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
-  .listbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-  .listbtns button{flex:1;padding:6px 4px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
+  .listbtns{display:flex;gap:6px;flex-wrap:wrap}
+  .listbtns button{padding:7px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
   .listbtns button:hover{color:var(--text);border-color:var(--muted)}
   #favmenu{position:absolute;z-index:50;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px;min-width:210px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
   #favmenu label{display:flex;gap:8px;align-items:center;font-size:14px;text-transform:none;letter-spacing:0;color:var(--text);margin:4px 0;cursor:pointer}
@@ -169,40 +177,44 @@
     </div>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
     <label class="check"><input type="checkbox" id="f-hacks"> Show unofficial hacks</label>
-    <label for="f-list">My lists</label>
-    <select id="f-list"><option value="">All games</option></select>
-    <div class="listbtns">
-      <button id="l-new" type="button">＋ New list</button>
-      <button id="l-rename" type="button">Rename</button>
-      <button id="l-share" type="button">Share</button>
-      <button id="l-del" type="button">Delete</button>
-    </div>
-    <div id="authbox" hidden>
-      <div id="auth-out">
-        <label for="auth-email">Account — sync your lists</label>
-        <input type="email" id="auth-email" placeholder="you@email.com" autocomplete="email">
-        <button id="auth-send" type="button">Email me a sign-in link</button>
-        <div id="auth-msg" class="authmsg"></div>
-      </div>
-      <div id="auth-in" hidden>
-        <div id="auth-who" class="authwho"></div>
-        <button id="auth-out-btn" type="button">Sign out</button>
-        <div id="sync-msg" class="authmsg"></div>
-      </div>
-    </div>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
 <header>
-  <h1>Pocket Arcade <span class="db">Database</span></h1>
-  <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
+  <div class="headmain">
+    <h1>Pocket Arcade <span class="db">Database</span></h1>
+    <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
+  </div>
+  <div id="authbox" hidden>
+    <div id="auth-out">
+      <label for="auth-email">Account — sync your lists</label>
+      <input type="email" id="auth-email" placeholder="you@email.com" autocomplete="email">
+      <button id="auth-send" type="button">Email me a sign-in link</button>
+      <div id="auth-msg" class="authmsg"></div>
+    </div>
+    <div id="auth-in" hidden>
+      <div id="auth-who" class="authwho"></div>
+      <button id="auth-out-btn" type="button">Sign out</button>
+      <div id="sync-msg" class="authmsg"></div>
+    </div>
+  </div>
 </header>
 <div id="sharebanner"><div class="in"><span id="sharetext"></span>
   <button id="s-view" type="button">View</button><button id="s-save" type="button">Save a copy</button><button id="s-dismiss" type="button">Dismiss</button>
 </div></div>
   </div>
   <section>
-    <p class="count" id="count"></p>
+    <div class="listbar">
+      <label for="f-list">My lists</label>
+      <select id="f-list"><option value="">All games</option></select>
+      <div class="listbtns">
+        <button id="l-new" type="button">＋ New list</button>
+        <button id="l-rename" type="button">Rename</button>
+        <button id="l-share" type="button">Share</button>
+        <button id="l-del" type="button">Delete</button>
+      </div>
+      <span class="count" id="count"></span>
+    </div>
     <div id="chips"></div>
     <table>
       <thead><tr>
