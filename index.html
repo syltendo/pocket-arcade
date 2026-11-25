@@ -27,13 +27,17 @@
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
   .filters label:first-child{margin-top:0}
   select,input[type=search],input[type=email]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
-  #authbox{flex:0 1 290px;margin-left:auto;padding-top:6px}
-  #authbox label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
-  #authbox button{width:100%;margin-top:6px;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-size:13.5px}
-  #authbox button:hover{border-color:var(--accent)}
+  #authbox{flex:0 0 auto;margin-left:auto;padding-top:6px;position:relative}
+  #auth-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-size:13.5px}
+  #auth-btn:hover{border-color:var(--accent)}
+  #auth-btn svg{display:block}
+  #auth-btn.signed{color:var(--accent);border-color:var(--accent);padding:7px 8px}
+  #authmenu{position:absolute;right:0;top:calc(100% + 8px);width:290px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:55}
+  #authmenu label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
+  #authmenu button{width:100%;margin-top:6px;padding:8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font-size:13.5px}
+  #authmenu button:hover{border-color:var(--accent)}
   .authmsg{font-size:12px;color:var(--muted);margin-top:6px;min-height:14px}
   .authwho{font-size:13px;color:var(--text);margin-top:2px;word-break:break-all}
-  @media (max-width:860px){#authbox{flex:1 1 100%;margin-left:0}}
   .listbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px}
   .listbar label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
   .listbar label.on{color:var(--accent)}
@@ -188,16 +192,22 @@
     <p class="sub">Every arcade game playable on the Analogue Pocket through openFPGA cores — one entry per game, with all of its versions and every platform &amp; core that run it.</p>
   </div>
   <div id="authbox" hidden>
-    <div id="auth-out">
-      <label for="auth-email">Account — sync your lists</label>
-      <input type="email" id="auth-email" placeholder="you@email.com" autocomplete="email">
-      <button id="auth-send" type="button">Email me a sign-in link</button>
-      <div id="auth-msg" class="authmsg"></div>
-    </div>
-    <div id="auth-in" hidden>
-      <div id="auth-who" class="authwho"></div>
-      <button id="auth-out-btn" type="button">Sign out</button>
-      <div id="sync-msg" class="authmsg"></div>
+    <button id="auth-btn" type="button" title="Sign in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+      <span id="auth-btn-label">Sign in</span>
+    </button>
+    <div id="authmenu" hidden>
+      <div id="auth-out">
+        <label for="auth-email">Account — sync your lists</label>
+        <input type="email" id="auth-email" placeholder="you@email.com" autocomplete="email">
+        <button id="auth-send" type="button">Email me a sign-in link</button>
+        <div id="auth-msg" class="authmsg"></div>
+      </div>
+      <div id="auth-in" hidden>
+        <div id="auth-who" class="authwho"></div>
+        <button id="auth-out-btn" type="button">Sign out</button>
+        <div id="sync-msg" class="authmsg"></div>
+      </div>
     </div>
   </div>
 </header>
@@ -618,7 +628,10 @@ function initAuth(){
     msg.textContent = error ? ("Could not send: " + error.message)
                             : "Check your inbox — your sign-in link is on its way.";
   });
-  $("auth-out-btn").addEventListener("click", async () => { await sb.auth.signOut(); });
+  $("auth-out-btn").addEventListener("click", async () => {
+    $("authmenu").hidden = true;
+    await sb.auth.signOut();
+  });
   sb.auth.onAuthStateChange((event, session) => {
     if (session && session.user) { if (!sbUser || sbUser.id !== session.user.id) onSignedIn(session.user); }
     else if (event === "SIGNED_OUT") onSignedOut();
