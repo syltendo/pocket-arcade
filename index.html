@@ -167,7 +167,10 @@
     #filtertoggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 12px;margin:0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14.5px;font-weight:600;cursor:pointer}
     #ft-count{color:var(--accent);font-weight:600;font-size:13px}
     .filters{max-height:none;overflow:visible}
-    .filters.collapsed>*:not(#filtertoggle){display:none}
+    .filters{display:flex;flex-direction:column}
+    .filters.collapsed>*:not(#filtertoggle):not(#q):not([for="q"]){display:none}
+    .filters label[for="q"]{order:-2}
+    .filters #q{order:-1;margin-bottom:10px}
     html,body{overflow-x:clip}
     body{-webkit-text-size-adjust:100%}
     select,input[type=search],input[type=email]{font-size:16px}
@@ -189,7 +192,7 @@
 <body>
 <div class="shell">
   <aside class="filters collapsed">
-    <button id="filtertoggle" type="button" aria-expanded="false"><span>Filters &amp; search</span><span id="ft-count"></span></button>
+    <button id="filtertoggle" type="button" aria-expanded="false"><span>Filters</span><span id="ft-count"></span></button>
     <label for="q">Search</label>
     <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
     <div class="side-h">Game</div>
@@ -567,7 +570,7 @@ function syncFilterUI(){
   rb.classList.toggle("on", n > 0);
   rb.textContent = n > 0 ? `Reset all filters (${n})` : "Reset all filters";
   const ftc = $("ft-count");
-  if (ftc) ftc.textContent = n > 0 ? `${n} active` : "";
+  if (ftc) { const nf = n - ($("q").value.trim() !== "" ? 1 : 0); ftc.textContent = nf > 0 ? `${nf} active` : ""; }
 }
 $("chips").addEventListener("click", e => {
   const b = e.target.closest("button[data-clear]");
