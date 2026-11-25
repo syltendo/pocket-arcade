@@ -594,6 +594,9 @@ async function onSignedIn(user){
   sbUser = user;
   $("auth-out").hidden = true; $("auth-in").hidden = false;
   $("auth-who").textContent = "Signed in as " + (user.email || "");
+  $("auth-btn").classList.add("signed");
+  $("auth-btn").title = user.email || "Account";
+  $("auth-btn-label").hidden = true;
   setSyncMsg("Loading your lists…");
   const { data, error } = await sb.from("lists").select("id,name,games,blurbs").order("created_at");
   if (error) { setSyncMsg("Could not load your account lists."); return; }
@@ -613,12 +616,23 @@ function onSignedOut(){
   if (guestLists) { lists = guestLists; guestLists = null; }
   localStorage.setItem(LS_KEY, JSON.stringify(lists));
   $("auth-out").hidden = false; $("auth-in").hidden = true;
+  $("auth-btn").classList.remove("signed");
+  $("auth-btn").title = "Sign in";
+  $("auth-btn-label").hidden = false;
   refreshListSelect(); apply();
 }
 function initAuth(){
   if (!window.supabase || !SUPABASE_URL.startsWith("https://")) return;
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   $("authbox").hidden = false;
+  // Account menu: the header button toggles the panel; outside click / Esc closes it.
+  $("auth-btn").addEventListener("click", () => { $("authmenu").hidden = !$("authmenu").hidden; });
+  document.addEventListener("click", e => {
+    if (!$("authbox").contains(e.target)) $("authmenu").hidden = true;
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") $("authmenu").hidden = true;
+  });
   $("auth-send").addEventListener("click", async () => {
     const email = $("auth-email").value.trim(), msg = $("auth-msg");
     if (!email) { msg.textContent = "Enter your email first."; return; }
