@@ -329,7 +329,7 @@ function apply(){
   const nc = new Set(out.flatMap(r => r.cores)).size;
   LB_LIST = out.filter(r => r.snap);
   LB_LIST.forEach((r, i) => { r._lbi = i; });
-  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} versions · ${nc} cores`;
+  $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} version${nv===1?"":"s"} · ${nc} core${nc===1?"":"s"}`;
   $("rows").innerHTML = out.map(r => {
     const main = r.regional.find(e => e.t === r.title);
     const alts = r.regional.filter(e => e.t !== r.title);
