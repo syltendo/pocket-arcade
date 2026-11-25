@@ -25,6 +25,7 @@
   .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;height:fit-content;max-height:calc(100vh - 24px);overflow-y:auto;position:sticky;top:12px}
   @media (max-width:860px){.filters{position:static}}
   .filters label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
+  .side-h{font-size:12.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.07em;margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line)}
   .filters label:first-child{margin-top:0}
   select,input[type=search],input[type=email]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px;font-size:14px}
   #authbox{flex:0 0 auto;margin-left:auto;padding-top:6px;position:relative}
@@ -134,8 +135,24 @@
   <aside class="filters">
     <label for="q">Search</label>
     <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
+    <div class="side-h">Game</div>
     <label for="f-genre">Genre</label>
     <select id="f-genre"><option value="">All genres</option></select>
+    <label for="f-pub">Publisher / Developer</label>
+    <select id="f-pub"><option value="">All publishers</option></select>
+    <div class="frow">
+      <div>
+        <label for="f-year">Year</label>
+        <select id="f-year"><option value="">All years</option></select>
+      </div>
+      <div>
+        <label for="f-screen">Screen</label>
+        <select id="f-screen">
+          <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
+        </select>
+      </div>
+    </div>
+    <div class="side-h">Players</div>
     <div class="frow">
       <div>
         <label for="f-players">Players</label>
@@ -152,20 +169,7 @@
         </select>
       </div>
     </div>
-    <label for="f-pub">Publisher / Developer</label>
-    <select id="f-pub"><option value="">All publishers</option></select>
-    <div class="frow">
-      <div>
-        <label for="f-year">Year</label>
-        <select id="f-year"><option value="">All years</option></select>
-      </div>
-      <div>
-        <label for="f-screen">Screen</label>
-        <select id="f-screen">
-          <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
-        </select>
-      </div>
-    </div>
+    <div class="side-h">Cores &amp; Platforms</div>
     <div class="frow">
       <div>
         <label for="f-core">Core</label>
