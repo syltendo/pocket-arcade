@@ -110,6 +110,7 @@
   .gnote{color:var(--muted);font-size:11.5px;font-weight:400;font-style:italic;margin-top:2px}
   .westcon{border-bottom:1px dotted var(--muted);cursor:help}
   .infoic{vertical-align:-2px;margin-left:3px;color:var(--muted)}
+  #tip{display:none;position:fixed;z-index:70;max-width:min(280px,86vw);background:#1c2733;color:#e8eef4;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:12.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:none}
   .wikiline{margin-top:3px}
   .wikiline .wiki{margin-left:0}
   tbody td:nth-child(2){max-width:480px}
@@ -371,7 +372,7 @@ function decade(y){ return y ? Math.floor(y/10)*10 + "s" : null; }
 
 const INFO_SVG = `<svg class="infoic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.6" fill="currentColor" stroke="none"/></svg>`;
 function westTip(r){ return `Not a US arcade title \u2014 '${r.west}' is the name of the console versions.`; }
-function westSpan(r){ return `<span class="westcon" title="${esc(westTip(r))}">${esc(r.west)}</span>${INFO_SVG}`; }
+function westSpan(r){ return `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(r.west)}${INFO_SVG}</span>`; }
 
 function titleSet(r){
   const westHtml = r.west ? (r.west_console
@@ -402,7 +403,7 @@ function titleSet(r){
     }
   }
   const headHtml = (want === r.west && r.west_console)
-    ? `<span class="westcon" title="${esc(westTip(r))}">${esc(want)}</span>${INFO_SVG}` : esc(want);
+    ? `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(want)}${INFO_SVG}</span>` : esc(want);
   return { head: want, headHtml, subsHtml: lines.join("") };
 }
 
@@ -978,9 +979,41 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     b.classList.toggle("on", b.dataset.tmode === TMODE);
     b.addEventListener("click", () => setTMode(b.dataset.tmode));
   });
+  // Custom tooltip for the console-only US titles: native title tooltips
+  // do not exist on touch devices, so .westcon carries data-tip and this
+  // bubble serves both tap (mobile) and hover (desktop).
+  let tipFor = null;
+  function showTip(el){
+    tipFor = el;
+    const tipEl = $("tip");
+    tipEl.textContent = el.dataset.tip;
+    tipEl.style.display = "block";
+    const r = el.getBoundingClientRect();
+    const tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+    tipEl.style.left = Math.min(Math.max(8, r.left), innerWidth - tw - 8) + "px";
+    const y = r.top - th - 8;
+    tipEl.style.top = (y >= 8 ? y : r.bottom + 8) + "px";
+  }
+  function hideTip(){ tipFor = null; $("tip").style.display = "none"; }
+  document.addEventListener("click", e => {
+    const w = e.target.closest ? e.target.closest(".westcon") : null;
+    if (w) { tipFor === w ? hideTip() : showTip(w); }
+    else hideTip();
+  });
+  document.addEventListener("mouseover", e => {
+    const w = e.target.closest ? e.target.closest(".westcon") : null;
+    if (w && tipFor !== w) showTip(w);
+  });
+  document.addEventListener("mouseout", e => {
+    const w = e.target.closest ? e.target.closest(".westcon") : null;
+    if (w && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".westcon") === w)) hideTip();
+  });
+  addEventListener("scroll", hideTip, { passive: true, capture: true });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hideTip(); });
   apply();
 });
 </script>
+<div id="tip" role="tooltip"></div>
 <div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
 </body>
 </html>
