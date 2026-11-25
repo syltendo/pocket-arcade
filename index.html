@@ -164,6 +164,7 @@
   body.view-compact table{font-size:13.5px}
   body.view-compact th,body.view-compact td{padding:5px 8px}
   body.view-compact .snapcell,body.view-compact thead th:first-child{display:none}
+  body.view-compact .gnote,body.view-compact .gblurb{display:none}
   #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:60;cursor:zoom-out;padding:20px}
   #lightbox[hidden]{display:none}
   #lightbox img,#lightbox video{width:min(62vw,672px);height:min(56vh,504px);object-fit:contain;image-rendering:pixelated;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#111}
@@ -380,8 +381,6 @@ function cardHtml(r){
   const coreLine = (r.core_authors && r.core_authors.length)
     ? r.core_authors.map(pa => `${esc(pa.platform)} (${pa.authors.map(a => esc(a.name)).join(", ")})`).join(", ")
     : esc(r.platforms.join(", "));
-  const portsLine = (r.home_ports || []).length
-    ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "";
   const vid = VIDEOS[r.set] ? `<span class="vidtag">▶ Video</span>` : "";
   return `<div class="card">
     <div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}</div>
@@ -390,8 +389,7 @@ function cardHtml(r){
       ${kindHtml}${westHtml}${altHtml}
       <div class="card-meta">${r.year || "—"} · ${esc(r.manufacturer || "—")}</div>
       <div class="card-meta">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}${r.players ? ` · ${r.players} player${r.players > 1 ? "s" : ""}${r.players > 1 && !r.sim ? " (alternating)" : ""}` : ""}${r.coop ? ' <span class="badge b-coop">CO-OP</span>' : ""}${r.comp ? ' <span class="badge b-vs">VERSUS</span>' : ""}</div>
-      <div class="card-meta">${coreLine}${r.versions.length > 1 ? ` · ${r.versions.length} versions` : ""}</div>
-      ${portsLine ? `<div class="ports">${portsLine}</div>` : ""}
+      <div class="card-meta">${coreLine}</div>
       ${noteHtml}${wikiLine}${blurbHtml}
     </div>
   </div>`;
