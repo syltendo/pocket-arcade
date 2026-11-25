@@ -21,10 +21,10 @@
   h1 .db{color:var(--accent)}
   .sub{color:var(--muted);margin:0 0 6px}
   h1 .logo{height:30px;width:30px;vertical-align:-5px;margin-right:9px}
-  .shell{max-width:1600px;margin:0 auto;padding:12px 20px 0;display:grid;grid-template-columns:250px 1fr;grid-template-areas:"side head" "side main" "side foot";column-gap:18px;align-items:start}
+  .shell{max-width:1600px;margin:0 auto;padding:12px 20px 0;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-areas:"side head" "side main" "side foot";column-gap:18px;align-items:start}
   .head{grid-area:head}
   section{grid-area:main;padding-bottom:40px}
-  @media (max-width:860px){.shell{grid-template-columns:1fr;grid-template-areas:"head" "side" "main" "foot"}}
+  @media (max-width:860px){.shell{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "side" "main" "foot"}}
   .filters{grid-area:side;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;height:fit-content;max-height:calc(100vh - 24px);overflow-y:auto;position:sticky;top:12px}
   @media (max-width:860px){.filters{position:static}}
   /* Mobile pass (2026-11-25): collapsible filters, table scrolls inside
@@ -37,7 +37,8 @@
     #ft-count{color:var(--accent);font-weight:600;font-size:13px}
     .filters{max-height:none;overflow:visible}
     .filters.collapsed>*:not(#filtertoggle){display:none}
-    .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .head,section,footer,.filters{min-width:0}
+    .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
     table{min-width:680px;font-size:14px}
     th,td{padding:6px 8px}
     .snap-h,.snap-v{max-width:84px}
