@@ -909,7 +909,7 @@ function refreshCardUI(){
   btn.textContent = has ? "Rescan my SD card…" : "Scan my SD card…";
   st.innerHTML = has
     ? `<b>${CARD.games.length}</b> game${CARD.games.length === 1 ? "" : "s"} on your card · scanned ${new Date(CARD.ts).toLocaleDateString()} · <button type="button" id="cardforget">forget</button>`
-    : "See which of these games are already on your Pocket SD card.";
+    : "See which of these games are already on your Pocket SD card. Read-only: only file names are read — nothing is copied, uploaded or changed.";
   const f = $("cardforget");
   if (f) f.addEventListener("click", () => {
     CARD = null; CARDSET = new Set();
@@ -918,20 +918,37 @@ function refreshCardUI(){
     refreshCardUI(); apply();
   });
 }
+// Locate Assets/arcade from wherever the visitor pointed the picker:
+// the card root, the Assets folder, the arcade folder itself, or a
+// backup folder nesting the card one level down. Name matching is
+// case-insensitive (cards and copies vary).
+async function findArcade(root){
+  const eq = (a, b) => (a || "").toLowerCase() === b;
+  async function childDir(dir, name){
+    for await (const h of dir.values())
+      if (h.kind === "directory" && eq(h.name, name)) return h;
+    return null;
+  }
+  if (eq(root.name, "arcade")) return root;
+  let frontier = [root];
+  for (let depth = 0; depth < 3 && frontier.length; depth++) {
+    const next = [];
+    for (const d of frontier) {
+      const assets = eq(d.name, "assets") ? d : await childDir(d, "assets");
+      if (assets) { const arc = await childDir(assets, "arcade"); if (arc) return arc; }
+      for await (const h of d.values()) if (h.kind === "directory") next.push(h);
+    }
+    frontier = next;
+  }
+  return null;
+}
 async function scanCard(){
   const st = $("scanstatus");
   if (!DATA.length) { st.textContent = "Still loading the database — try again in a second."; return; }
   let root;
-  try { root = await window.showDirectoryPicker(); } catch (e) { return; }
-  let arcade = null;
-  if (root.name === "arcade") arcade = root;
-  else {
-    try { arcade = await (await root.getDirectoryHandle("Assets")).getDirectoryHandle("arcade"); }
-    catch (e) {
-      if (root.name === "Assets") { try { arcade = await root.getDirectoryHandle("arcade"); } catch (e2) {} }
-    }
-  }
-  if (!arcade) { st.textContent = "No Assets/arcade folder there — pick the SD card itself."; return; }
+  try { root = await window.showDirectoryPicker({ mode: "read" }); } catch (e) { return; }
+  const arcade = await findArcade(root);
+  if (!arcade) { st.textContent = `No Assets/arcade folder in "${root.name || "that folder"}" — pick the SD card itself.`; return; }
   st.textContent = "Scanning…";
   const set2key = {};
   DATA.forEach(r => {
