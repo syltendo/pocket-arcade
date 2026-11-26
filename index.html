@@ -107,8 +107,8 @@
   .b-hack{background:#3d4450;color:#c6cfd9}
   .b-brew{background:#3d4450;color:#c6cfd9}
   .snapwrap{position:relative;display:inline-block;line-height:0}
-  .carddot{position:absolute;top:5px;left:5px;width:11px;height:11px;border-radius:50%;background:#34d17b;box-shadow:0 0 0 2px rgba(0,0,0,.45);z-index:2;cursor:default}
-  .carddot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #34d17b;animation:cardpulse 1.8s ease-out infinite}
+  .carddot{position:absolute;top:5px;left:5px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent),0 0 4px rgba(0,0,0,.5);z-index:2;cursor:default}
+  .carddot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--accent);animation:cardpulse 1.8s ease-out infinite}
   @keyframes cardpulse{0%{transform:scale(.55);opacity:.85}70%{transform:scale(1.2);opacity:0}100%{transform:scale(1.2);opacity:0}}
   @media (prefers-reduced-motion: reduce){.carddot::after{animation:none;opacity:0}}
   .snapwrap.solo{width:21px;height:21px;margin:2px}
