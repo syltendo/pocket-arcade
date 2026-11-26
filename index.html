@@ -67,18 +67,14 @@
   .count{color:var(--muted);margin:2px 0 10px}
   .count b{color:var(--accent)}
   /* Sticky toolbar (Syl, 2026-11-26): the view modes and the settings
-     button stay on top while scrolling, just above the column headers,
-     which stick right below it. On desktop the game counter lives at
-     the left of the toolbar; the standalone counter line is mobile-only. */
+     button stay on top while scrolling. (The column headers were briefly
+     sticky too; Syl asked to revert that the same day.) On desktop the
+     game counter lives at the left of the toolbar; the standalone
+     counter line is mobile-only. */
   #toolbar{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:8px;background:var(--bg);height:54px;box-sizing:border-box;border-bottom:1px solid var(--line);margin:0 0 10px}
   #toolbar .count{margin:0}
   p#count{display:none}
-  thead th{position:sticky;top:54px;z-index:30}
-  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px}
-  thead th:first-child{border-top-left-radius:9px}
-  thead th:last-child{border-top-right-radius:9px}
-  tbody tr:last-child td:first-child{border-bottom-left-radius:9px}
-  tbody tr:last-child td:last-child{border-bottom-right-radius:9px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
   th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--panel2);white-space:nowrap}
   th.sortable{cursor:pointer;user-select:none}
@@ -233,8 +229,6 @@
   @media (max-width:860px){
     p#count{display:block}
     #countbar{display:none}
-    .tablewrap{max-height:calc(100vh - 54px);max-height:calc(100dvh - 54px);overflow-y:auto}
-    thead th{top:0}
   }
 </style>
 </head>
