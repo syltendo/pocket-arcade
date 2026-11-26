@@ -145,12 +145,13 @@
   #setbtn{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);padding:7px 9px;cursor:pointer}
   #setbtn:hover{color:var(--text)}
   #setbtn.open{color:var(--accent);border-color:var(--accent)}
-  #setpanel{position:absolute;right:0;top:calc(100% + 6px);z-index:60;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:232px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:left}
+  #setpanel{position:absolute;right:0;top:calc(100% + 6px);z-index:60;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:248px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:left}
   #setpanel h4{margin:12px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
   #setpanel h4:first-child{margin-top:0}
   #setpanel .titleswitch{display:flex;margin:0}
   #setpanel .titleswitch button{flex:1}
   #setpanel label{display:flex;gap:8px;align-items:center;font-size:14px;margin:5px 0;cursor:pointer;color:var(--text)}
+  #setpanel #scanbtn{margin-top:2px}
   body.hc-snap th.c-snap,body.hc-snap td.c-snap,body.hc-year th.c-year,body.hc-year td.c-year,body.hc-pub th.c-pub,body.hc-pub td.c-pub,body.hc-genre th.c-genre,body.hc-genre td.c-genre,body.hc-players th.c-players,body.hc-players td.c-players,body.hc-core th.c-core,body.hc-core td.c-core,body.hc-ports th.c-ports,body.hc-ports td.c-ports{display:none}
   #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
   #grid[hidden]{display:none}
@@ -277,8 +278,6 @@
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
     <label class="check"><input type="checkbox" id="f-hacks"> Hacks &amp; Homebrews</label>
     <label class="check" id="f-card-row" hidden><input type="checkbox" id="f-card"> On my SD card only</label>
-    <button id="scanbtn" type="button">Scan my SD card…</button>
-    <div id="scanstatus" class="scanstatus"></div>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -325,7 +324,7 @@
         <button id="l-del" type="button">Delete</button>
       </div>
       <div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
-      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label></div></span>
+      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><label id="dc-notcard-row" hidden><input type="checkbox" id="dc-notcard"> Games not on my card</label></div></span>
     </div>
     <p class="count" id="count"></p>
     <div id="chips"></div>
@@ -483,7 +482,7 @@ function apply(){
         port = $("f-port").value,
         pat = $("f-pat").checked,
         hacks = $("f-hacks").checked,
-        cardOnly = $("f-card").checked;
+        cardOnly = $("f-card").checked, notCard = $("dc-notcard").checked;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
     if (q && !r._q.includes(nq)) return false;
@@ -502,6 +501,7 @@ function apply(){
     if (screen === "h" && r.vertical !== false) return false;
     if (pat && !r.patreon) return false;
     if (cardOnly && !cardHas(r)) return false;
+    if (notCard && cardHas(r)) return false;
     const al = activeList();
     if (al && !al.games.includes(keyOf(r))) return false;
     return true;
@@ -589,6 +589,7 @@ const FILTER_DEFS = [
   chkDef("f-pat", "Patreon cores only"),
   chkDef("f-hacks", "Hacks & Homebrews"),
   chkDef("f-card", "On my SD card"),
+  chkDef("dc-notcard", "Not on my card"),
   selDef("f-list", "List"),
 ];
 function syncFilterUI(){
@@ -935,6 +936,7 @@ function cardPill(r, statik){ return cardHas(r) ? `<span class="cardpill${statik
 function refreshCardUI(){
   const has = !!(CARD && CARD.games);
   $("f-card-row").hidden = !has;
+  $("dc-notcard-row").hidden = !has;
   const st = $("scanstatus"), btn = $("scanbtn");
   if (!window.showDirectoryPicker) {
     btn.disabled = true;
@@ -950,6 +952,7 @@ function refreshCardUI(){
     CARD = null; CARDSET = new Set();
     localStorage.removeItem("padb_card");
     $("f-card").checked = false;
+    $("dc-notcard").checked = false;
     refreshCardUI(); apply();
   });
 }
@@ -1026,7 +1029,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-port", DATA.flatMap(r => r._ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-card","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-card","dc-notcard","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
@@ -1147,6 +1150,8 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   loadDisp(); applyDisp();
   document.querySelectorAll('#setpanel input[data-col]').forEach(cb => cb.addEventListener("change", () => { DISP.cols[cb.dataset.col] = cb.checked ? 1 : 0; saveDisp(); applyDisp(); apply(); }));
   $("dc-notes").addEventListener("change", e => { DISP.notes = e.target.checked ? 1 : 0; saveDisp(); apply(); });
+  $("f-card").addEventListener("change", e => { if (e.target.checked && $("dc-notcard").checked) { $("dc-notcard").checked = false; apply(); } });
+  $("dc-notcard").addEventListener("change", e => { if (e.target.checked && $("f-card").checked) { $("f-card").checked = false; apply(); } });
   const setpanel = $("setpanel");
   $("setbtn").addEventListener("click", e => { e.stopPropagation(); setpanel.hidden = !setpanel.hidden; $("setbtn").classList.toggle("open", !setpanel.hidden); });
   setpanel.addEventListener("click", e => e.stopPropagation());
