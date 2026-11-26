@@ -918,25 +918,24 @@ function refreshCardUI(){
     refreshCardUI(); apply();
   });
 }
-// Locate Assets/arcade from wherever the visitor pointed the picker:
-// the card root, the Assets folder, the arcade folder itself, or a
-// backup folder nesting the card one level down. Name matching is
-// case-insensitive (cards and copies vary).
-async function findArcade(root){
+// Locate the Assets folder from wherever the visitor pointed the
+// picker: the card root, a backup folder nesting the card, or Assets
+// itself. A Pocket card has no single "arcade" folder — each arcade
+// core keeps its games under its own platform folder (Assets/jtcps2,
+// Assets/namco_system11, …), so the whole Assets tree is scanned and
+// MAME set names do the matching. Case-insensitive throughout.
+async function findAssets(root){
   const eq = (a, b) => (a || "").toLowerCase() === b;
-  async function childDir(dir, name){
-    for await (const h of dir.values())
-      if (h.kind === "directory" && eq(h.name, name)) return h;
-    return null;
-  }
-  if (eq(root.name, "arcade")) return root;
+  if (eq(root.name, "assets")) return root;
   let frontier = [root];
   for (let depth = 0; depth < 3 && frontier.length; depth++) {
     const next = [];
     for (const d of frontier) {
-      const assets = eq(d.name, "assets") ? d : await childDir(d, "assets");
-      if (assets) { const arc = await childDir(assets, "arcade"); if (arc) return arc; }
-      for await (const h of d.values()) if (h.kind === "directory") next.push(h);
+      for await (const h of d.values()) {
+        if (h.kind !== "directory") continue;
+        if (eq(h.name, "assets")) return h;
+        next.push(h);
+      }
     }
     frontier = next;
   }
@@ -947,8 +946,7 @@ async function scanCard(){
   if (!DATA.length) { st.textContent = "Still loading the database — try again in a second."; return; }
   let root;
   try { root = await window.showDirectoryPicker({ mode: "read" }); } catch (e) { return; }
-  const arcade = await findArcade(root);
-  if (!arcade) { st.textContent = `No Assets/arcade folder in "${root.name || "that folder"}" — pick the SD card itself.`; return; }
+  const assets = await findAssets(root) || root;
   st.textContent = "Scanning…";
   const set2key = {};
   DATA.forEach(r => {
@@ -960,7 +958,7 @@ async function scanCard(){
   async function walk(dir, inCommon){
     for await (const h of dir.values()) {
       if (h.kind === "file") {
-        const m = h.name.match(/^(.+)\.(json|zip)$/i);
+        const m = h.name.match(/^(.+)\.(json|zip|rom)$/i);
         if (m && set2key[m[1]]) found.add(set2key[m[1]]);
       } else if (h.kind === "directory") {
         if (inCommon && set2key[h.name]) found.add(set2key[h.name]);
@@ -968,7 +966,8 @@ async function scanCard(){
       }
     }
   }
-  try { await walk(arcade, false); } catch (e) { st.textContent = "The scan stopped early — try again."; return; }
+  try { await walk(assets, false); } catch (e) { st.textContent = "The scan stopped early — try again."; return; }
+  if (!found.size) { st.textContent = `No arcade games found in "${root.name || "that folder"}" — pick the SD card itself.`; return; }
   CARD = { ts: Date.now(), games: [...found] };
   CARDSET = new Set(CARD.games);
   try { localStorage.setItem("padb_card", JSON.stringify(CARD)); } catch (e) {}
