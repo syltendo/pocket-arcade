@@ -524,14 +524,21 @@ function apply(){
     if (al && !al.games.includes(keyOf(r))) return false;
     return true;
   });
-  const sv = SORTVAL[sortKey];
-  out.sort((a,b) => {
-    const va = sv(a), vb = sv(b);
-    if (va === null || va === undefined) return vb === null || vb === undefined ? titleSet(a).head.localeCompare(titleSet(b).head) : 1;
-    if (vb === null || vb === undefined) return -1;
-    const c = (typeof va === "string" ? va.localeCompare(vb) : va - vb) * sortDir;
-    return c || titleSet(a).head.localeCompare(titleSet(b).head);
-  });
+  if (PRESERVE_ORDER) {
+    const idx = new Map(PRESERVE_ORDER.map((k, i) => [k, i]));
+    out.sort((a, b) => (idx.get(keyOf(a)) ?? 1e9) - (idx.get(keyOf(b)) ?? 1e9));
+    PRESERVE_ORDER = null;
+  } else {
+    const sv = SORTVAL[sortKey];
+    out.sort((a,b) => {
+      const va = sv(a), vb = sv(b);
+      if (va === null || va === undefined) return vb === null || vb === undefined ? titleSet(a).head.localeCompare(titleSet(b).head) : 1;
+      if (vb === null || vb === undefined) return -1;
+      const c = (typeof va === "string" ? va.localeCompare(vb) : va - vb) * sortDir;
+      return c || titleSet(a).head.localeCompare(titleSet(b).head);
+    });
+  }
+  LAST_ORDER = out.map(keyOf);
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
   const nc = new Set(out.flatMap(r => r.cores)).size;
   LB_LIST = out.filter(r => r.snap || r.tsnap || VIDEOS[r.set]);
@@ -719,6 +726,7 @@ function setView(v){
   apply();
 }
 function setTMode(m){
+  PRESERVE_ORDER = LAST_ORDER.slice();
   TMODE = m;
   try { localStorage.setItem("padb_titles", m); } catch (e) {}
   document.querySelectorAll("#tmodeswitch button").forEach(b => b.classList.toggle("on", b.dataset.tmode === m));
@@ -772,6 +780,11 @@ let NOTES = {};
 let VIDEOS = {};
 let VIEW = "table";
 let TMODE = "mix";
+// Syl (2026-11-26): switching the title mode must NOT re-sort the list, so
+// the games can be compared in place; sorting per the chosen mode applies
+// on a fresh page load (and on any later filter or sort action).
+let LAST_ORDER = [];
+let PRESERVE_ORDER = null;
 let lists = [];
 try { lists = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { lists = []; }
 lists.forEach(l => { if (!l.blurbs || typeof l.blurbs !== "object") l.blurbs = {}; });
