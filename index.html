@@ -141,6 +141,17 @@
   .viewswitch button,.titleswitch button{padding:7px 11px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px}
   .viewswitch button svg{display:block}
   .viewswitch button.on,.titleswitch button.on{background:var(--accent);color:#fff;font-weight:600}
+  .setwrap{position:relative;margin-left:8px}
+  #setbtn{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);padding:7px 9px;cursor:pointer}
+  #setbtn:hover{color:var(--text)}
+  #setbtn.open{color:var(--accent);border-color:var(--accent)}
+  #setpanel{position:absolute;right:0;top:calc(100% + 6px);z-index:60;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:232px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:left}
+  #setpanel h4{margin:12px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  #setpanel h4:first-child{margin-top:0}
+  #setpanel .titleswitch{display:flex;margin:0}
+  #setpanel .titleswitch button{flex:1}
+  #setpanel label{display:flex;gap:8px;align-items:center;font-size:14px;margin:5px 0;cursor:pointer;color:var(--text)}
+  body.hc-snap th.c-snap,body.hc-snap td.c-snap,body.hc-year th.c-year,body.hc-year td.c-year,body.hc-pub th.c-pub,body.hc-pub td.c-pub,body.hc-genre th.c-genre,body.hc-genre td.c-genre,body.hc-players th.c-players,body.hc-players td.c-players,body.hc-core th.c-core,body.hc-core td.c-core,body.hc-ports th.c-ports,body.hc-ports td.c-ports{display:none}
   #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
   #grid[hidden]{display:none}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
@@ -313,15 +324,15 @@
         <button id="l-share" type="button">Share</button>
         <button id="l-del" type="button">Delete</button>
       </div>
-      <div class="titleswitch" role="group" aria-label="Title order"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button></div>
       <div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
+      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label></div></span>
     </div>
     <p class="count" id="count"></p>
     <div id="chips"></div>
     <div class="tablewrap" id="tablewrap"><table>
       <thead><tr>
-        <th></th><th class="sortable" data-sort="title">Game</th><th class="sortable" data-sort="year">Year</th><th class="sortable" data-sort="pub">Publisher</th><th class="sortable" data-sort="genre">Genre</th>
-        <th class="sortable" data-sort="players">Players</th><th class="sortable" data-sort="core">Core</th><th class="sortable has-tip" data-sort="ports" title="Only ports currently playable on the Analogue Pocket are listed.">Ports</th>
+        <th class="c-snap"></th><th class="sortable" data-sort="title">Game</th><th class="sortable c-year" data-sort="year">Year</th><th class="sortable c-pub" data-sort="pub">Publisher</th><th class="sortable c-genre" data-sort="genre">Genre</th>
+        <th class="sortable c-players" data-sort="players">Players</th><th class="sortable c-core" data-sort="core">Core</th><th class="sortable has-tip c-ports" data-sort="ports" title="Only ports currently playable on the Analogue Pocket are listed.">Ports</th>
       </tr></thead>
       <tbody id="rows"></tbody>
     </table></div>
@@ -435,7 +446,7 @@ function cardHtml(r){
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
   const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
   const noteTxt = NOTES[keyOf(r)] || NOTES[r.title] || "";
-  const noteHtml = noteTxt ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
+  const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
   const al2 = activeList();
   const blurbTxt = al2 && al2.blurbs ? (al2.blurbs[keyOf(r)] || "") : "";
   const blurbHtml = blurbTxt ? `<div class="gblurb">${esc(blurbTxt)}</div>` : "";
@@ -447,14 +458,18 @@ function cardHtml(r){
     ? r.core_authors.map(pa => `${esc(pa.platform)} (${pa.authors.map(a => esc(a.name)).join(", ")})`).join(", ")
     : esc(r.platforms.join(", "));
   const vid = VIDEOS[r.set] ? `<span class="vidtag">▶ Video</span>` : "";
+  const meta1 = [DISP.cols.year ? (r.year || "—") : "", DISP.cols.pub ? esc(r.manufacturer || "—") : ""].filter(Boolean).join(" · ");
+  const playersPart = (r.players ? `${r.players} player${r.players > 1 ? "s" : ""}${r.players > 1 && !r.sim ? " (alternating)" : ""}` : "") + (r.coop ? ' <span class="badge b-coop">CO-OP</span>' : "") + (r.comp ? ' <span class="badge b-vs">VERSUS</span>' : "");
+  const meta2 = [DISP.cols.genre ? esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—") : "", DISP.cols.players ? playersPart.trim() : ""].filter(Boolean).join(" · ");
+  const coreLineHtml = DISP.cols.core ? `<div class="card-meta">${coreLine}</div>` : "";
   return `<div class="card">
-    <div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}${cardPill(r)}</div>
+    ${DISP.cols.snap ? `<div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}${cardPill(r)}</div>` : ""}
     <div class="card-body">
       <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
       ${kindHtml}${ts.subsHtml}
-      <div class="card-meta">${r.year || "—"} · ${esc(r.manufacturer || "—")}</div>
-      <div class="card-meta">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}${r.players ? ` · ${r.players} player${r.players > 1 ? "s" : ""}${r.players > 1 && !r.sim ? " (alternating)" : ""}` : ""}${r.coop ? ' <span class="badge b-coop">CO-OP</span>' : ""}${r.comp ? ' <span class="badge b-vs">VERSUS</span>' : ""}</div>
-      <div class="card-meta">${coreLine}</div>
+      ${meta1 ? `<div class="card-meta">${meta1}</div>` : ""}
+      ${meta2 ? `<div class="card-meta">${meta2}</div>` : ""}
+      ${coreLineHtml}
       ${noteHtml}${wikiLine}${blurbHtml}
     </div>
   </div>`;
@@ -525,21 +540,21 @@ function apply(){
       ? `<div class="gblurb"${blurbEdit ? ` data-edit="${esc(keyOf(r))}" title="Click to edit your note"` : ""}>${esc(blurbTxt)}</div>`
       : blurbEdit ? `<div class="gblurb empty" data-edit="${esc(keyOf(r))}">✎ Add a note…</div>` : "";
     const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
-    const noteHtml = noteTxt ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
+    const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
     // Wikipedia icon on its own line after the titles and the editorial
     // note; the personal note (when viewing a list) goes below it.
     const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
     const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
       : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
-    <td class="snapcell">${r.snap?`<span class="snapwrap"><img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${cardPill(r)}</span>`:cardPill(r, true)}</td>
+    <td class="snapcell c-snap">${r.snap?`<span class="snapwrap"><img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${cardPill(r)}</span>`:cardPill(r, true)}</td>
     <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
-    <td>${r.year||"—"}</td>
-    <td>${esc(r.manufacturer||"—")}</td>
-    <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
-    <td>${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
-    <td class="ports">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}${r.versions.length > 1 ? `<div class="vcount">${r.versions.length} versions</div>` : ""}</td>
-    <td class="ports">${(r.home_ports || []).length ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "—"}</td>
+    <td class="c-year">${r.year||"—"}</td>
+    <td class="c-pub">${esc(r.manufacturer||"—")}</td>
+    <td class="c-genre">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
+    <td class="c-players">${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
+    <td class="ports c-core">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}${r.versions.length > 1 ? `<div class="vcount">${r.versions.length} versions</div>` : ""}</td>
+    <td class="ports c-ports">${(r.home_ports || []).length ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "—"}</td>
   </tr>`;
   }).join("");
   syncFilterUI();
@@ -663,6 +678,24 @@ function setTMode(m){
   try { localStorage.setItem("padb_titles", m); } catch (e) {}
   document.querySelectorAll(".titleswitch button").forEach(b => b.classList.toggle("on", b.dataset.tmode === m));
   apply();
+}
+
+// ---- display settings (Syl, 2026-11-25): the settings menu (gear, right
+// of the view modes) hosts the title-name order, per-column visibility
+// and the game-notes toggle. Persisted in localStorage padb_display.
+let DISP = { cols: { snap: 1, year: 1, pub: 1, genre: 1, players: 1, core: 1, ports: 1 }, notes: 1 };
+function loadDisp(){
+  try {
+    const d = JSON.parse(localStorage.getItem("padb_display"));
+    if (d && d.cols) for (const k in DISP.cols) if (k in d.cols) DISP.cols[k] = d.cols[k] ? 1 : 0;
+    if (d && "notes" in d) DISP.notes = d.notes ? 1 : 0;
+  } catch (e) {}
+}
+function saveDisp(){ try { localStorage.setItem("padb_display", JSON.stringify(DISP)); } catch (e) {} }
+function applyDisp(){
+  for (const k in DISP.cols) document.body.classList.toggle("hc-" + k, !DISP.cols[k]);
+  document.querySelectorAll('#setpanel input[data-col]').forEach(cb => { cb.checked = !!DISP.cols[cb.dataset.col]; });
+  const n = $("dc-notes"); if (n) n.checked = !!DISP.notes;
 }
 
 // ---- personal lists (localStorage, shareable by link) ----
@@ -1111,6 +1144,14 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     b.classList.toggle("on", b.dataset.tmode === TMODE);
     b.addEventListener("click", () => setTMode(b.dataset.tmode));
   });
+  loadDisp(); applyDisp();
+  document.querySelectorAll('#setpanel input[data-col]').forEach(cb => cb.addEventListener("change", () => { DISP.cols[cb.dataset.col] = cb.checked ? 1 : 0; saveDisp(); applyDisp(); apply(); }));
+  $("dc-notes").addEventListener("change", e => { DISP.notes = e.target.checked ? 1 : 0; saveDisp(); apply(); });
+  const setpanel = $("setpanel");
+  $("setbtn").addEventListener("click", e => { e.stopPropagation(); setpanel.hidden = !setpanel.hidden; $("setbtn").classList.toggle("open", !setpanel.hidden); });
+  setpanel.addEventListener("click", e => e.stopPropagation());
+  document.addEventListener("click", () => { setpanel.hidden = true; $("setbtn").classList.remove("open"); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { setpanel.hidden = true; $("setbtn").classList.remove("open"); } });
   // Custom tooltip for the console-only US titles: native title tooltips
   // do not exist on touch devices, so .westcon carries data-tip and this
   // bubble serves both tap (mobile) and hover (desktop).
