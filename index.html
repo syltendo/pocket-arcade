@@ -106,6 +106,11 @@
   .b-vs{background:#d9534f;color:#fff}
   .b-hack{background:#3d4450;color:#c6cfd9}
   .b-brew{background:#3d4450;color:#c6cfd9}
+  .oncard{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:#0b2417;background:var(--accent2);border-radius:3px;padding:1.5px 5px;vertical-align:2px;white-space:nowrap}
+  #scanbtn{margin-top:12px;width:100%;padding:8px;border-radius:7px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+  #scanbtn:disabled{border-color:var(--line);color:var(--muted);cursor:default}
+  .scanstatus{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.5}
+  .scanstatus button{background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;text-decoration:underline}
   .kindline{margin-top:3px}
   .kindline .badge{margin-left:0}
   .ver{font-size:13px;margin:1px 0}
@@ -258,6 +263,9 @@
     <div class="side-h">Options</div>
     <label class="check"><input type="checkbox" id="f-pat"> Patreon cores only</label>
     <label class="check"><input type="checkbox" id="f-hacks"> Hacks &amp; Homebrews</label>
+    <label class="check" id="f-card-row" hidden><input type="checkbox" id="f-card"> On my SD card only</label>
+    <button id="scanbtn" type="button">Scan my SD card…</button>
+    <div id="scanstatus" class="scanstatus"></div>
     <button id="reset">Reset all filters</button>
   </aside>
   <div class="head">
@@ -440,7 +448,7 @@ function cardHtml(r){
   return `<div class="card">
     <div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}</div>
     <div class="card-body">
-      <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
+      <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${cardPill(r)}</div>
       ${kindHtml}${ts.subsHtml}
       <div class="card-meta">${r.year || "—"} · ${esc(r.manufacturer || "—")}</div>
       <div class="card-meta">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}${r.players ? ` · ${r.players} player${r.players > 1 ? "s" : ""}${r.players > 1 && !r.sim ? " (alternating)" : ""}` : ""}${r.coop ? ' <span class="badge b-coop">CO-OP</span>' : ""}${r.comp ? ' <span class="badge b-vs">VERSUS</span>' : ""}</div>
@@ -457,7 +465,8 @@ function apply(){
         board = $("f-board").value, screen = $("f-screen").value,
         port = $("f-port").value,
         pat = $("f-pat").checked,
-        hacks = $("f-hacks").checked;
+        hacks = $("f-hacks").checked,
+        cardOnly = $("f-card").checked;
   const nq = normSearch(q);
   let out = DATA.filter(r => {
     if (q && !r._q.includes(nq)) return false;
@@ -475,6 +484,7 @@ function apply(){
     if (screen === "v" && r.vertical !== true) return false;
     if (screen === "h" && r.vertical !== false) return false;
     if (pat && !r.patreon) return false;
+    if (cardOnly && !cardHas(r)) return false;
     const al = activeList();
     if (al && !al.games.includes(keyOf(r))) return false;
     return true;
@@ -521,7 +531,7 @@ function apply(){
       : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
     <td class="snapcell">${r.snap?`<img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">`:""}</td>
-    <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
+    <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${cardPill(r)}${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td>${r.year||"—"}</td>
     <td>${esc(r.manufacturer||"—")}</td>
     <td>${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
@@ -561,6 +571,7 @@ const FILTER_DEFS = [
   selDef("f-port", "Ports"),
   chkDef("f-pat", "Patreon cores only"),
   chkDef("f-hacks", "Hacks & Homebrews"),
+  chkDef("f-card", "On my SD card"),
   selDef("f-list", "List"),
 ];
 function syncFilterUI(){
@@ -875,6 +886,80 @@ function initAuth(){
   });
 }
 
+// ---- SD card scan (prototype, Syl 2026-11-25) ----------------------
+// The visitor points the browser at their Pocket SD card (File System
+// Access API, Chrome/Edge on desktop); only file NAMES are read, in
+// Assets/arcade, and nothing leaves the machine. Instance JSON and ROM
+// zip names are MAME set names, matched against the database; the
+// result (game keys + date) is kept in localStorage.
+let CARD = null;
+try { CARD = JSON.parse(localStorage.getItem("padb_card") || "null"); } catch (e) { CARD = null; }
+let CARDSET = new Set(CARD && CARD.games ? CARD.games : []);
+function cardHas(r){ return CARDSET.has(keyOf(r)); }
+function cardPill(r){ return cardHas(r) ? ' <span class="oncard">ON CARD</span>' : ""; }
+function refreshCardUI(){
+  const has = !!(CARD && CARD.games);
+  $("f-card-row").hidden = !has;
+  const st = $("scanstatus"), btn = $("scanbtn");
+  if (!window.showDirectoryPicker) {
+    btn.disabled = true;
+    st.textContent = "SD card scan needs Chrome or Edge on a computer.";
+    return;
+  }
+  btn.textContent = has ? "Rescan my SD card…" : "Scan my SD card…";
+  st.innerHTML = has
+    ? `<b>${CARD.games.length}</b> game${CARD.games.length === 1 ? "" : "s"} on your card · scanned ${new Date(CARD.ts).toLocaleDateString()} · <button type="button" id="cardforget">forget</button>`
+    : "See which of these games are already on your Pocket SD card.";
+  const f = $("cardforget");
+  if (f) f.addEventListener("click", () => {
+    CARD = null; CARDSET = new Set();
+    localStorage.removeItem("padb_card");
+    $("f-card").checked = false;
+    refreshCardUI(); apply();
+  });
+}
+async function scanCard(){
+  const st = $("scanstatus");
+  if (!DATA.length) { st.textContent = "Still loading the database — try again in a second."; return; }
+  let root;
+  try { root = await window.showDirectoryPicker(); } catch (e) { return; }
+  let arcade = null;
+  if (root.name === "arcade") arcade = root;
+  else {
+    try { arcade = await (await root.getDirectoryHandle("Assets")).getDirectoryHandle("arcade"); }
+    catch (e) {
+      if (root.name === "Assets") { try { arcade = await root.getDirectoryHandle("arcade"); } catch (e2) {} }
+    }
+  }
+  if (!arcade) { st.textContent = "No Assets/arcade folder there — pick the SD card itself."; return; }
+  st.textContent = "Scanning…";
+  const set2key = {};
+  DATA.forEach(r => {
+    const k = keyOf(r);
+    if (r.set) set2key[r.set] = k;
+    (r.versions || []).forEach(v => { if (v.set) set2key[v.set] = k; });
+  });
+  const found = new Set();
+  async function walk(dir, inCommon){
+    for await (const h of dir.values()) {
+      if (h.kind === "file") {
+        const m = h.name.match(/^(.+)\.(json|zip)$/i);
+        if (m && set2key[m[1]]) found.add(set2key[m[1]]);
+      } else if (h.kind === "directory") {
+        if (inCommon && set2key[h.name]) found.add(set2key[h.name]);
+        await walk(h, inCommon || h.name === "common");
+      }
+    }
+  }
+  try { await walk(arcade, false); } catch (e) { st.textContent = "The scan stopped early — try again."; return; }
+  CARD = { ts: Date.now(), games: [...found] };
+  CARDSET = new Set(CARD.games);
+  try { localStorage.setItem("padb_card", JSON.stringify(CARD)); } catch (e) {}
+  refreshCardUI(); apply();
+}
+$("scanbtn").addEventListener("click", scanCard);
+refreshCardUI();
+
 fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   DATA = d.map(r => ({...r, year: r.year ? parseInt(r.year, 10) || null : null,
     _ports: [...new Set((r.home_ports || []).map(canonPort))],
@@ -890,7 +975,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-port", DATA.flatMap(r => r._ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-card","f-list"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
