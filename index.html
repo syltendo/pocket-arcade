@@ -74,6 +74,32 @@
   #toolbar{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:8px;background:var(--bg);height:54px;box-sizing:border-box;border-bottom:1px solid var(--line);margin:0 0 10px}
   #toolbar .count{margin:0}
   #toolbar .viewswitch{margin-left:0}
+  /* List head (Syl, 2026-11-26): the active list shows as a big title with
+     an editable description; Share / Save a copy / Delete only appear
+     inside a list; renaming is done by clicking the title, like the
+     per-game notes. */
+  .listhead{margin:0 0 10px}
+  .listtitlerow{display:flex;align-items:center;gap:6px}
+  #listtitle{font-size:22px;line-height:1.25;margin:0;font-weight:650;min-width:0;overflow-wrap:anywhere}
+  #listtitle.own{cursor:pointer;border-radius:6px}
+  #listtitle.own:hover{background:var(--panel2)}
+  #listtitle-input{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:2px 8px;width:min(480px,80vw)}
+  .listmenuwrap{position:relative;flex:none}
+  #listmenu-btn{padding:6px 9px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:13px}
+  #listmenu-btn:hover{color:var(--text);border-color:var(--muted)}
+  #listmenu{position:absolute;left:0;top:calc(100% + 6px);z-index:60;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:230px;max-height:320px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .lm-item{display:block;width:100%;text-align:left;padding:7px 9px;border:0;border-radius:7px;background:transparent;color:var(--text);cursor:pointer;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lm-item:hover{background:var(--panel)}
+  .lm-item.on{color:var(--accent)}
+  .lm-sep{border-top:1px solid var(--line);margin:5px 2px}
+  .listactions{margin-left:auto;display:flex;gap:6px;flex:none}
+  .listactions button{padding:7px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
+  .listactions button:hover{color:var(--text);border-color:var(--muted)}
+  #listdesc{color:var(--muted);margin:5px 0 0;font-size:14px;white-space:pre-wrap;max-width:680px}
+  #listdesc.own{cursor:pointer;border-radius:6px}
+  #listdesc.own:hover{background:var(--panel2)}
+  #listdesc.ph{opacity:.7;font-style:italic}
+  .desc-edit{width:min(680px,100%);box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:6px 8px;resize:vertical}
   p#count{display:none}
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
@@ -334,16 +360,13 @@
 </div></div>
   </div>
   <section>
-    <div class="listbar">
-      <label for="f-list">My lists</label>
-      <select id="f-list"><option value="">All games</option></select>
-      <div class="listbtns">
-        <button id="l-new" type="button">＋ New list</button>
-        <button id="l-rename" type="button">Rename</button>
-        <button id="l-share" type="button">Share</button>
-        <button id="l-del" type="button">Delete</button>
+    <div class="listhead" id="listhead">
+      <div class="listtitlerow">
+        <h2 id="listtitle">All games</h2>
+        <span class="listmenuwrap"><button id="listmenu-btn" type="button" title="Switch list" aria-label="Switch list">▾</button><div id="listmenu" hidden></div></span>
+        <span class="listactions"><button id="l-share" type="button" hidden>Share</button><button id="l-copy" type="button" hidden>Save a copy</button><button id="l-del" type="button" hidden>Delete</button></span>
       </div>
-      
+      <p id="listdesc" hidden></p>
     </div>
     <p class="count" id="count"></p>
     <div id="chips"></div>
@@ -621,7 +644,10 @@ const FILTER_DEFS = [
     active: () => CARDF !== "all",
     text: () => CARDF === "on" ? "On my card" : "Not on my card",
     clear: () => setCardF("all") },
-  selDef("f-list", "List"),
+  { id: "listhead", label: "List",
+    active: () => !!activeList(),
+    text: () => activeList() ? activeList().name : "",
+    clear: () => { activeListId = ""; refreshListHead(); } },
 ];
 function syncFilterUI(){
   let n = 0; const chips = [];
@@ -789,28 +815,109 @@ let LAST_ORDER = [];
 let PRESERVE_ORDER = null;
 let lists = [];
 try { lists = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { lists = []; }
-lists.forEach(l => { if (!l.blurbs || typeof l.blurbs !== "object") l.blurbs = {}; });
+lists.forEach(l => { if (!l.blurbs || typeof l.blurbs !== "object") l.blurbs = {}; if (typeof l.desc !== "string") l.desc = ""; });
 let sharedList = null;   // {name, games:[keys]} from a #l= link, not yet saved
 function saveLists(){ localStorage.setItem(LS_KEY, JSON.stringify(lists)); scheduleSync(); }
 function listById(id){ return lists.find(l => l.id === id) || (sharedList && sharedList.id === id ? sharedList : null); }
+let activeListId = "";
 function activeList(){
-  const v = $("f-list").value;
-  return v ? listById(v) : null;
+  return activeListId ? listById(activeListId) : null;
 }
-function refreshListSelect(){
-  const sel = $("f-list"), cur = sel.value;
-  sel.innerHTML = '<option value="">All games</option>';
-  for (const l of lists) {
-    const o = document.createElement("option");
-    o.value = l.id; o.textContent = `${l.name} (${l.games.length})`;
-    sel.appendChild(o);
-  }
-  if (sharedList) {
-    const o = document.createElement("option");
-    o.value = sharedList.id; o.textContent = `${sharedList.name} (shared, ${sharedList.games.length})`;
-    sel.appendChild(o);
-  }
-  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+function refreshListHead(){
+  if (activeListId === "shared" && !sharedList) activeListId = "";
+  const l = activeList();
+  const own = !!l && l !== sharedList;
+  const title = $("listtitle");
+  title.textContent = l ? l.name : "All games";
+  title.classList.toggle("own", own);
+  title.title = own ? "Click to rename" : "";
+  const desc = $("listdesc");
+  if (l && (own || l.desc)) {
+    desc.hidden = false;
+    desc.classList.toggle("own", own);
+    desc.classList.toggle("ph", own && !l.desc);
+    desc.textContent = l.desc || "Add a description…";
+    desc.title = own ? "Click to edit the description" : "";
+  } else desc.hidden = true;
+  $("l-share").hidden = !own;
+  $("l-del").hidden = !own;
+  $("l-copy").hidden = !(l && l === sharedList);
+  const m = $("listmenu");
+  m.innerHTML = "";
+  const mk = (label, val) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "lm-item"; b.textContent = label;
+    if (activeListId === val) b.classList.add("on");
+    b.addEventListener("click", () => {
+      m.hidden = true;
+      if (val === "__new") {
+        const nl = newList("Untitled list");
+        activeListId = nl.id; refreshListHead(); apply(); startTitleEdit();
+      } else { activeListId = val; refreshListHead(); apply(); }
+    });
+    m.appendChild(b);
+  };
+  mk("All games", "");
+  for (const x of lists) mk(`${x.name} (${x.games.length})`, x.id);
+  if (sharedList) mk(`${sharedList.name} (shared, ${sharedList.games.length})`, "shared");
+  const sep = document.createElement("div"); sep.className = "lm-sep"; m.appendChild(sep);
+  mk("＋ New list", "__new");
+  syncFilterUI();
+}
+// In-place list renaming, same principle as the per-game notes: click the
+// title, type, Enter or click away to save, Esc to cancel.
+function startTitleEdit(){
+  const l = activeList(); if (!l || l === sharedList) return;
+  const t = $("listtitle");
+  if (t.querySelector("input")) return;
+  const inp = document.createElement("input");
+  inp.id = "listtitle-input"; inp.type = "text"; inp.maxLength = 80;
+  inp.value = l.name;
+  t.textContent = ""; t.appendChild(inp);
+  inp.focus(); inp.select();
+  let done = false;
+  const finish = save => {
+    if (done) return; done = true;
+    const v = inp.value.trim();
+    if (save && v && v !== l.name) { l.name = v; saveLists(); }
+    refreshListHead();
+  };
+  inp.addEventListener("blur", () => finish(true));
+  inp.addEventListener("keydown", ev => {
+    if (ev.key === "Enter") { ev.preventDefault(); inp.blur(); }
+    else if (ev.key === "Escape") { ev.stopPropagation(); finish(false); }
+  });
+  inp.addEventListener("click", ev => ev.stopPropagation());
+}
+function startDescEdit(){
+  const l = activeList(); if (!l || l === sharedList) return;
+  const d = $("listdesc");
+  if (d.querySelector("textarea")) return;
+  const inp = document.createElement("textarea");
+  inp.className = "desc-edit"; inp.rows = 3; inp.maxLength = 300;
+  inp.value = l.desc || ""; inp.placeholder = "Describe this list…";
+  d.textContent = ""; d.appendChild(inp);
+  inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+  let done = false;
+  const finish = save => {
+    if (done) return; done = true;
+    if (save) { l.desc = inp.value.trim(); saveLists(); }
+    refreshListHead();
+  };
+  inp.addEventListener("blur", () => finish(true));
+  inp.addEventListener("keydown", ev => {
+    if (ev.key === "Escape") { ev.stopPropagation(); finish(false); }
+  });
+  inp.addEventListener("click", ev => ev.stopPropagation());
+}
+function saveSharedCopy(){
+  if (!sharedList) return;
+  const l = newList(sharedList.name, [...sharedList.games]);
+  l.blurbs = {...(sharedList.blurbs || {})};
+  l.desc = sharedList.desc || "";
+  saveLists();
+  sharedList = null; $("sharebanner").style.display = "none";
+  activeListId = l.id; refreshListHead(); apply();
 }
 function inAnyList(key){ return lists.some(l => l.games.includes(key)); }
 function toggleInList(list, key){
@@ -818,11 +925,11 @@ function toggleInList(list, key){
   if (i >= 0) { list.games.splice(i, 1); if (list.blurbs) delete list.blurbs[key]; }
   else list.games.push(key);
   if (list !== sharedList) saveLists();
-  refreshListSelect(); apply();
+  refreshListHead(); apply();
 }
 function newList(name, games){
-  const l = {id: "l" + Date.now().toString(36) + Math.floor(Math.random()*999), name, games: games || [], blurbs: {}};
-  lists.push(l); saveLists(); refreshListSelect();
+  const l = {id: "l" + Date.now().toString(36) + Math.floor(Math.random()*999), name, games: games || [], blurbs: {}, desc: ""};
+  lists.push(l); saveLists(); refreshListHead();
   return l;
 }
 let menuKey = null;
@@ -899,6 +1006,7 @@ function startBlurbEdit(d){
 const SUPABASE_URL = "https://epxzqmdgkylnztrltjlk.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVweHpxbWRna3lsbnp0cmx0amxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1NjA2MTcsImV4cCI6MjExMTEzNjYxN30.4DAnCFACfGp5HTj8JB4zp1U5DqZ8rQulLY3AV9GNxNQ";
 let sb = null, sbUser = null, guestLists = null, syncTimer = null;
+let sbDesc = true;   // false until the description column exists in Supabase (Syl runs the SQL); sync then omits it
 function setSyncMsg(t){ const el = $("sync-msg"); if (el) el.textContent = t || ""; }
 function scheduleSync(){
   if (!sbUser) return;
@@ -908,10 +1016,16 @@ function scheduleSync(){
 async function syncAll(){
   if (!sb || !sbUser) return;
   setSyncMsg("Syncing…");
-  const rows = lists.map(l => ({id: l.id, user_id: sbUser.id, name: l.name,
-    games: l.games, blurbs: l.blurbs || {}, updated_at: new Date().toISOString()}));
+  const rows = lists.map(l => { const r = {id: l.id, user_id: sbUser.id, name: l.name,
+    games: l.games, blurbs: l.blurbs || {}, updated_at: new Date().toISOString()};
+    if (sbDesc) r.description = l.desc || ""; return r; });
   let err = null;
   if (rows.length) { const r = await sb.from("lists").upsert(rows); err = r.error; }
+  if (err && sbDesc && /description/.test(err.message || "")) {
+    sbDesc = false;
+    const plain = rows.map(({description, ...rest}) => rest);
+    if (plain.length) { const r = await sb.from("lists").upsert(plain); err = r.error; }
+  }
   if (!err) {
     let q = sb.from("lists").delete().eq("user_id", sbUser.id);
     if (rows.length) q = q.not("id", "in", "(" + rows.map(r => '"' + r.id + '"').join(",") + ")");
@@ -928,17 +1042,20 @@ async function onSignedIn(user){
   $("auth-btn").title = user.email || "Account";
   $("auth-btn-label").hidden = true;
   setSyncMsg("Loading your lists…");
-  const { data, error } = await sb.from("lists").select("id,name,games,blurbs").order("created_at");
+  let res1 = await sb.from("lists").select("id,name,games,blurbs,description").order("created_at");
+  if (res1.error && sbDesc) { sbDesc = false; res1 = await sb.from("lists").select("id,name,games,blurbs").order("created_at"); }
+  const { data, error } = res1;
   if (error) { setSyncMsg("Could not load your account lists."); return; }
   guestLists = lists;
   if (data && data.length) {
     lists = data.map(r => ({id: r.id, name: r.name, games: Array.isArray(r.games) ? r.games : [],
-      blurbs: (r.blurbs && typeof r.blurbs === "object") ? r.blurbs : {}}));
+      blurbs: (r.blurbs && typeof r.blurbs === "object") ? r.blurbs : {},
+      desc: typeof r.description === "string" ? r.description : ""}));
     saveLists();
   } else if (lists.length) {
     await syncAll();   // first sign-in: import this device's lists
   }
-  refreshListSelect(); apply();
+  refreshListHead(); apply();
   setSyncMsg("Lists synced ✓");
 }
 function onSignedOut(){
@@ -949,7 +1066,7 @@ function onSignedOut(){
   $("auth-btn").classList.remove("signed");
   $("auth-btn").title = "Sign in";
   $("auth-btn-label").hidden = false;
-  refreshListSelect(); apply();
+  refreshListHead(); apply();
 }
 function initAuth(){
   if (!window.supabase || !SUPABASE_URL.startsWith("https://")) return;
@@ -1107,7 +1224,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   fillSelect("f-board", DATA.flatMap(r => r.boards));
   fillSelect("f-port", DATA.flatMap(r => r._ports || []));
   fillSelect("f-year", DATA.map(r => decade(r.year)));
-  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks","f-list"]
+  ["q","f-genre","f-players","f-mode","f-pub","f-year","f-core","f-author","f-board","f-port","f-screen","f-pat","f-hacks"]
     .forEach(id => $(id).addEventListener("input", apply));
   $("rows").addEventListener("click", e => {
     const b = e.target.closest(".favbtn");
@@ -1131,27 +1248,27 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     const r = LB_LIST[LB_IDX];
     if (r && VIDEOS[r.set]) { delete VIDEOS[r.set]; openLB(LB_IDX); }
   });
-  $("l-new").addEventListener("click", () => {
-    const name = prompt("Name of the new list:");
-    if (!name || !name.trim()) return;
-    const l = newList(name.trim());
-    $("f-list").value = l.id; apply();
+  $("listmenu-btn").addEventListener("click", e => {
+    e.stopPropagation();
+    $("listmenu").hidden = !$("listmenu").hidden;
   });
-  $("l-rename").addEventListener("click", () => {
-    const l = activeList(); if (!l || l === sharedList) return;
-    const name = prompt("Rename list:", l.name);
-    if (name && name.trim()) { l.name = name.trim(); saveLists(); refreshListSelect(); }
+  document.addEventListener("click", e => {
+    const m = $("listmenu");
+    if (!m.hidden && !m.contains(e.target)) m.hidden = true;
   });
+  $("listtitle").addEventListener("click", () => { const l = activeList(); if (l && l !== sharedList) startTitleEdit(); });
+  $("listdesc").addEventListener("click", () => { const l = activeList(); if (l && l !== sharedList) startDescEdit(); });
+  $("l-copy").addEventListener("click", saveSharedCopy);
   $("l-del").addEventListener("click", () => {
     const l = activeList(); if (!l || l === sharedList) return;
     if (confirm(`Delete the list “${l.name}”?`)) {
-      lists = lists.filter(x => x.id !== l.id); saveLists();
-      $("f-list").value = ""; refreshListSelect(); apply();
+      lists = lists.filter(x => x.id !== l.id); activeListId = ""; saveLists();
+      refreshListHead(); apply();
     }
   });
   $("l-share").addEventListener("click", async () => {
     const l = activeList(); if (!l) { alert("Select a list first."); return; }
-    const payload = btoa(unescape(encodeURIComponent(JSON.stringify({name: l.name, games: l.games, blurbs: l.blurbs || {}}))))
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify({name: l.name, games: l.games, blurbs: l.blurbs || {}, desc: l.desc || ""}))))
       .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const url = location.origin + location.pathname + "#l=" + payload;
     try { await navigator.clipboard.writeText(url); alert("Share link copied — anyone opening it can view this list and save a copy."); }
@@ -1163,22 +1280,20 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
       const raw = location.hash.slice(3).replace(/-/g, "+").replace(/_/g, "/");
       const obj = JSON.parse(decodeURIComponent(escape(atob(raw))));
       if (obj && Array.isArray(obj.games)) {
-        sharedList = {id: "shared", name: String(obj.name || "Shared list"), games: obj.games.map(String),
+        sharedList = {id: "shared", name: String(obj.name || "Shared list"), games: obj.games.map(String), desc: String(obj.desc || ""),
           blurbs: (obj.blurbs && typeof obj.blurbs === "object") ? obj.blurbs : {}};
         $("sharetext").textContent = `Shared list “${sharedList.name}” — ${sharedList.games.length} games.`;
         $("sharebanner").style.display = "block";
       }
     } catch(e) { /* malformed link: ignore */ }
   }
-  $("s-view").addEventListener("click", () => { refreshListSelect(); $("f-list").value = "shared"; apply(); });
-  $("s-save").addEventListener("click", () => {
-    if (!sharedList) return;
-    const l = newList(sharedList.name, [...sharedList.games]);
-    l.blurbs = {...(sharedList.blurbs || {})}; saveLists();
+  $("s-view").addEventListener("click", () => { activeListId = "shared"; refreshListHead(); apply(); });
+  $("s-save").addEventListener("click", saveSharedCopy);
+  $("s-dismiss").addEventListener("click", () => {
     sharedList = null; $("sharebanner").style.display = "none";
-    refreshListSelect(); $("f-list").value = l.id; apply();
+    if (activeListId === "shared") { activeListId = ""; refreshListHead(); apply(); }
+    else refreshListHead();
   });
-  $("s-dismiss").addEventListener("click", () => { sharedList = null; $("sharebanner").style.display = "none"; refreshListSelect(); });
   document.querySelectorAll("th.sortable").forEach(th => th.addEventListener("click", () => {
     const k = th.dataset.sort;
     if (k === sortKey) sortDir = -sortDir;
@@ -1186,7 +1301,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     markHeaders(); apply();
   }));
   markHeaders();
-  refreshListSelect();
+  refreshListHead();
   initAuth();
   $("reset").addEventListener("click", () => location.reload());
   document.querySelector("h1").addEventListener("click", () => location.reload());
