@@ -454,6 +454,21 @@ const INFO_SVG = `<svg class="infoic" width="13" height="13" viewBox="0 0 24 24"
 function westTip(r){ return `Not a US arcade title \u2014 '${r.west}' is the name of the console versions.`; }
 function westSpan(r){ return `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(r.west)}${INFO_SVG}</span>`; }
 
+const LOCK_ICO = '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>';
+// A core (platform) is Patreon-locked for a game when every version of
+// the game on that core is Patreon-only; a core that offers any free
+// version shows no lock (Syl, 2026-11-26 — the lock lives in the Core
+// column, next to the core it belongs to).
+function lockedPlatforms(r) {
+  const out = new Set();
+  if (!r.patreon || !r.core_authors) return out;
+  for (const pa of r.core_authors) {
+    const p = pa.platform.toLowerCase();
+    const vs = r.versions.filter(v => (v.cores || []).some(c => { const cl = c.toLowerCase(); return cl === p || cl.startsWith(p + " \u00b7 "); }));
+    if (vs.length && vs.every(v => v.patreon)) out.add(pa.platform);
+  }
+  return out;
+}
 function titleSet(r){
   const westHtml = r.west ? (r.west_console
     ? `<div class="ports">${westSpan(r)}</div>`
@@ -503,7 +518,7 @@ function cardHtml(r){
   const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
     : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
   const coreLine = (r.core_authors && r.core_authors.length)
-    ? r.core_authors.map(pa => `${esc(pa.platform)} (${pa.authors.map(a => esc(a.name)).join(", ")})`).join(", ")
+    ? r.core_authors.map(pa => `${esc(pa.platform)} (${pa.authors.map(a => esc(a.name)).join(", ")})${lockedPlatforms(r).has(pa.platform) ? LOCK_ICO : ""}`).join(", ")
     : esc(r.platforms.join(", "));
   const vid = VIDEOS[r.set] ? `<span class="vidtag">▶ Video</span>` : "";
   const meta1 = [DISP.cols.year ? (r.year || "—") : "", DISP.cols.pub ? esc(r.manufacturer || "—") : ""].filter(Boolean).join(" · ");
@@ -513,7 +528,7 @@ function cardHtml(r){
   return `<div class="card">
     ${DISP.cols.snap ? `<div class="card-snap">${thumbOf(r) ? `<img class="snap" loading="lazy" src="snaps/${esc(thumbOf(r))}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}${cardPill(r)}</div>` : ""}
     <div class="card-body">
-      <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
+      <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
       ${kindHtml}${ts.subsHtml}
       ${meta1 ? `<div class="card-meta">${meta1}</div>` : ""}
       ${meta2 ? `<div class="card-meta">${meta2}</div>` : ""}
@@ -605,12 +620,12 @@ function apply(){
       : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
     <td class="snapcell c-snap">${thumbOf(r)?`<span class="snapwrap"><img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(thumbOf(r))}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${cardPill(r)}</span>`:cardPill(r, true)}</td>
-    <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
+    <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td class="c-year">${r.year||"—"}</td>
     <td class="c-pub">${esc(r.manufacturer||"—")}</td>
     <td class="c-genre">${esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—")}</td>
     <td class="c-players">${r.players ? `${r.players} player${r.players>1?"s":""}${r.players>1 && !r.sim ? " (alternating)" : ""}` : "—"}${r.coop?' <span class="badge b-coop">CO-OP</span>':""}${r.comp?' <span class="badge b-vs">VERSUS</span>':""}</td>
-    <td class="ports c-core">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})</div>`).join("") : esc(r.platforms.join(", "))}${r.versions.length > 1 ? `<div class="vcount">${r.versions.length} versions</div>` : ""}</td>
+    <td class="ports c-core">${(r.core_authors && r.core_authors.length) ? r.core_authors.map(pa => `<div>${esc(pa.platform)} (${pa.authors.map(a => `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>`).join(", ")})${lockedPlatforms(r).has(pa.platform) ? LOCK_ICO : ""}</div>`).join("") : esc(r.platforms.join(", "))}${r.versions.length > 1 ? `<div class="vcount">${r.versions.length} versions</div>` : ""}</td>
     <td class="ports c-ports">${(r.home_ports || []).length ? (r.home_ports || []).map(p => { const a = (r.ports_aka || {})[p]; return esc(p) + (a ? ` <span class="aka">(${esc(a)})</span>` : ""); }).join(", ") : "—"}</td>
   </tr>`;
   }).join("");
