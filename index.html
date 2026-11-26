@@ -680,7 +680,7 @@ function showLBMedia(){
     lb.src = it.src;
     lb.className = r.vertical ? "lb-v" : "";
   }
-  $("lb-cap").textContent = titleSet(r).head + (LB_MEDIA.length > 1 || it.t === "vid" ? " \u2014 " + it.label : "");
+  $("lb-cap").textContent = titleSet(r).head;
   const lm = $("lb-media");
   lm.hidden = LB_MEDIA.length <= 1;
   lm.innerHTML = LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}">${m.tab}</button>`).join("");
@@ -690,7 +690,7 @@ function openLB(i){
   if (!LB_LIST.length) return;
   LB_IDX = (i + LB_LIST.length) % LB_LIST.length;
   LB_MEDIA = mediaOf(LB_LIST[LB_IDX]);
-  LB_MI = 0;
+  LB_MI = Math.max(0, LB_MEDIA.findIndex(m => m.t === "img" && m.src === "snaps/" + thumbOf(LB_LIST[LB_IDX])));
   showLBMedia();
   $("lightbox").hidden = false;
 }
