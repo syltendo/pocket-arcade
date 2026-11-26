@@ -175,9 +175,10 @@
   #lightbox[hidden]{display:none}
   #lightbox img,#lightbox video{width:min(62vw,672px);height:min(56vh,504px);object-fit:contain;image-rendering:pixelated;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#111}
   #lightbox img.lb-v,#lightbox video.lb-v{width:min(80vw,540px);height:min(82vh,680px)}
-  #lb-dots{display:flex;gap:8px;margin-top:12px;min-height:12px;align-items:center;justify-content:center}
-  #lb-dots button{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:transparent;padding:0;cursor:pointer}
-  #lb-dots button.on{background:#fff}
+  #lb-media{display:flex;margin-top:12px;border:1px solid rgba(255,255,255,.35);border-radius:8px;overflow:hidden}
+  #lb-media[hidden]{display:none}
+  #lb-media button{padding:6px 14px;background:transparent;border:none;color:#bbb;cursor:pointer;font-size:13px}
+  #lb-media button.on{background:var(--accent);color:#fff;font-weight:600}
   .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;border:none;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
   .lb-nav:hover{background:rgba(255,255,255,.25)}
   #lb-prev{left:10px}
@@ -329,7 +330,7 @@
         <button id="l-del" type="button">Delete</button>
       </div>
       <div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
-      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" id="tmodeswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Screenshots</h4><div class="titleswitch" id="thumbswitch" role="group" aria-label="Table screenshots"><button type="button" data-thumb="snap" class="on">Screenshot</button><button type="button" data-thumb="title">Title screen</button></div><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span>
+      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" id="tmodeswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><div class="titleswitch" id="thumbswitch" role="group" aria-label="Table screenshots" style="margin:2px 0 8px"><button type="button" data-thumb="title">Title screen</button><button type="button" data-thumb="snap" class="on">Screenshot</button></div><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span>
     </div>
     <p class="count" id="count"></p>
     <div id="chips"></div>
@@ -651,10 +652,10 @@ function closeLB(){ stopLB(); $("lightbox").hidden = true; }
 let LB_MEDIA = [], LB_MI = 0;
 function mediaOf(r){
   const m = [];
-  if (r.tsnap) m.push({ t: "img", src: "snaps/" + r.tsnap, label: "title screen" });
-  if (r.snap) m.push({ t: "img", src: "snaps/" + r.snap, label: "screenshot" });
+  if (r.tsnap) m.push({ t: "img", src: "snaps/" + r.tsnap, label: "title screen", tab: "Title Screen" });
+  if (r.snap) m.push({ t: "img", src: "snaps/" + r.snap, label: "screenshot", tab: "Screenshot" });
   const vf = VIDEOS[r.set];
-  if (vf) m.push({ t: "vid", src: "videos/" + vf, label: "gameplay video" });
+  if (vf) m.push({ t: "vid", src: "videos/" + vf, label: "gameplay video", tab: "Video" });
   return m;
 }
 function showLBMedia(){
@@ -680,7 +681,9 @@ function showLBMedia(){
     lb.className = r.vertical ? "lb-v" : "";
   }
   $("lb-cap").textContent = titleSet(r).head + (LB_MEDIA.length > 1 || it.t === "vid" ? " \u2014 " + it.label : "");
-  $("lb-dots").innerHTML = LB_MEDIA.length > 1 ? LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}" aria-label="${m.label}"></button>`).join("") : "";
+  const lm = $("lb-media");
+  lm.hidden = LB_MEDIA.length <= 1;
+  lm.innerHTML = LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}">${m.tab}</button>`).join("");
 }
 function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; showLBMedia(); } }
 function openLB(i){
@@ -1163,8 +1166,8 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     if (e.target.closest("#lb-prev")) { navLB(-1); return; }
     if (e.target.closest("#lb-next")) { navLB(1); return; }
     if (e.target.closest("#lb-snd")) { toggleSnd(); return; }
-    const dot = e.target.closest("#lb-dots button");
-    if (dot) { LB_MI = parseInt(dot.dataset.mi || "0", 10); showLBMedia(); return; }
+    const mb = e.target.closest("#lb-media button");
+    if (mb) { LB_MI = parseInt(mb.dataset.mi || "0", 10); showLBMedia(); return; }
     if (e.target.closest("#lb-img") || e.target.closest("#lb-vid")) { lbAdvance(); return; }
     const im = e.target.closest("img.snap");
     if (im) { openLB(parseInt(im.dataset.lbi || "0", 10)); return; }
@@ -1244,6 +1247,6 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
 });
 </script>
 <div id="tip" role="tooltip"></div>
-<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><div id="lb-dots"></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
+<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><div id="lb-media" role="group" aria-label="Media" hidden></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
 </body>
 </html>
