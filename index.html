@@ -652,7 +652,8 @@ function closeLB(){ stopLB(); $("lightbox").hidden = true; }
 let LB_MEDIA = [], LB_MI = 0;
 function mediaOf(r){
   const m = [];
-  if (r.tsnap) m.push({ t: "img", src: "snaps/" + r.tsnap, label: "title screen", tab: "Title Screen" });
+  const tsf = titleSnapOf(r);
+  if (tsf) m.push({ t: "img", src: "snaps/" + tsf, label: "title screen", tab: "Title Screen" });
   if (r.snap) m.push({ t: "img", src: "snaps/" + r.snap, label: "gameplay", tab: "Gameplay" });
   const vf = VIDEOS[r.set];
   if (vf) m.push({ t: "vid", src: "videos/" + vf, label: "gameplay video", tab: "Video" });
@@ -665,7 +666,7 @@ function showLBMedia(){
     lb.hidden = true;
     vid.hidden = false;
     vid.className = r.vertical ? "lb-v" : "";
-    vid.poster = r.snap ? "snaps/" + r.snap : (r.tsnap ? "snaps/" + r.tsnap : "");
+    vid.poster = r.snap ? "snaps/" + r.snap : (titleSnapOf(r) ? "snaps/" + titleSnapOf(r) : "");
     if (vid.dataset.cur !== it.src) { vid.src = it.src; vid.dataset.cur = it.src; }
     vid.currentTime = 0;
     vid.muted = !SND;
@@ -740,7 +741,12 @@ function applyDisp(){
 // in-game screenshot (default) or the title screen (settings, Syl
 // 2026-11-25). Falls back to the other image when the chosen one is
 // missing for a game.
-function thumbOf(r){ return DISP.thumb === "title" ? (r.tsnap || r.snap) : (r.snap || r.tsnap); }
+function titleSnapOf(r){
+  if (TMODE === "jp" && r.tsnap_jp) return r.tsnap_jp;
+  if (TMODE === "us" && r.tsnap_us) return r.tsnap_us;
+  return r.tsnap || null;
+}
+function thumbOf(r){ return DISP.thumb === "title" ? (titleSnapOf(r) || r.snap) : (r.snap || titleSnapOf(r)); }
 function setThumb(m){ DISP.thumb = m; saveDisp(); applyDisp(); apply(); }
 
 // ---- personal lists (localStorage, shareable by link) ----
