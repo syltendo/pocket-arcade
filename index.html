@@ -175,6 +175,9 @@
   #lightbox[hidden]{display:none}
   #lightbox img,#lightbox video{width:min(62vw,672px);height:min(56vh,504px);object-fit:contain;image-rendering:pixelated;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#111}
   #lightbox img.lb-v,#lightbox video.lb-v{width:min(80vw,540px);height:min(82vh,680px)}
+  #lb-dots{display:flex;gap:8px;margin-top:12px;min-height:12px;align-items:center;justify-content:center}
+  #lb-dots button{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:transparent;padding:0;cursor:pointer}
+  #lb-dots button.on{background:#fff}
   .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;border:none;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
   .lb-nav:hover{background:rgba(255,255,255,.25)}
   #lb-prev{left:10px}
@@ -326,7 +329,7 @@
         <button id="l-del" type="button">Delete</button>
       </div>
       <div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
-      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span>
+      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Title names</h4><div class="titleswitch" id="tmodeswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 US</button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 JP</button></div><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Screenshots</h4><div class="titleswitch" id="thumbswitch" role="group" aria-label="Table screenshots"><button type="button" data-thumb="snap" class="on">Screenshot</button><button type="button" data-thumb="title">Title screen</button></div><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span>
     </div>
     <p class="count" id="count"></p>
     <div id="chips"></div>
@@ -464,7 +467,7 @@ function cardHtml(r){
   const meta2 = [DISP.cols.genre ? esc((r.genres && r.genres.length ? r.genres.join(", ") : r.genre) || "—") : "", DISP.cols.players ? playersPart.trim() : ""].filter(Boolean).join(" · ");
   const coreLineHtml = DISP.cols.core ? `<div class="card-meta">${coreLine}</div>` : "";
   return `<div class="card">
-    ${DISP.cols.snap ? `<div class="card-snap">${r.snap ? `<img class="snap" loading="lazy" src="snaps/${esc(r.snap)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}${cardPill(r)}</div>` : ""}
+    ${DISP.cols.snap ? `<div class="card-snap">${thumbOf(r) ? `<img class="snap" loading="lazy" src="snaps/${esc(thumbOf(r))}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${vid}` : `<span class="card-nosnap">No screenshot</span>`}${cardPill(r)}</div>` : ""}
     <div class="card-body">
       <div class="card-title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon ? '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : ""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button></div>
       ${kindHtml}${ts.subsHtml}
@@ -517,7 +520,7 @@ function apply(){
   });
   const nv = out.reduce((n,r) => n + r.versions.length, 0);
   const nc = new Set(out.flatMap(r => r.cores)).size;
-  LB_LIST = out.filter(r => r.snap);
+  LB_LIST = out.filter(r => r.snap || r.tsnap || VIDEOS[r.set]);
   LB_LIST.forEach((r, i) => { r._lbi = i; });
   $("count").innerHTML = `<b>${out.length}</b> game${out.length===1?"":"s"} found · ${nv} version${nv===1?"":"s"} · ${nc} core${nc===1?"":"s"}`;
   const isGrid = VIEW === "grid";
@@ -548,7 +551,7 @@ function apply(){
     const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
       : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
     return `<tr>
-    <td class="snapcell c-snap">${r.snap?`<span class="snapwrap"><img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(r.snap)}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${cardPill(r)}</span>`:cardPill(r, true)}</td>
+    <td class="snapcell c-snap">${thumbOf(r)?`<span class="snapwrap"><img class="snap ${r.vertical?"snap-v":"snap-h"}" loading="lazy" src="snaps/${esc(thumbOf(r))}" data-title="${esc(r.title)}" data-lbi="${r._lbi}" alt="" title="Click to enlarge">${cardPill(r)}</span>`:cardPill(r, true)}</td>
     <td class="title">${ts.headHtml}${r.vertical ? ' <span class="tate">TATE</span>' : ""}${r.patreon?'<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>':""}<button class="favbtn${inAnyList(keyOf(r)) ? " on" : ""}" data-key="${esc(keyOf(r))}" title="Add to a list" type="button">${inAnyList(keyOf(r)) ? "★" : "☆"}</button>${kindHtml}${ts.subsHtml}${noteHtml}${wikiLine}${blurbHtml}</td>
     <td class="c-year">${r.year||"—"}</td>
     <td class="c-pub">${esc(r.manufacturer||"—")}</td>
@@ -642,17 +645,27 @@ function updSndIcon(){ const b = $("lb-snd"), vid = $("lb-vid"); if (b) b.innerH
 function toggleSnd(){ const vid = $("lb-vid"); SND = !SND; try { localStorage.setItem("padb_sound", SND ? "1" : "0"); } catch (e) {} vid.muted = !SND; if (SND) vid.play().catch(() => {}); updSndIcon(); }
 function stopLB(){ const vid = $("lb-vid"); if (vid) vid.pause(); }
 function closeLB(){ stopLB(); $("lightbox").hidden = true; }
-function openLB(i){
-  if (!LB_LIST.length) return;
-  LB_IDX = (i + LB_LIST.length) % LB_LIST.length;
-  const r = LB_LIST[LB_IDX], lb = $("lb-img"), vid = $("lb-vid");
+// ---- Lightbox gallery (Syl, 2026-11-25): per game, in order — title
+// screen, in-game screenshot, gameplay video (when available). Clicking
+// the media or a dot moves within the game; the arrows change game.
+let LB_MEDIA = [], LB_MI = 0;
+function mediaOf(r){
+  const m = [];
+  if (r.tsnap) m.push({ t: "img", src: "snaps/" + r.tsnap, label: "title screen" });
+  if (r.snap) m.push({ t: "img", src: "snaps/" + r.snap, label: "screenshot" });
   const vf = VIDEOS[r.set];
-  if (vf) {
+  if (vf) m.push({ t: "vid", src: "videos/" + vf, label: "gameplay video" });
+  return m;
+}
+function showLBMedia(){
+  const r = LB_LIST[LB_IDX], it = LB_MEDIA[LB_MI], lb = $("lb-img"), vid = $("lb-vid");
+  if (!r || !it) return;
+  if (it.t === "vid") {
     lb.hidden = true;
     vid.hidden = false;
     vid.className = r.vertical ? "lb-v" : "";
-    vid.poster = "snaps/" + r.snap;
-    if (vid.dataset.cur !== vf) { vid.src = "videos/" + vf; vid.dataset.cur = vf; }
+    vid.poster = r.snap ? "snaps/" + r.snap : (r.tsnap ? "snaps/" + r.tsnap : "");
+    if (vid.dataset.cur !== it.src) { vid.src = it.src; vid.dataset.cur = it.src; }
     vid.currentTime = 0;
     vid.muted = !SND;
     $("lb-snd").hidden = false;
@@ -663,10 +676,19 @@ function openLB(i){
     vid.hidden = true;
     $("lb-snd").hidden = true;
     lb.hidden = false;
-    lb.src = "snaps/" + r.snap;
+    lb.src = it.src;
     lb.className = r.vertical ? "lb-v" : "";
   }
-  $("lb-cap").textContent = titleSet(r).head + (vf ? " \u2014 gameplay video" : "");
+  $("lb-cap").textContent = titleSet(r).head + (LB_MEDIA.length > 1 || it.t === "vid" ? " \u2014 " + it.label : "");
+  $("lb-dots").innerHTML = LB_MEDIA.length > 1 ? LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}" aria-label="${m.label}"></button>`).join("") : "";
+}
+function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; showLBMedia(); } }
+function openLB(i){
+  if (!LB_LIST.length) return;
+  LB_IDX = (i + LB_LIST.length) % LB_LIST.length;
+  LB_MEDIA = mediaOf(LB_LIST[LB_IDX]);
+  LB_MI = 0;
+  showLBMedia();
   $("lightbox").hidden = false;
 }
 function navLB(d){ if (LB_IDX >= 0) openLB(LB_IDX + d); }
@@ -680,7 +702,7 @@ function setView(v){
 function setTMode(m){
   TMODE = m;
   try { localStorage.setItem("padb_titles", m); } catch (e) {}
-  document.querySelectorAll(".titleswitch button").forEach(b => b.classList.toggle("on", b.dataset.tmode === m));
+  document.querySelectorAll("#tmodeswitch button").forEach(b => b.classList.toggle("on", b.dataset.tmode === m));
   apply();
 }
 
@@ -695,12 +717,13 @@ function setCardF(m){
 // ---- display settings (Syl, 2026-11-25): the settings menu (gear, right
 // of the view modes) hosts the title-name order, per-column visibility
 // and the game-notes toggle. Persisted in localStorage padb_display.
-let DISP = { cols: { snap: 1, year: 1, pub: 1, genre: 1, players: 1, core: 1, ports: 1 }, notes: 1 };
+let DISP = { cols: { snap: 1, year: 1, pub: 1, genre: 1, players: 1, core: 1, ports: 1 }, notes: 1, thumb: "snap" };
 function loadDisp(){
   try {
     const d = JSON.parse(localStorage.getItem("padb_display"));
     if (d && d.cols) for (const k in DISP.cols) if (k in d.cols) DISP.cols[k] = d.cols[k] ? 1 : 0;
     if (d && "notes" in d) DISP.notes = d.notes ? 1 : 0;
+    if (d && d.thumb) DISP.thumb = d.thumb === "title" ? "title" : "snap";
   } catch (e) {}
 }
 function saveDisp(){ try { localStorage.setItem("padb_display", JSON.stringify(DISP)); } catch (e) {} }
@@ -708,7 +731,14 @@ function applyDisp(){
   for (const k in DISP.cols) document.body.classList.toggle("hc-" + k, !DISP.cols[k]);
   document.querySelectorAll('#setpanel input[data-col]').forEach(cb => { cb.checked = !!DISP.cols[cb.dataset.col]; });
   const n = $("dc-notes"); if (n) n.checked = !!DISP.notes;
+  document.querySelectorAll("#thumbswitch button").forEach(b => b.classList.toggle("on", b.dataset.thumb === DISP.thumb));
 }
+// Which image represents a game in the table and the grid cards: the
+// in-game screenshot (default) or the title screen (settings, Syl
+// 2026-11-25). Falls back to the other image when the chosen one is
+// missing for a game.
+function thumbOf(r){ return DISP.thumb === "title" ? (r.tsnap || r.snap) : (r.snap || r.tsnap); }
+function setThumb(m){ DISP.thumb = m; saveDisp(); applyDisp(); apply(); }
 
 // ---- personal lists (localStorage, shareable by link) ----
 const LS_KEY = "padb_lists_v1";
@@ -1133,6 +1163,9 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     if (e.target.closest("#lb-prev")) { navLB(-1); return; }
     if (e.target.closest("#lb-next")) { navLB(1); return; }
     if (e.target.closest("#lb-snd")) { toggleSnd(); return; }
+    const dot = e.target.closest("#lb-dots button");
+    if (dot) { LB_MI = parseInt(dot.dataset.mi || "0", 10); showLBMedia(); return; }
+    if (e.target.closest("#lb-img") || e.target.closest("#lb-vid")) { lbAdvance(); return; }
     const im = e.target.closest("img.snap");
     if (im) { openLB(parseInt(im.dataset.lbi || "0", 10)); return; }
     if (e.target.closest("#lightbox")) closeLB();
@@ -1152,7 +1185,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   });
   TMODE = localStorage.getItem("padb_titles") || "mix";
   if (!["mix", "jp", "us"].includes(TMODE)) TMODE = "mix";
-  document.querySelectorAll(".titleswitch button").forEach(b => {
+  document.querySelectorAll("#tmodeswitch button").forEach(b => {
     b.classList.toggle("on", b.dataset.tmode === TMODE);
     b.addEventListener("click", () => setTMode(b.dataset.tmode));
   });
@@ -1160,8 +1193,9 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   document.querySelectorAll('#setpanel input[data-col]').forEach(cb => cb.addEventListener("change", () => { DISP.cols[cb.dataset.col] = cb.checked ? 1 : 0; saveDisp(); applyDisp(); apply(); }));
   $("dc-notes").addEventListener("change", e => { DISP.notes = e.target.checked ? 1 : 0; saveDisp(); apply(); });
   document.querySelectorAll("#cardswitch button").forEach(b => b.addEventListener("click", () => setCardF(b.dataset.card)));
+  document.querySelectorAll("#thumbswitch button").forEach(b => b.addEventListener("click", () => setThumb(b.dataset.thumb)));
   $("setreset").addEventListener("click", () => {
-    DISP = { cols: { snap: 1, year: 1, pub: 1, genre: 1, players: 1, core: 1, ports: 1 }, notes: 1 };
+    DISP = { cols: { snap: 1, year: 1, pub: 1, genre: 1, players: 1, core: 1, ports: 1 }, notes: 1, thumb: "snap" };
     saveDisp(); applyDisp(); setTMode("mix"); apply();
   });
   const setpanel = $("setpanel");
@@ -1210,6 +1244,6 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
 });
 </script>
 <div id="tip" role="tooltip"></div>
-<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
+<div id="lightbox" hidden><button id="lb-prev" class="lb-nav" type="button" aria-label="Previous game">‹</button><img id="lb-img" alt=""><video id="lb-vid" hidden muted loop playsinline preload="none"></video><div id="lb-cap"></div><div id="lb-dots"></div><button id="lb-snd" type="button" hidden aria-label="Toggle sound"></button><button id="lb-next" class="lb-nav" type="button" aria-label="Next game">›</button></div>
 </body>
 </html>
