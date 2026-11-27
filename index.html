@@ -727,13 +727,16 @@ let LB_MEDIA = [], LB_MI = 0;
 // itself is kept for the next games.
 let LB_TYPE = null;
 function lbTypeOf(m){ return m.t === "vid" ? "video" : (m.tab === "Title Screen" ? "title" : "gameplay"); }
+// Gameplay videos are hosted on Cloudflare R2 (Syl, 2026-11-26); the
+// repo only carries the videos.json manifest.
+const VIDEO_BASE = "https://pub-a28e802c68e24d6eaf386c7aee7f49e6.r2.dev/";
 function mediaOf(r){
   const m = [];
   const tsf = titleSnapOf(r);
   if (tsf) m.push({ t: "img", src: "snaps/" + tsf, label: "title screen", tab: "Title Screen" });
   if (r.snap) m.push({ t: "img", src: "snaps/" + r.snap, label: "gameplay", tab: "Gameplay" });
   const vf = VIDEOS[r.set];
-  if (vf) m.push({ t: "vid", src: "videos/" + vf, label: "gameplay video", tab: "Video" });
+  if (vf) m.push({ t: "vid", src: VIDEO_BASE + vf, label: "gameplay video", tab: "Video" });
   return m;
 }
 function showLBMedia(){
