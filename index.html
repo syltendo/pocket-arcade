@@ -720,6 +720,13 @@ function closeLB(){ stopLB(); $("lightbox").hidden = true; }
 // screen, in-game screenshot, gameplay video (when available). Clicking
 // the media or a dot moves within the game; the arrows change game.
 let LB_MEDIA = [], LB_MI = 0;
+// The media type the user last picked in the lightbox (title screen,
+// gameplay image or video). It persists while browsing from game to
+// game with the arrows (Syl, 2026-11-26): landing on a game that lacks
+// that type falls back to the Screenshots-setting image, but the choice
+// itself is kept for the next games.
+let LB_TYPE = null;
+function lbTypeOf(m){ return m.t === "vid" ? "video" : (m.tab === "Title Screen" ? "title" : "gameplay"); }
 function mediaOf(r){
   const m = [];
   const tsf = titleSnapOf(r);
@@ -756,12 +763,17 @@ function showLBMedia(){
   lm.hidden = LB_MEDIA.length <= 1;
   lm.innerHTML = LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}">${m.tab}</button>`).join("");
 }
-function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; showLBMedia(); } }
-function openLB(i){
+function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); showLBMedia(); } }
+function openLB(i, fresh){
   if (!LB_LIST.length) return;
   LB_IDX = (i + LB_LIST.length) % LB_LIST.length;
-  LB_MEDIA = mediaOf(LB_LIST[LB_IDX]);
-  LB_MI = Math.max(0, LB_MEDIA.findIndex(m => m.t === "img" && m.src === "snaps/" + thumbOf(LB_LIST[LB_IDX])));
+  const r = LB_LIST[LB_IDX];
+  LB_MEDIA = mediaOf(r);
+  let mi = -1;
+  if (!fresh && LB_TYPE) mi = LB_MEDIA.findIndex(m => lbTypeOf(m) === LB_TYPE);
+  if (mi < 0) mi = LB_MEDIA.findIndex(m => m.t === "img" && m.src === "snaps/" + thumbOf(r));
+  LB_MI = Math.max(0, mi);
+  if (fresh || !LB_TYPE) LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]);
   showLBMedia();
   $("lightbox").hidden = false;
 }
@@ -1339,10 +1351,10 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     if (e.target.closest("#lb-next")) { navLB(1); return; }
     if (e.target.closest("#lb-snd")) { toggleSnd(); return; }
     const mb = e.target.closest("#lb-media button");
-    if (mb) { LB_MI = parseInt(mb.dataset.mi || "0", 10); showLBMedia(); return; }
+    if (mb) { LB_MI = parseInt(mb.dataset.mi || "0", 10); LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); showLBMedia(); return; }
     if (e.target.closest("#lb-img") || e.target.closest("#lb-vid")) { lbAdvance(); return; }
     const im = e.target.closest("img.snap");
-    if (im) { openLB(parseInt(im.dataset.lbi || "0", 10)); return; }
+    if (im) { openLB(parseInt(im.dataset.lbi || "0", 10), true); return; }
     if (e.target.closest("#lightbox")) closeLB();
   });
   document.addEventListener("keydown", e => {
