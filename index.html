@@ -180,6 +180,10 @@
   #setbtn{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);padding:7px 9px;cursor:pointer}
   #setbtn:hover{color:var(--text)}
   #setbtn.open{color:var(--accent);border-color:var(--accent)}
+  #apbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);padding:7px 10px;cursor:pointer;font-size:13px;margin-left:8px}
+  #apbtn:hover{color:var(--text)}
+  #apbtn.on{color:var(--accent);border-color:var(--accent)}
+  #apbtn:disabled{opacity:.45;cursor:default}
   #setpanel{position:absolute;right:0;top:calc(100% + 6px);z-index:60;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:248px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:left}
   #setpanel h4{margin:12px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
   #setpanel h4:first-child{margin-top:0}
@@ -257,12 +261,16 @@
     p#count{display:block}
     #countbar{display:none}
     #tmodeswitch .tmlab{display:none}
+    #apbtn .aplab{display:none}
+    #apbtn{margin-left:2px;padding:7px 6px}
+    #tmodeswitch button{padding:5px 7px}
+    #toolbar .viewswitch button{padding:5px 7px}
   }
 /* Hauteurs unifiées sur celle du bouton Lists (Syl, 2026-11-26) */
 #listmenu-btn{height:29px;box-sizing:border-box}
 #tmodeswitch button{height:29px;box-sizing:border-box}
 #toolbar .viewswitch button{height:29px;box-sizing:border-box;padding-top:0;padding-bottom:0}
-#setbtn{height:29px;box-sizing:border-box;padding-top:0;padding-bottom:0}
+#setbtn,#apbtn{height:29px;box-sizing:border-box;padding-top:0;padding-bottom:0}
 </style>
 </head>
 <body>
@@ -376,7 +384,7 @@
       <p id="listdesc" hidden></p>
     </div>
     <div id="toolbar"><span class="listmenuwrap"><button id="listmenu-btn" type="button" title="Lists" aria-label="Lists">Lists ▾</button><div id="listmenu" hidden></div></span><span id="countbar" class="count"></span><div class="titleswitch" id="tmodeswitch" role="group" aria-label="Title names"><button type="button" data-tmode="mix" class="on" title="US title first, then Japanese, then European">Mix</button><button type="button" data-tmode="us" title="US title first, strictly">🇺🇸 <span class="tmlab">US</span></button><button type="button" data-tmode="jp" title="Japanese title first">🇯🇵 <span class="tmlab">JP</span></button></div><div class="viewswitch" role="group" aria-label="View mode"><button type="button" data-view="table" class="on" title="Table view" aria-label="Table view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9.5" x2="9" y2="20"/></svg></button><button type="button" data-view="grid" title="Grid view" aria-label="Grid view"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button><button type="button" data-view="compact" title="Compact view" aria-label="Compact view"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="5" x2="21" y2="5"/><line x1="8" y1="9.7" x2="21" y2="9.7"/><line x1="8" y1="14.3" x2="21" y2="14.3"/><line x1="8" y1="19" x2="21" y2="19"/><circle cx="4" cy="5" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="9.7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="14.3" r="1.3" fill="currentColor" stroke="none"/><circle cx="4" cy="19" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
-      <span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><div class="titleswitch" id="thumbswitch" role="group" aria-label="Table screenshots" style="margin:2px 0 8px"><button type="button" data-thumb="title" class="on">Title screen</button><button type="button" data-thumb="snap">Gameplay</button></div><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span></div>
+      <button id="apbtn" type="button" title="Play every video in the current list, one after another">▶ <span class="aplab">Autoplay</span></button><span class="setwrap"><button id="setbtn" type="button" title="Display settings" aria-label="Display settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div id="setpanel" hidden><h4>Columns</h4><label><input type="checkbox" data-col="snap" checked> Screenshot</label><div class="titleswitch" id="thumbswitch" role="group" aria-label="Table screenshots" style="margin:2px 0 8px"><button type="button" data-thumb="title" class="on">Title screen</button><button type="button" data-thumb="snap">Gameplay</button></div><label><input type="checkbox" data-col="year" checked> Year</label><label><input type="checkbox" data-col="pub" checked> Publisher</label><label><input type="checkbox" data-col="genre" checked> Genre</label><label><input type="checkbox" data-col="players" checked> Players</label><label><input type="checkbox" data-col="core" checked> Core</label><label><input type="checkbox" data-col="ports" checked> Ports</label><h4>Notes</h4><label><input type="checkbox" id="dc-notes" checked> Game notes</label><h4>My SD card</h4><button id="scanbtn" type="button">Scan my SD card…</button><div id="scanstatus" class="scanstatus"></div><div class="titleswitch cardswitch" id="cardswitch" role="group" aria-label="SD card filter" hidden><button type="button" data-card="all" class="on">All</button><button type="button" data-card="on">On card</button><button type="button" data-card="not">Not on card</button></div><button id="setreset" type="button">Reset to defaults</button></div></span></div>
     <div class="tablewrap" id="tablewrap"><table>
       <thead><tr>
         <th class="c-snap"></th><th class="sortable" data-sort="title">Game</th><th class="sortable c-year" data-sort="year">Year</th><th class="sortable c-pub" data-sort="pub">Publisher</th><th class="sortable c-genre" data-sort="genre">Genre</th>
@@ -588,6 +596,7 @@ function apply(){
   const nc = new Set(out.flatMap(r => r.cores)).size;
   LB_LIST = out.filter(r => r.snap || r.tsnap || VIDEOS[r.set]);
   LB_LIST.forEach((r, i) => { r._lbi = i; });
+  updApBtn();
   const countHtml = `<b>${out.length}</b> game${out.length===1?"":"s"} · ${nv} version${nv===1?"":"s"} · ${nc} core${nc===1?"":"s"}`;
   $("count").innerHTML = countHtml;
   $("countbar").innerHTML = countHtml;
@@ -715,7 +724,7 @@ const SND_OFF_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
 function updSndIcon(){ const b = $("lb-snd"), vid = $("lb-vid"); if (b) b.innerHTML = (vid && !vid.muted) ? SND_ON_SVG : SND_OFF_SVG; }
 function toggleSnd(){ const vid = $("lb-vid"); SND = !SND; try { localStorage.setItem("padb_sound", SND ? "1" : "0"); } catch (e) {} vid.muted = !SND; if (SND) vid.play().catch(() => {}); updSndIcon(); }
 function stopLB(){ const vid = $("lb-vid"); if (vid) vid.pause(); }
-function closeLB(){ stopLB(); $("lightbox").hidden = true; }
+function closeLB(){ stopAutoplay(); stopLB(); $("lightbox").hidden = true; }
 // ---- Lightbox gallery (Syl, 2026-11-25): per game, in order — title
 // screen, in-game screenshot, gameplay video (when available). Clicking
 // the media or a dot moves within the game; the arrows change game.
@@ -749,6 +758,7 @@ function showLBMedia(){
     vid.poster = r.snap ? "snaps/" + r.snap : (titleSnapOf(r) ? "snaps/" + titleSnapOf(r) : "");
     if (vid.dataset.cur !== it.src) { vid.src = it.src; vid.dataset.cur = it.src; }
     vid.currentTime = 0;
+    vid.loop = !AUTOPLAY;
     vid.muted = !SND;
     $("lb-snd").hidden = false;
     updSndIcon();
@@ -766,7 +776,7 @@ function showLBMedia(){
   lm.hidden = LB_MEDIA.length <= 1;
   lm.innerHTML = LB_MEDIA.map((m, i) => `<button type="button" data-mi="${i}" class="${i === LB_MI ? "on" : ""}">${m.tab}</button>`).join("");
 }
-function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); showLBMedia(); } }
+function lbAdvance(){ if (LB_MEDIA.length > 1) { LB_MI = (LB_MI + 1) % LB_MEDIA.length; LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); if (LB_TYPE !== "video") stopAutoplay(); showLBMedia(); } }
 function openLB(i, fresh){
   if (!LB_LIST.length) return;
   LB_IDX = (i + LB_LIST.length) % LB_LIST.length;
@@ -780,7 +790,37 @@ function openLB(i, fresh){
   showLBMedia();
   $("lightbox").hidden = false;
 }
-function navLB(d){ if (LB_IDX >= 0) openLB(LB_IDX + d); }
+function navLB(d){
+  if (LB_IDX < 0) return;
+  if (!AUTOPLAY) { openLB(LB_IDX + d); return; }
+  let i = LB_IDX + d;
+  while (i >= 0 && i < LB_LIST.length && !VIDEOS[LB_LIST[i].set]) i += d;
+  if (i < 0 || i >= LB_LIST.length) { if (d > 0) stopAutoplay(); return; }
+  openLB(i);
+}
+// Autoplay (Syl, 2026-11-26): play every video of the current filtered
+// list once, in order, then stop at the end of the list (no looping).
+let AUTOPLAY = false;
+function updApBtn(){
+  const b = $("apbtn"); if (!b) return;
+  b.disabled = !AUTOPLAY && !LB_LIST.some(r => VIDEOS[r.set]);
+  b.classList.toggle("on", AUTOPLAY);
+  b.innerHTML = AUTOPLAY ? "\u23f8 <span class=\"aplab\">Autoplay</span>" : "\u25b6 <span class=\"aplab\">Autoplay</span>";
+}
+function startAutoplay(){
+  const i = LB_LIST.findIndex(r => VIDEOS[r.set]);
+  if (i < 0) return;
+  AUTOPLAY = true;
+  LB_TYPE = "video";
+  openLB(i);
+  updApBtn();
+}
+function stopAutoplay(){
+  if (!AUTOPLAY) return;
+  AUTOPLAY = false;
+  const vid = $("lb-vid"); if (vid) vid.loop = true;
+  updApBtn();
+}
 function setView(v){
   VIEW = v;
   try { localStorage.setItem("padb_view", v); } catch (e) {}
@@ -1280,6 +1320,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   // Gameplay videos (prototype, 2026-11-24): only loaded when a game's
   // lightbox opens; if a video fails, the lightbox falls back to the snap.
   fetch("videos.json", {cache: "no-cache"}).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(v => { VIDEOS = v || {}; if (VIEW === "grid") apply(); });
+  $("lb-vid").addEventListener("ended", () => { if (AUTOPLAY) navLB(1); });
   $("lb-vid").addEventListener("error", () => {
     const r = LB_LIST[LB_IDX];
     if (r && VIDEOS[r.set]) { delete VIDEOS[r.set]; openLB(LB_IDX); }
@@ -1353,8 +1394,10 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     if (e.target.closest("#lb-prev")) { navLB(-1); return; }
     if (e.target.closest("#lb-next")) { navLB(1); return; }
     if (e.target.closest("#lb-snd")) { toggleSnd(); return; }
+    const ap = e.target.closest("#apbtn");
+    if (ap) { AUTOPLAY ? stopAutoplay() : startAutoplay(); return; }
     const mb = e.target.closest("#lb-media button");
-    if (mb) { LB_MI = parseInt(mb.dataset.mi || "0", 10); LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); showLBMedia(); return; }
+    if (mb) { LB_MI = parseInt(mb.dataset.mi || "0", 10); LB_TYPE = lbTypeOf(LB_MEDIA[LB_MI]); if (LB_TYPE !== "video") stopAutoplay(); showLBMedia(); return; }
     if (e.target.closest("#lb-img") || e.target.closest("#lb-vid")) { lbAdvance(); return; }
     const im = e.target.closest("img.snap");
     if (im) { openLB(parseInt(im.dataset.lbi || "0", 10), true); return; }
