@@ -522,7 +522,7 @@ function cardHtml(r){
   const al2 = activeList();
   const blurbTxt = al2 && al2.blurbs ? (al2.blurbs[keyOf(r)] || "") : "";
   const blurbHtml = blurbTxt ? `<div class="gblurb">${esc(blurbTxt)}</div>` : "";
-  const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
+  const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="${r.wiki.includes("wikipedia.org") ? "Wikipedia article" : "Wiki article"}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
   const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
   const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
     : r.brew ? `<div class="kindline"><span class="badge b-brew">HOMEBREW</span></div>` : "";
@@ -621,7 +621,7 @@ function apply(){
     const blurbHtml = !al2 ? "" : blurbTxt
       ? `<div class="gblurb"${blurbEdit ? ` data-edit="${esc(keyOf(r))}" title="Click to edit your note"` : ""}>${esc(blurbTxt)}</div>`
       : blurbEdit ? `<div class="gblurb empty" data-edit="${esc(keyOf(r))}">✎ Add a note…</div>` : "";
-    const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="Wikipedia article"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
+    const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="${r.wiki.includes("wikipedia.org") ? "Wikipedia article" : "Wiki article"}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
     const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
     // Wikipedia icon on its own line after the titles and the editorial
     // note; the personal note (when viewing a list) goes below it.
