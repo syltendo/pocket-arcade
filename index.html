@@ -571,8 +571,9 @@ function apply(){
         pat = $("f-pat").checked,
         hacks = $("f-hacks").checked;
   const nq = normSearch(q);
+  const cq = q.replace(/[^a-z0-9]+/g, "");
   let out = DATA.filter(r => {
-    if (q && !r._q.includes(nq)) return false;
+    if (q && !r._q.includes(nq) && !(cq.length >= 4 && (r._qc || "").includes(cq))) return false;
     if (genre && !(r.genres || []).includes(genre)) return false;
     if (pub && r.manufacturer !== pub) return false;
     if (core && !r.cores.includes(core)) return false;
@@ -727,7 +728,7 @@ function indexNotes(){
     if (r._nq) return;
     let note = NOTES[keyOf(r)] || NOTES[r.title];
     if (note && typeof note !== "string") note = Object.values(note).join(" ");
-    if (note) { r._q += " " + normSearch(note); r._nq = true; }
+    if (note) { r._q += " " + normSearch(note); r._qc = (r._qc || "") + note.toLowerCase().replace(/[^a-z0-9]+/g, ""); r._nq = true; }
   });
 }
 
@@ -1479,6 +1480,10 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
                     ...Object.values(r.ports_aka || {}),
                     ...(r.series || []),
                     ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
+  DATA.forEach(r => { r._qc = [r.title, r.set||"", ...r.regional.map(e => e.t), ...(r.west ? [r.west] : []),
+                    ...Object.values(r.ports_aka || {}),
+                    ...(r.series || []),
+                    ...r.versions.flatMap(v => [v.set||"", v.title])].join(" ").toLowerCase().replace(/[^a-z0-9]+/g, ""); });
   indexNotes();
   $("gen").textContent = new Date().toISOString().slice(0,10);
   fillSelect("f-genre", DATA.flatMap(r => r.genres || []));
