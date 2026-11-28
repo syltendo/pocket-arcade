@@ -808,7 +808,7 @@ function seriesSpans(text){
       const prevSpace = text.lastIndexOf(" ", end - 1);
       const wStart = prevSpace + 1;
       const word = text.slice(wStart, end);
-      if (/^[A-Z0-9]/.test(word) || (word === "of" && nameStart >= 0)){
+      if (/^[A-Z0-9]/.test(word) || ((word === "of" || word === "&") && nameStart >= 0)){
         nameStart = wStart; pos = wStart;
         if (wStart === 0) break;
       } else break;
@@ -877,6 +877,10 @@ function gotoSeries(name){
   for (const d of FILTER_DEFS) if (d.active()) d.clear();
   refreshListHead();
   $("q").value = name;
+  // A series reads best chronologically (Syl, 2026-11-28).
+  sortKey = "year"; sortDir = 1;
+  PRESERVE_ORDER = null;
+  markHeaders();
   apply();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
