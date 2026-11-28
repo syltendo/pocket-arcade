@@ -790,7 +790,48 @@ function titleIndex(){
   TITLE_IDX = byFirst;
   return byFirst;
 }
+// Series mentions (Syl, 2026-11-28): "the X series" in a note or
+// blurb links to the series itself — the list filtered by a search
+// on the series name — instead of jumping to a single game.
+function seriesSpans(text){
+  const spans = [];
+  let from = 0;
+  for (;;){
+    const idx = text.indexOf(" series", from);
+    if (idx < 0) break;
+    const after = text[idx + 7];
+    if (after && /[A-Za-z0-9]/.test(after)){ from = idx + 7; continue; }
+    let pos = idx, nameStart = -1;
+    for (;;){
+      let end = pos;
+      if (text[end - 1] === " ") end--;
+      const prevSpace = text.lastIndexOf(" ", end - 1);
+      const wStart = prevSpace + 1;
+      const word = text.slice(wStart, end);
+      if (/^[A-Z0-9]/.test(word) || (word === "of" && nameStart >= 0)){
+        nameStart = wStart; pos = wStart;
+        if (wStart === 0) break;
+      } else break;
+    }
+    if (nameStart >= 0) spans.push({ start: nameStart, end: idx + 7, name: text.slice(nameStart, idx) });
+    from = idx + 7;
+  }
+  return spans;
+}
 function linkifyGames(text, selfKey){
+  if (!text) return "";
+  const spans = seriesSpans(text);
+  if (!spans.length) return linkifySegment(text, selfKey);
+  let out = "", last = 0;
+  for (const sp of spans){
+    out += linkifySegment(text.slice(last, sp.start), selfKey);
+    out += `<a class="glink slink" data-series="${esc(sp.name)}" title="Show the ${esc(sp.name)} series">${esc(text.slice(sp.start, sp.end))}</a>`;
+    last = sp.end;
+  }
+  out += linkifySegment(text.slice(last), selfKey);
+  return out;
+}
+function linkifySegment(text, selfKey){
   if (!text) return "";
   const idx = titleIndex();
   const alnum = ch => !!ch && /[A-Za-z0-9]/.test(ch);
@@ -832,12 +873,21 @@ function gotoGame(key){
     setTimeout(center, 850);
   });
 }
+function gotoSeries(name){
+  for (const d of FILTER_DEFS) if (d.active()) d.clear();
+  refreshListHead();
+  $("q").value = name;
+  apply();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 // Capture phase, so a citation click inside an editable personal note
 // jumps instead of opening the note editor.
 document.addEventListener("click", e => {
   const a = e.target.closest("a.glink");
   if (!a) return;
   e.preventDefault(); e.stopPropagation();
+  if (a.dataset.series){ gotoSeries(a.dataset.series); return; }
   gotoGame(a.dataset.goto);
 }, true);
 
