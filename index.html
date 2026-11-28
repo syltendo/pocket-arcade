@@ -523,7 +523,7 @@ function cardHtml(r){
   const altHtml = alts.filter(e => e.r.includes("Japan") || e.r.includes("Europe") || e.r.includes("UK"))
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
   const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
-  const noteTxt = NOTES[keyOf(r)] || NOTES[r.title] || "";
+  const noteTxt = noteOf(r);
   const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${linkifyGames(noteTxt, keyOf(r))}</div>` : "";
   const al2 = activeList();
   const blurbTxt = al2 && al2.blurbs ? (al2.blurbs[keyOf(r)] || "") : "";
@@ -618,7 +618,7 @@ function apply(){
       .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
     const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
     const ts = titleSet(r);
-    const noteTxt = NOTES[keyOf(r)] || NOTES[r.title] || "";
+    const noteTxt = noteOf(r);
     // Personal note: shown only while viewing a list, under the Wikipedia
     // line, and edited in place (Syl, 2026-11-24). Shared lists are read-only.
     const al2 = activeList();
@@ -716,9 +716,21 @@ function indexNotes(){
   if (!Object.keys(NOTES).length) return;
   DATA.forEach(r => {
     if (r._nq) return;
-    const note = NOTES[keyOf(r)] || NOTES[r.title];
+    let note = NOTES[keyOf(r)] || NOTES[r.title];
+    if (note && typeof note !== "string") note = Object.values(note).join(" ");
     if (note) { r._q += " " + normSearch(note); r._nq = true; }
   });
+}
+
+// A note is normally a plain string; it may also carry per-title-mode
+// variants {"mix": "...", "us": "...", "jp": "..."} when the game it
+// names is itself cited by its regional title (Syl, 2026-11-27 —
+// Tengai's note: Samurai Aces in Mix/US, Sengoku Ace in JP).
+function noteOf(r){
+  const v = NOTES[keyOf(r)] ?? NOTES[r.title];
+  if (!v) return "";
+  if (typeof v === "string") return v;
+  return v[TMODE] || v.mix || v.us || v.jp || "";
 }
 
 // ---- Clickable game citations in notes and personal notes (Syl,

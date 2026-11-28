@@ -38,5 +38,11 @@
  "hopmappy": "Sequel to 1983's Mappy",
  "ncv1": "Includes remakes of Galaga, Xevious, and Mappy",
  "ncv2": "Includes remakes of Pac-Man, Rally-X, and Dig Dug",
- "pistoldm": "Spin-off of 1988's Bravoman"
+ "pistoldm": "Spin-off of 1988's Bravoman",
+ "s1945p": "Remake of Strikers 1945 II",
+ "tengai": {
+  "mix": "Sequel to Samurai Aces",
+  "us": "Sequel to Samurai Aces",
+  "jp": "Sequel to Sengoku Ace"
+ }
 }
