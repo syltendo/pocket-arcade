@@ -761,12 +761,20 @@ function titleIndex(){
     const prev = m.get(s).get(k);
     if (!prev || (exact && !prev.exact)) m.get(s).set(k, { exact, tlen });
   };
+  // "'n" spacing variants (Syl, 2026-11-28): a note writing
+  // "Ghosts 'n Goblins" must link the game titled "Ghosts'n Goblins".
+  const claimBoth = (s, k, exact, tl) => {
+    claim(s, k, exact, tl);
+    if (!s) return;
+    if (s.includes(" 'n ")) claim(s.replace(/ 'n /g, "'n "), k, exact, tl);
+    else if (s.includes("'n")) claim(s.replace(/'n/g, " 'n ").replace(/ +/g, " ").trim(), k, exact, tl);
+  };
   for (const r of DATA){
     const k = keyOf(r), tl = r.title.length;
-    claim(r.title, k, true, tl);
-    if (r.title.includes(": ")) claim(r.title.split(": ")[0], k, false, tl);
-    if (r.west) claim(r.west, k, true, tl);
-    (r.regional || []).forEach(e => claim(e.t, k, true, tl));
+    claimBoth(r.title, k, true, tl);
+    if (r.title.includes(": ")) claimBoth(r.title.split(": ")[0], k, false, tl);
+    if (r.west) claimBoth(r.west, k, true, tl);
+    (r.regional || []).forEach(e => claimBoth(e.t, k, true, tl));
   }
   const byFirst = new Map();
   for (const [s, claims] of m){
