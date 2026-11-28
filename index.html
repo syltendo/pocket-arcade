@@ -167,6 +167,12 @@
   .gblurb.empty{opacity:.5}
   tbody tr:hover .gblurb.empty{opacity:.9}
   .blurb-edit{width:100%;box-sizing:border-box;background:var(--panel2);color:var(--text);border:1px solid var(--accent);border-radius:6px;padding:4px 7px;font-family:inherit;font-size:13px;line-height:1.4;resize:none}
+  .glink{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:2px;cursor:pointer}
+  .glink:hover{color:var(--accent)}
+  tr td{transition:background-color .5s}
+  tr.flash td{background:rgba(46,140,255,.22)}
+  .card{transition:border-color .5s,box-shadow .5s}
+  .card.flash{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   .vcount{color:var(--muted);font-size:11.5px;margin-top:2px}
   .tate{display:inline-block;margin-left:2px;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.06em;background:#f5a623;color:#2a1800;vertical-align:2px;white-space:nowrap}
   .snap{cursor:zoom-in}
@@ -518,10 +524,10 @@ function cardHtml(r){
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
   const westHtml = r.west ? `<div class="ports">🇺🇸 ${esc(r.west)}</div>` : "";
   const noteTxt = NOTES[keyOf(r)] || NOTES[r.title] || "";
-  const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
+  const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${linkifyGames(noteTxt, keyOf(r))}</div>` : "";
   const al2 = activeList();
   const blurbTxt = al2 && al2.blurbs ? (al2.blurbs[keyOf(r)] || "") : "";
-  const blurbHtml = blurbTxt ? `<div class="gblurb">${esc(blurbTxt)}</div>` : "";
+  const blurbHtml = blurbTxt ? `<div class="gblurb">${linkifyGames(blurbTxt, keyOf(r))}</div>` : "";
   const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="${r.wiki.includes("wikipedia.org") ? "Wikipedia article" : "Wiki article"}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
   const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
   const kindHtml = r.hack ? `<div class="kindline"><span class="badge b-hack">HACK</span></div>`
@@ -619,10 +625,10 @@ function apply(){
     const blurbTxt = al2 && al2.blurbs ? (al2.blurbs[keyOf(r)] || "") : "";
     const blurbEdit = al2 && al2.id !== "shared";
     const blurbHtml = !al2 ? "" : blurbTxt
-      ? `<div class="gblurb"${blurbEdit ? ` data-edit="${esc(keyOf(r))}" title="Click to edit your note"` : ""}>${esc(blurbTxt)}</div>`
+      ? `<div class="gblurb"${blurbEdit ? ` data-edit="${esc(keyOf(r))}" title="Click to edit your note"` : ""}>${linkifyGames(blurbTxt, keyOf(r))}</div>`
       : blurbEdit ? `<div class="gblurb empty" data-edit="${esc(keyOf(r))}">✎ Add a note…</div>` : "";
     const wikiHtml = r.wiki ? `<a class="wiki" href="${esc(r.wiki)}" target="_blank" rel="noopener" title="${r.wiki.includes("wikipedia.org") ? "Wikipedia article" : "Wiki article"}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : "";
-    const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${esc(noteTxt)}</div>` : "";
+    const noteHtml = (noteTxt && DISP.notes) ? `<div class="gnote">${linkifyGames(noteTxt, keyOf(r))}</div>` : "";
     // Wikipedia icon on its own line after the titles and the editorial
     // note; the personal note (when viewing a list) goes below it.
     const wikiLine = wikiHtml ? `<div class="wikiline">${wikiHtml}</div>` : "";
@@ -714,6 +720,105 @@ function indexNotes(){
     if (note) { r._q += " " + normSearch(note); r._nq = true; }
   });
 }
+
+// ---- Clickable game citations in notes and personal notes (Syl,
+// 2026-11-27): when a note names another game, the name becomes a link
+// that jumps to that game — list view and filters are cleared, the row
+// (or card) scrolls into view and flashes. Matching is case-sensitive,
+// on word boundaries, longest title first; a title shared by several
+// games is never linked, and a game never links to itself. Matchable
+// names: headline title, its part before a ": " (so "1943" finds
+// "1943: The Battle of Midway"), the US title and the regional titles.
+let TITLE_IDX = null;
+function titleIndex(){
+  if (TITLE_IDX) return TITLE_IDX;
+  const m = new Map(); // name -> Map(key -> {exact, tlen})
+  const claim = (s, k, exact, tlen) => {
+    if (!s || s.length < 3) return;
+    if (!m.has(s)) m.set(s, new Map());
+    const prev = m.get(s).get(k);
+    if (!prev || (exact && !prev.exact)) m.get(s).set(k, { exact, tlen });
+  };
+  for (const r of DATA){
+    const k = keyOf(r), tl = r.title.length;
+    claim(r.title, k, true, tl);
+    if (r.title.includes(": ")) claim(r.title.split(": ")[0], k, false, tl);
+    if (r.west) claim(r.west, k, true, tl);
+    (r.regional || []).forEach(e => claim(e.t, k, true, tl));
+  }
+  const byFirst = new Map();
+  for (const [s, claims] of m){
+    let k = null;
+    if (claims.size === 1) k = [...claims.keys()][0];
+    else {
+      const exact = [...claims.entries()].filter(([, c]) => c.exact).map(([kk]) => kk);
+      if (exact.length === 1) k = exact[0];
+      else if (exact.length === 0){
+        // Shared pre-colon segment ("1943" for both 1943 and its
+        // Mark II): the shortest full title — the base game — wins.
+        const sorted = [...claims.entries()].sort((a, b) => a[1].tlen - b[1].tlen);
+        if (sorted[0][1].tlen < sorted[1][1].tlen) k = sorted[0][0];
+      }
+    }
+    if (!k) continue;
+    const f = s[0];
+    if (!byFirst.has(f)) byFirst.set(f, []);
+    byFirst.get(f).push({ s, k });
+  }
+  for (const arr of byFirst.values()) arr.sort((a, b) => b.s.length - a.s.length);
+  TITLE_IDX = byFirst;
+  return byFirst;
+}
+function linkifyGames(text, selfKey){
+  if (!text) return "";
+  const idx = titleIndex();
+  const alnum = ch => !!ch && /[A-Za-z0-9]/.test(ch);
+  let out = "", i = 0;
+  while (i < text.length){
+    const bucket = idx.get(text[i]);
+    let hit = null;
+    if (bucket && !alnum(text[i - 1])){
+      for (const c of bucket){
+        if (c.k === selfKey) continue;
+        if (text.startsWith(c.s, i) && !alnum(text[i + c.s.length])){ hit = c; break; }
+      }
+    }
+    if (hit){
+      out += `<a class="glink" data-goto="${esc(hit.k)}" title="Go to ${esc(hit.s)}">${esc(hit.s)}</a>`;
+      i += hit.s.length;
+    } else { out += esc(text[i]); i++; }
+  }
+  return out;
+}
+function gotoGame(key){
+  const r = DATA.find(x => keyOf(x) === key);
+  if (!r) return;
+  for (const d of FILTER_DEFS) if (d.active()) d.clear();
+  refreshListHead();
+  if ((r.hack || r.brew) && !$("f-hacks").checked) $("f-hacks").checked = true;
+  apply();
+  requestAnimationFrame(() => {
+    const btn = document.querySelector(`.favbtn[data-key="${CSS.escape(key)}"]`);
+    const el = btn ? (btn.closest("tr") || btn.closest(".card")) : null;
+    if (!el) return;
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 2000);
+    // Re-center a few times: lazy-loading screenshots above the target
+    // keep shifting the layout for a moment after the jump.
+    const center = () => el.scrollIntoView({ block: "center" });
+    center();
+    setTimeout(center, 350);
+    setTimeout(center, 850);
+  });
+}
+// Capture phase, so a citation click inside an editable personal note
+// jumps instead of opening the note editor.
+document.addEventListener("click", e => {
+  const a = e.target.closest("a.glink");
+  if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  gotoGame(a.dataset.goto);
+}, true);
 
 // ---- Lightbox navigation (Syl, 2026-11-24): arrow keys / on-screen
 // arrows move through the screenshots of the currently displayed games.
