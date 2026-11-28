@@ -1473,6 +1473,7 @@ fetch("games.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     _ports: [...new Set((r.home_ports || []).map(canonPort))],
     _q: normSearch([r.title, r.set||"", ...r.regional.map(e => e.t), ...(r.west ? [r.west] : []),
                     ...Object.values(r.ports_aka || {}),
+                    ...(r.series || []),
                     ...r.versions.flatMap(v => [v.set||"", v.title])].join(" "))}));
   indexNotes();
   $("gen").textContent = new Date().toISOString().slice(0,10);
