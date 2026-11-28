@@ -826,8 +826,8 @@ function linkifyGames(text, selfKey){
   let out = "", last = 0;
   for (const sp of spans){
     out += linkifySegment(text.slice(last, sp.start), selfKey);
-    out += `<a class="glink slink" data-series="${esc(sp.name)}" title="Show the ${esc(sp.name)} series">${esc(text.slice(sp.start, sp.end))}</a>`;
-    last = sp.end;
+    out += `<a class="glink slink" data-series="${esc(sp.name)}" title="Show the ${esc(sp.name)} series">${esc(text.slice(sp.start, sp.start + sp.name.length))}</a>`;
+    last = sp.start + sp.name.length;
   }
   out += linkifySegment(text.slice(last), selfKey);
   return out;
