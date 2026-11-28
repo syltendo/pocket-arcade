@@ -121,7 +121,7 @@
   .favbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;margin-left:6px;padding:0;vertical-align:-1px}
   .favbtn:hover{color:var(--accent)}
   .favbtn.on{color:var(--accent)}
-  .frow{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:end}
   .listbtns{display:flex;gap:6px;flex-wrap:wrap}
   .listbtns button{padding:7px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;white-space:nowrap}
   .listbtns button:hover{color:var(--text);border-color:var(--muted)}
@@ -289,20 +289,26 @@
     <label for="q">Search</label>
     <input type="search" id="q" placeholder="Title or MAME set (e.g. sf2ce)…">
     <div class="side-h">Game</div>
-    <label for="f-genre">Genre</label>
-    <select id="f-genre"><option value="">All genres</option></select>
-    <label for="f-pub">Publisher / Developer</label>
-    <select id="f-pub"><option value="">All publishers</option></select>
     <div class="frow">
       <div>
-        <label for="f-year">Year</label>
-        <select id="f-year"><option value="">All years</option></select>
+        <label for="f-genre">Genre</label>
+        <select id="f-genre"><option value="">All genres</option></select>
       </div>
       <div>
-        <label for="f-screen">Screen</label>
+        <label for="f-screen">Orientation</label>
         <select id="f-screen">
           <option value="">Any orientation</option><option value="h">Horizontal</option><option value="v">Vertical (Tate)</option>
         </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div>
+        <label for="f-pub">Publisher / Developer</label>
+        <select id="f-pub"><option value="">All publishers</option></select>
+      </div>
+      <div>
+        <label for="f-year">Year</label>
+        <select id="f-year"><option value="">All years</option></select>
       </div>
     </div>
     <div class="side-h">Players</div>
