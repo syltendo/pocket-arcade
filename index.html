@@ -466,7 +466,7 @@ function fillSelect(id, values){
 function decade(y){ return y ? Math.floor(y/10)*10 + "s" : null; }
 
 const INFO_SVG = `<svg class="infoic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.6" fill="currentColor" stroke="none"/></svg>`;
-function westTip(r){ return `Not a US arcade title \u2014 '${r.west}' is the name of the console versions.`; }
+function westTip(r){ return `Not a US arcade title \u2014 '${r.west || r.title}' is the name of the console versions.`; }
 function westSpan(r){ return `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(r.west)}${INFO_SVG}</span>`; }
 
 const LOCK_ICO = '<span class="pat-ico" title="Patreon core"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>';
@@ -491,7 +491,7 @@ function titleSet(r){
   const altHtml = r.regional.filter(e => e.t !== r.title)
     .filter(e => e.r.includes("Japan") || e.r.includes("Europe") || e.r.includes("UK"))
     .map(e => `<div class="ports">${esc((e.r.includes("Japan") ? "🇯🇵" : "") + (e.r.includes("Europe") || e.r.includes("UK") ? "🇪🇺" : ""))} ${esc(e.t)}</div>`).join("");
-  if (TMODE === "mix") return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
+  if (TMODE === "mix") return { head: r.title, headHtml: r.title_console ? `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(r.title)}${INFO_SVG}</span>` : esc(r.title), subsHtml: westHtml + altHtml };
   const jpE = r.regional.find(e => e.t !== r.title && e.r.includes("Japan"));
   const euE = r.regional.find(e => e.t !== r.title && (e.r.includes("Europe") || e.r.includes("UK")));
   const jpT = jpE ? jpE.t : (r.west ? r.title : null);
@@ -499,7 +499,7 @@ function titleSet(r){
   const usT = r.west || r.title;
   const want = TMODE === "jp" ? jpT : TMODE === "eu" ? euT : usT;
   if (!want) return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
-  if (TMODE === "us" && want === r.title) return { head: r.title, headHtml: esc(r.title), subsHtml: westHtml + altHtml };
+  if (TMODE === "us" && want === r.title) return { head: r.title, headHtml: r.title_console ? `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(r.title)}${INFO_SVG}</span>` : esc(r.title), subsHtml: westHtml + altHtml };
   const order = TMODE === "jp" ? [[usT, "🇺🇸"], [euT, "🇪🇺"]]
               : TMODE === "eu" ? [[usT, "🇺🇸"], [jpT, "🇯🇵"]]
               : [[jpT, "🇯🇵"], [euT, "🇪🇺"]];
@@ -508,11 +508,11 @@ function titleSet(r){
   for (const [t, flag] of order) {
     if (t && !seenT.has(t)) {
       seenT.add(t);
-      if (t === r.west && r.west_console) lines.push(`<div class="ports">${westSpan(r)}</div>`);
+      if ((t === r.west && r.west_console) || (t === r.title && r.title_console)) lines.push(`<div class="ports"><span class="westcon" data-tip="${esc(westTip(r))}">${esc(t)}${INFO_SVG}</span></div>`);
       else lines.push(`<div class="ports">${flag} ${esc(t)}</div>`);
     }
   }
-  const headHtml = (want === r.west && r.west_console)
+  const headHtml = ((want === r.west && r.west_console) || (want === r.title && r.title_console))
     ? `<span class="westcon" data-tip="${esc(westTip(r))}">${esc(want)}${INFO_SVG}</span>` : esc(want);
   return { head: want, headHtml, subsHtml: lines.join("") };
 }
